@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Poppins, Figtree } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-
-const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -27,7 +25,6 @@ export default function RootLayout({
       className={cn(
         "h-full antialiased",
         poppins.variable,
-        figtree.variable,
         "font-sans"
       )}
     >
