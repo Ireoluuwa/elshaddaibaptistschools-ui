@@ -24,7 +24,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", poppins.variable, "font-sans", figtree.variable)}
+      className={cn(
+        "h-full antialiased",
+        poppins.variable,
+        figtree.variable,
+        "font-sans"
+      )}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
