@@ -3,9 +3,9 @@ import { School, Menu } from "lucide-react";
 
 const Navbar = () => {
   return (
-    <div className="sticky top-0 z-50 w-full border-b border-[#e9eef1] bg-white/95 backdrop-blur-sm dark:bg-[#131a1f]/95 dark:border-gray-800">
+    <div className="sticky top-0 z-50 w-full border-b border-[#e9eef1] bg-white/95 backdrop-blur-sm">
       <div className="flex items-center justify-between px-6 py-4 lg:px-20 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3 text-primary dark:text-white">
+        <div className="flex items-center gap-3 text-primary">
           <div className="size-8 rounded bg-primary flex items-center justify-center text-white">
             <School size={20} />
           </div>
