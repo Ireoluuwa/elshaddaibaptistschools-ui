@@ -2,16 +2,16 @@ import React from "react";
 
 const Facilities = () => {
   return (
-    <div className="w-full bg-white dark:bg-background-dark py-16 lg:py-24 border-t border-gray-50 dark:border-gray-800">
+    <div className="w-full bg-white py-16 lg:py-24 border-t border-gray-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-20">
         <div className="text-center mb-12">
           <span className="text-primary font-bold uppercase tracking-wider text-sm">
             Campus Life
           </span>
-          <h2 className="text-secondary dark:text-white text-3xl md:text-4xl font-black leading-tight mt-2">
+          <h2 className="text-secondary text-3xl md:text-4xl font-black leading-tight mt-2">
             State-of-The-Art Facilities
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
             We invest in the best infrastructure to support your child's
             learning journey, providing a world-class environment right here in
             Lagos.

@@ -2,12 +2,12 @@ import React from "react";
 
 const CTA = () => {
   return (
-    <div className="w-full bg-secondary py-16">
-      <div className="max-w-5xl mx-auto px-6 text-center text-white flex flex-col items-center gap-6">
+    <div className="w-full bg-accent py-16">
+      <div className="max-w-5xl mx-auto px-6 text-center text-secondary flex flex-col items-center gap-6">
         <h2 className="text-3xl md:text-4xl font-bold">
           Ready to Join Our Community?
         </h2>
-        <p className="max-w-2xl text-accent text-lg">
+        <p className="max-w-2xl text-secondary/80 text-lg">
           Admissions for the 2024/2025 academic session are now open. Secure a
           bright future for your child today.
         </p>

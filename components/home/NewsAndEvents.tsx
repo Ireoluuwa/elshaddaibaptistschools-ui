@@ -3,12 +3,12 @@ import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
 
 const NewsAndEvents = () => {
   return (
-    <div className="w-full bg-white dark:bg-background-dark py-16 lg:py-24">
+    <div className="w-full bg-white py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-20">
         <div className="flex flex-col lg:flex-row gap-12">
           <div className="flex-1 flex flex-col gap-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-secondary dark:text-white text-2xl font-bold">
+              <h2 className="text-secondary text-2xl font-bold">
                 Latest News
               </h2>
               <a
@@ -31,7 +31,7 @@ const NewsAndEvents = () => {
                   <span className="text-xs font-semibold text-primary uppercase tracking-wide">
                     Academic
                   </span>
-                  <h3 className="text-secondary dark:text-white font-bold text-lg leading-tight group-hover:text-primary transition-colors">
+                  <h3 className="text-secondary font-bold text-lg leading-tight group-hover:text-primary transition-colors">
                     School Wins Regional Debate Competition
                   </h3>
                   <p className="text-gray-500 text-sm line-clamp-2">
@@ -52,7 +52,7 @@ const NewsAndEvents = () => {
                   <span className="text-xs font-semibold text-primary uppercase tracking-wide">
                     Facilities
                   </span>
-                  <h3 className="text-secondary dark:text-white font-bold text-lg leading-tight group-hover:text-primary transition-colors">
+                  <h3 className="text-secondary font-bold text-lg leading-tight group-hover:text-primary transition-colors">
                     New Science Laboratory Inauguration
                   </h3>
                   <p className="text-gray-500 text-sm line-clamp-2">
@@ -66,7 +66,7 @@ const NewsAndEvents = () => {
           </div>
           <div className="flex-1 flex flex-col gap-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-secondary dark:text-white text-2xl font-bold">
+              <h2 className="text-secondary text-2xl font-bold">
                 Upcoming Events
               </h2>
               <a
@@ -77,15 +77,15 @@ const NewsAndEvents = () => {
               </a>
             </div>
             <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#1c252b] hover:border-primary/30 transition-colors">
-                <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:border-primary/30 transition-colors">
+                <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-white rounded-lg shadow-sm border border-gray-100">
                   <span className="text-xs font-bold text-gray-400 uppercase">
                     Oct
                   </span>
                   <span className="text-xl font-black text-primary">15</span>
                 </div>
                 <div>
-                  <h3 className="text-secondary dark:text-white font-bold text-base">
+                  <h3 className="text-secondary font-bold text-base">
                     Parent-Teacher Association Meeting
                   </h3>
                   <div className="flex items-center gap-2 mt-1 text-gray-500 text-xs">
@@ -94,15 +94,15 @@ const NewsAndEvents = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#1c252b] hover:border-primary/30 transition-colors">
-                <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:border-primary/30 transition-colors">
+                <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-white rounded-lg shadow-sm border border-gray-100">
                   <span className="text-xs font-bold text-gray-400 uppercase">
                     Nov
                   </span>
                   <span className="text-xl font-black text-primary">03</span>
                 </div>
                 <div>
-                  <h3 className="text-secondary dark:text-white font-bold text-base">
+                  <h3 className="text-secondary font-bold text-base">
                     Annual Inter-House Sports
                   </h3>
                   <div className="flex items-center gap-2 mt-1 text-gray-500 text-xs">
@@ -111,15 +111,15 @@ const NewsAndEvents = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#1c252b] hover:border-primary/30 transition-colors">
-                <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+              <div className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:border-primary/30 transition-colors">
+                <div className="shrink-0 flex flex-col items-center justify-center w-16 h-16 bg-white rounded-lg shadow-sm border border-gray-100">
                   <span className="text-xs font-bold text-gray-400 uppercase">
                     Dec
                   </span>
                   <span className="text-xl font-black text-primary">12</span>
                 </div>
                 <div>
-                  <h3 className="text-secondary dark:text-white font-bold text-base">
+                  <h3 className="text-secondary font-bold text-base">
                     End of Year Party & Awards
                   </h3>
                   <div className="flex items-center gap-2 mt-1 text-gray-500 text-xs">

@@ -2,11 +2,11 @@ import { School, MapPin, Phone, Mail } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#101519] text-white pt-16 pb-8 border-t border-gray-800">
+    <footer className="bg-white text-secondary pt-16 pb-8 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 text-white mb-2">
+            <div className="flex items-center gap-2 text-primary mb-2">
               <School className="text-3xl text-primary" size={32} />
               <h2 className="text-xl font-bold">
                 El-Shaddai Baptist
@@ -14,13 +14,13 @@ const Footer = () => {
                 School
               </h2>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-gray-600 text-sm leading-relaxed">
               A premier learning institution committed to raising leaders with
               character and intellect.
             </p>
             <div className="flex gap-4 mt-2">
               <a
-                className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors text-white"
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-primary transition-colors text-secondary hover:text-white"
                 href="#"
               >
                 <svg
@@ -37,7 +37,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors text-white"
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-primary transition-colors text-secondary hover:text-white"
                 href="#"
               >
                 <svg
@@ -54,7 +54,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors text-white"
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-primary transition-colors text-secondary hover:text-white"
                 href="#"
               >
                 <svg
@@ -75,10 +75,10 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
+            <h3 className="text-secondary font-bold mb-4 uppercase tracking-wider text-sm">
               Quick Links
             </h3>
-            <ul className="flex flex-col gap-3 text-sm text-gray-400">
+            <ul className="flex flex-col gap-3 text-sm text-gray-600">
               <li>
                 <a className="hover:text-primary transition-colors" href="#">
                   School Portal
@@ -107,10 +107,10 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
+            <h3 className="text-secondary font-bold mb-4 uppercase tracking-wider text-sm">
               Contact Us
             </h3>
-            <ul className="flex flex-col gap-4 text-sm text-gray-400">
+            <ul className="flex flex-col gap-4 text-sm text-gray-600">
               <li className="flex items-start gap-3">
                 <MapPin className="text-primary shrink-0" size={18} />
                 <span>12 Education Road, Victoria Island, Lagos, Nigeria.</span>
@@ -126,10 +126,10 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="text-white font-bold mb-4 uppercase tracking-wider text-sm">
+            <h3 className="text-secondary font-bold mb-4 uppercase tracking-wider text-sm">
               Location
             </h3>
-            <div className="rounded-lg overflow-hidden h-40 bg-gray-800">
+            <div className="rounded-lg overflow-hidden h-40 bg-gray-100">
               <img
                 alt="Map showing location in Lagos, Nigeria"
                 className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
@@ -138,13 +138,13 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+        <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
           <p>© 2023 El-Shaddai Baptist School. All rights reserved.</p>
           <div className="flex gap-6">
-            <a className="hover:text-white" href="#">
+            <a className="hover:text-primary" href="#">
               Privacy Policy
             </a>
-            <a className="hover:text-white" href="#">
+            <a className="hover:text-primary" href="#">
               Terms of Use
             </a>
           </div>

@@ -25,13 +25,13 @@ const facultyMembers = [
 
 const Faculty = () => {
   return (
-    <div className="w-full bg-gray-50 dark:bg-[#182026] py-16 lg:py-24">
+    <div className="w-full bg-gray-50 py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-20">
         <div className="text-center mb-16">
           <span className="text-primary font-bold uppercase tracking-wider text-sm">
             Our Team
           </span>
-          <h2 className="text-secondary dark:text-white text-3xl md:text-4xl font-black leading-tight mt-2">
+          <h2 className="text-secondary text-3xl md:text-4xl font-black leading-tight mt-2">
             Meet Our Faculty
           </h2>
         </div>
@@ -48,7 +48,7 @@ const Faculty = () => {
                   src={member.image}
                 />
               </div>
-              <h3 className="text-secondary dark:text-white text-xl font-bold">
+              <h3 className="text-secondary text-xl font-bold">
                 {member.name}
               </h3>
               <p className="text-primary text-sm font-bold uppercase tracking-wide mt-1">

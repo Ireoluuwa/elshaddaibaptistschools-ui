@@ -3,21 +3,21 @@ import { Quote, ChevronLeft, ChevronRight } from "lucide-react";
 
 const Testimonials = () => {
   return (
-    <div className="w-full bg-white dark:bg-background-dark py-16 lg:py-24 relative overflow-hidden">
+    <div className="w-full bg-white py-16 lg:py-24 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-64 h-64 bg-bg-accent-subtle rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-50"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-bg-accent-light/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
       <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
         <span className="text-primary font-bold uppercase tracking-wider text-sm">
           Testimonials
         </span>
-        <h2 className="text-secondary dark:text-white text-3xl md:text-4xl font-black leading-tight mt-2 mb-16">
+        <h2 className="text-secondary text-3xl md:text-4xl font-black leading-tight mt-2 mb-16">
           What Our Community Says
         </h2>
-        <div className="relative bg-white dark:bg-[#1c252b] p-8 md:p-14 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 dark:border-gray-800">
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-[#1c252b]">
+        <div className="relative bg-white p-8 md:p-14 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg ring-4 ring-white">
             <Quote size={24} fill="currentColor" />
           </div>
-          <p className="text-gray-600 dark:text-gray-300 text-lg md:text-2xl font-light italic leading-relaxed mb-8">
+          <p className="text-gray-600 text-lg md:text-2xl font-light italic leading-relaxed mb-8">
             "Enrolling my children at El-Shaddai Baptist School was the best
             decision we made. The blend of moral upbringing and academic rigor
             is unmatched in the state."
@@ -31,7 +31,7 @@ const Testimonials = () => {
               />
             </div>
             <div>
-              <h4 className="text-secondary dark:text-white font-bold text-lg">
+              <h4 className="text-secondary font-bold text-lg">
                 Mr. Johnson Adeyemi
               </h4>
               <p className="text-primary text-sm font-medium">
