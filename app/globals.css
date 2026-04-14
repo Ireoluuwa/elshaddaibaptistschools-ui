@@ -9,6 +9,14 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-poppins);
+
+  --color-primary: #1d5d3b;
+  --color-secondary: #0e2e1d;
+  --color-accent: #e8f5e9;
+  --color-bg-accent-light: #a5d6a7;
+  --color-bg-accent-subtle: #e8f5e9;
+  --color-background-light: #ffffff;
+  --color-background-dark: #131a1f;
 }
 
 @media (prefers-color-scheme: dark) {
