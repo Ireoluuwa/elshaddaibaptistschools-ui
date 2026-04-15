@@ -48,8 +48,12 @@ const Navbar = () => {
         {/* Main Header Container */}
         <div className="flex items-center justify-between py-4 lg:py-6">
           {/* Logo Section */}
-          <div className="flex items-center gap-2 text-[#006442]">
-            <GraduationCap size={32} className="fill-current md:size-10" />
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="El-Shaddai Baptist School Logo"
+              className="h-12 w-auto md:h-20"
+            />
           </div>
 
           {/* Desktop Navigation & Actions */}
