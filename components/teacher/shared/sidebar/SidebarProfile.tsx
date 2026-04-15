@@ -59,8 +59,12 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
         onClick={() => setProfileOpen(!profileOpen)}
         className="w-full flex items-center gap-3 px-3 py-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer text-left"
       >
-        <div className="w-9 h-9 rounded-full bg-emerald-500/20 border-2 border-emerald-400/40 flex items-center justify-center shrink-0">
-          <User size={16} className="text-emerald-400" />
+        <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-400/20 overflow-hidden flex items-center justify-center shrink-0">
+          <img
+            src="/no-profile.png"
+            alt="Profile"
+            className="w-full h-full object-cover"
+          />
         </div>
         {!collapsed && (
           <>

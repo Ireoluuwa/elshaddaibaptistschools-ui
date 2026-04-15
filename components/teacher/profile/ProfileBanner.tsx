@@ -28,9 +28,9 @@ const ProfileBanner: React.FC<ProfileBannerProps> = ({
         <div className="relative group">
           <div className="w-28 h-28 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border-4 border-white shadow-md">
             <img
-              src="/logo.png"
+              src="/no-profile.png"
               alt="Profile"
-              className="w-full h-full object-cover opacity-80"
+              className="w-full h-full object-cover"
             />
           </div>
           <button
