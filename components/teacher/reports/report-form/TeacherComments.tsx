@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Student } from "./types";
+import { Student } from "../../../../types/report";
 
 interface TeacherCommentsProps {
   student: Student;
@@ -26,9 +26,8 @@ export const TeacherComments: React.FC<TeacherCommentsProps> = ({
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         disabled={isHistoryView}
-        placeholder={`Enter comments about ${
-          student.name.split(" ")[0]
-        }'s behavior and participation this week...`}
+        placeholder={`Enter comments about ${student.name.split(" ")[0]
+          }'s behavior and participation this week...`}
         className="w-full py-3 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#006442] focus:ring-2 focus:ring-[#006442]/20 outline-none transition-all text-sm text-[#0e2e1d] resize-none disabled:bg-gray-100 disabled:text-gray-600"
         required={!isHistoryView}
       />

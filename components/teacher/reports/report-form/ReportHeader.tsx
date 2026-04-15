@@ -3,7 +3,7 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Student } from "./types";
+import { Student } from "../../../../types/report";
 
 interface ReportHeaderProps {
   student: Student;

@@ -3,7 +3,7 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { availableSubjects } from "@/constants/teacher/reports.constants";
-import { TestScore } from "./types";
+import { TestScore } from "../../../../types/report";
 
 interface TestScoresProps {
   testScores: TestScore[];

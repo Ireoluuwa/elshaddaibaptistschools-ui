@@ -4,7 +4,7 @@ import React, { use, useState } from "react";
 import { mockStudents, mockPastReports } from "@/constants/teacher/reports.constants";
 import { notFound, useRouter } from "next/navigation";
 import { ArrowLeft, Clock, FileEdit } from "lucide-react";
-import ReportForm from "@/components/teacher/reports/ReportForm";
+import ReportForm from "@/components/teacher/reports/report-form";
 
 interface ReportPageProps {
   params: Promise<{ studentId: string }>;
