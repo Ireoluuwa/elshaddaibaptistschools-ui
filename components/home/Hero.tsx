@@ -52,7 +52,7 @@ const Hero = () => {
           </motion.div>
         </AnimatePresence>
         {/* Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#0e2e1d]/90"></div>
+        <div className="absolute inset-0 bg-[#0e2e1d]/60"></div>
         <div className="absolute inset-0 bg-[#0e2e1d]/20 mix-blend-multiply"></div>
       </div>
 

@@ -56,7 +56,7 @@ const Facilities = () => {
                   src={item.img}
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-transparent to-transparent opacity-90"></div>
+              <div className="absolute inset-x-0 bottom-0 bg-[#0e2e1d]/80 py-4 h-1/2 flex items-end"></div>
               <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform">
                 <h3 className="text-white font-bold text-xl mb-1">
                   {item.title}

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 const AuthBranding = () => {
   return (
-    <div className="relative hidden lg:flex w-[45%] bg-gradient-to-br from-[#f7f5f0] via-[#f0ece3] to-[#e8e2d6] flex-col items-center justify-center px-8">
+    <div className="relative hidden lg:flex w-[45%] bg-[#f7f5f0] flex-col items-center justify-center px-8">
       {/* Subtle pattern overlay */}
       <div
         className="absolute inset-0 opacity-[0.03]"

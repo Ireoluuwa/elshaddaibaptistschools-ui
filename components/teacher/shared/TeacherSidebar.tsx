@@ -49,7 +49,7 @@ const TeacherSidebar = () => {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col fixed top-0 left-0 h-[100dvh] bg-gradient-to-b from-[#0a2118] via-[#0e2e1d] to-[#0a1f15] border-r border-white/5 z-40 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col fixed top-0 left-0 h-[100dvh] bg-[#0e2e1d] border-r border-white/5 z-40 transition-all duration-300 ${
           collapsed ? "w-[72px]" : "w-[260px]"
         }`}
       >
@@ -93,7 +93,7 @@ const TeacherSidebar = () => {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="lg:hidden fixed top-0 left-0 h-[100dvh] w-[260px] bg-gradient-to-b from-[#0a2118] via-[#0e2e1d] to-[#0a1f15] border-r border-white/5 z-50 shadow-2xl"
+              className="lg:hidden fixed top-0 left-0 h-[100dvh] w-[260px] bg-[#0e2e1d] border-r border-white/5 z-50 shadow-2xl"
             >
               <SidebarContent />
             </motion.aside>
