@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 

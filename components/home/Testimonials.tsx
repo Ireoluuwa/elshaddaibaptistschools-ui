@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -64,7 +66,7 @@ const Testimonials = () => {
           <button className="w-2.5 h-2.5 rounded-full bg-gray-300 hover:bg-primary/50 transition-all"></button>
           <button className="w-2.5 h-2.5 rounded-full bg-gray-300 hover:bg-primary/50 transition-all"></button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

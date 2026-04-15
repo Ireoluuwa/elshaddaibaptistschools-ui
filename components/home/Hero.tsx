@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -13,7 +15,8 @@ const Hero = () => {
           className="h-full w-full object-cover"
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKpmsc7KyvIL6wbzRzwlyLACaK7r29VvyJNgckygfHVVSn_Wgbc-1Hko9DKWHJ8xbffwCGlasUuq5sgQhxtMT8JmCvrnvrHh5qeqT29D4NCS6TCt8GDLo9ejk2-6LuLYPrpnzSvHdafYHuFUXAQ2GA8pgEo1tGUBdC6OtLPq48u79OW7zC9FN7wB8-A2d0QqSYXZSmis0T2BMc3JPf6o1l0DK3cxT6_36kfopuu9csfMQ23YIsfJyFq62sLRuEVgJKbvx7ReKIFA"
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#0e2e1d]/80"></div>
+        <div className="absolute inset-0 bg-[#0e2e1d]/20 mix-blend-multiply"></div>
       </div>
       <button className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 flex items-center justify-center text-white transition-all opacity-0 group-hover:opacity-100 hidden md:flex">
         <ChevronLeft size={32} />
