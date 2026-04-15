@@ -55,12 +55,12 @@ const ScoreEntry: React.FC<ScoreEntryProps> = ({
     grade === "A"
       ? "text-emerald-600 bg-emerald-50"
       : grade === "B"
-      ? "text-blue-600 bg-blue-50"
-      : grade === "C"
-      ? "text-yellow-600 bg-yellow-50"
-      : grade === "D"
-      ? "text-orange-600 bg-orange-50"
-      : "text-red-600 bg-red-50";
+        ? "text-blue-600 bg-blue-50"
+        : grade === "C"
+          ? "text-yellow-600 bg-yellow-50"
+          : grade === "D"
+            ? "text-orange-600 bg-orange-50"
+            : "text-red-600 bg-red-50";
 
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50/50">
@@ -108,11 +108,10 @@ const ScoreEntry: React.FC<ScoreEntryProps> = ({
                           setSearchOpen(false);
                           setSubjectSearch("");
                         }}
-                        className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors ${
-                          score.subject === sub
+                        className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors ${score.subject === sub
                             ? "font-semibold text-[#006442] bg-[#f0f7f4]"
                             : "text-gray-600"
-                        }`}
+                          }`}
                       >
                         {sub}
                       </button>
