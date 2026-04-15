@@ -48,7 +48,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-gray-100 text-lg font-normal leading-relaxed max-w-2xl md:text-lg"
+            className="text-gray-300 text-lg font-normal leading-relaxed max-w-2xl md:text-lg"
           >
             Empowering the next generation of Nigerian leaders through holistic
             education, moral integrity, and academic excellence in a supportive
