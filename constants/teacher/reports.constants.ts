@@ -23,3 +23,35 @@ export const availableSubjects = [
   "Economics",
   "Accounting",
 ];
+
+export const mockPastReports: Record<string, any[]> = {
+  S001: [
+    {
+      week: 1,
+      rating: 3,
+      description: "Alice has settled in fairly well this week. She is attentive but could participate more in class discussions.",
+      testScores: [{ id: 1, subject: "Mathematics", score: "14", maxScore: "20" }],
+    },
+    {
+      week: 2,
+      rating: 4,
+      description: "Much better participation this week. She asked several good questions during Physics.",
+      testScores: [
+        { id: 1, subject: "Mathematics", score: "17", maxScore: "20" },
+        { id: 2, subject: "Physics", score: "8", maxScore: "10" },
+      ],
+    },
+    {
+      week: 3,
+      rating: 2,
+      description: "Alice seemed a bit distracted this week. Homework was submitted late.",
+      testScores: [],
+    },
+    {
+      week: 4,
+      rating: 5,
+      description: "Excellent turnaround! She aced the pop quiz and helped out group members during the lab session.",
+      testScores: [{ id: 1, subject: "Chemistry", score: "20", maxScore: "20" }],
+    },
+  ],
+};

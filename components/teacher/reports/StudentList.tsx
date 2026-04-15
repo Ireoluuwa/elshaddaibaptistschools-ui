@@ -7,15 +7,14 @@ import { mockStudents } from "@/constants/teacher/reports.constants";
 
 export default function StudentList() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterClass, setFilterClass] = useState("All");
+  const [filterYear, setFilterYear] = useState("2023/2024");
+  const [filterTerm, setFilterTerm] = useState("Term 1");
 
-  // Get unique classes for the filter dropdown
-  const uniqueClasses = ["All", ...Array.from(new Set(mockStudents.map((s) => s.class)))];
+  const academicYears = ["2023/2024", "2022/2023"];
+  const terms = ["Term 1", "Term 2", "Term 3"];
 
   const filteredStudents = mockStudents.filter((student) => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesClass = filterClass === "All" || student.class === filterClass;
-    return matchesSearch && matchesClass;
+    return student.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   return (
@@ -35,16 +34,29 @@ export default function StudentList() {
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <Filter size={18} className="text-gray-400 shrink-0" />
+          
           <select
-            value={filterClass}
-            onChange={(e) => setFilterClass(e.target.value)}
-            className="w-full md:w-auto h-10 pl-3 pr-8 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer"
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+            className="w-full md:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
           >
-            {uniqueClasses.map((cls) => (
-              <option key={cls} value={cls}>
-                {cls}
+            {academicYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={filterTerm}
+            onChange={(e) => setFilterTerm(e.target.value)}
+            className="w-full md:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
+          >
+            {terms.map((term) => (
+              <option key={term} value={term}>
+                {term}
               </option>
             ))}
           </select>
@@ -56,11 +68,9 @@ export default function StudentList() {
         <table className="w-full text-left text-sm whitespace-nowrap">
           <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 font-medium">
             <tr>
-              <th className="px-6 py-4">Student</th>
-              <th className="px-6 py-4">ID</th>
-              <th className="px-6 py-4">Class</th>
-              <th className="px-6 py-4">Status (Current Week)</th>
-              <th className="px-6 py-4 text-right">Action</th>
+              <th className="px-6 py-4">Student Name</th>
+              <th className="px-6 py-4">Student ID</th>
+              <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -72,47 +82,23 @@ export default function StudentList() {
                       <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden shrink-0">
                         <img src="/no-profile.png" alt="Profile" className="w-full h-full object-cover" />
                       </div>
-                      <span className="font-semibold text-[#0e2e1d]">{student.name}</span>
+                      <span className="font-bold text-[#0e2e1d]">{student.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-500">{student.id}</td>
-                  <td className="px-6 py-4 text-gray-600">{student.class}</td>
-                  <td className="px-6 py-4">
-                    {student.status === "Submitted" ? (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Submitted
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">
-                        Pending
-                      </span>
-                    )}
-                  </td>
+                  <td className="px-6 py-4 text-gray-500 font-medium">{student.id}</td>
                   <td className="px-6 py-4 text-right">
                     <Link
                       href={`/portal/teacher/reports/${student.id}`}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        student.status === "Submitted"
-                          ? "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                          : "bg-[#0e2e1d] text-white hover:bg-[#0a2118]"
-                      }`}
+                      className="inline-flex items-center justify-center h-8 px-4 rounded-lg text-xs font-bold transition-all bg-[#0e2e1d] text-white hover:bg-[#0a2118]"
                     >
-                      {student.status === "Submitted" ? (
-                        <>
-                          <FileEdit size={14} /> Edit Report
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={14} /> Write Report
-                        </>
-                      )}
+                      View Reports
                     </Link>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-gray-400">
+                <td colSpan={3} className="px-6 py-10 text-center text-gray-400">
                   No students found matching your criteria.
                 </td>
               </tr>
