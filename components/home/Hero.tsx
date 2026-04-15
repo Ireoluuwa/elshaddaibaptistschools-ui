@@ -40,7 +40,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-white text-4xl font-black leading-[1.1] tracking-tight md:text-6xl lg:text-7xl"
+            className="text-white text-2xl font-black leading-[1.1] tracking-tight md:text-4xl lg:text-7xl"
           >
             Nurturing Minds, <br /> Building Character
           </motion.h1>
