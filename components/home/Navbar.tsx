@@ -47,18 +47,35 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-20">
         {/* Main Header Container */}
         <div className="flex items-center justify-between py-4 lg:py-6">
-          {/* Logo Section */}
-          <div className="flex items-center gap-2">
+          {/* Logo Section (Left) */}
+          <div className="flex items-center">
             <img
               src="/logo.png"
               alt="El-Shaddai Baptist School Logo"
-              className="h-12 w-auto md:h-20"
+              className="h-16 w-auto md:h-20"
             />
           </div>
 
-          {/* Desktop Navigation & Actions */}
-          <div className="hidden lg:flex flex-col items-end gap-2">
-            {/* Top Tier Icons (Desktop) */}
+          {/* Desktop Navigation (Center) */}
+          <nav className="hidden lg:flex items-center justify-center gap-8 flex-1 px-10">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                className={`text-sm font-bold transition-colors ${
+                  link.active
+                    ? "text-[#006442]"
+                    : "text-[#0e2e1d] hover:text-[#006442]"
+                }`}
+                href={link.href}
+              >
+                {link.name}
+              </a>
+            ))}
+          </nav>
+
+          {/* Actions Section (Right) */}
+          <div className="hidden lg:flex flex-col items-end gap-2 px-10">
+            {/* Top Tier Icons */}
             <div className="flex items-center gap-6 mb-1">
               <button className="text-[#0e2e1d] hover:text-[#006442] transition-colors">
                 <Info size={18} />
@@ -71,27 +88,10 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* Bottom Tier Links and Button */}
-            <div className="flex items-center gap-10">
-              <nav className="flex gap-8 items-center">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.name}
-                    className={`text-sm font-semibold transition-colors ${
-                      link.active
-                        ? "text-[#006442]"
-                        : "text-[#0e2e1d] hover:text-[#006442]"
-                    }`}
-                    href={link.href}
-                  >
-                    {link.name}
-                  </a>
-                ))}
-              </nav>
-              <button className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-bold transition-all shadow-md active:scale-95 leading-none">
-                <span className="truncate">Be a Member</span>
-              </button>
-            </div>
+            {/* Bottom Tier Button */}
+            <button className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-bold transition-all shadow-md active:scale-95 leading-none">
+              <span className="truncate">Be a Member</span>
+            </button>
           </div>
 
           {/* Mobile Menu Toggle Button */}
