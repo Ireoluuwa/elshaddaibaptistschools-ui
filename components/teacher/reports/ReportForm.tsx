@@ -5,8 +5,15 @@ import { Plus, Trash2, CheckCircle2, ArrowLeft, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { behavioralRatings, availableSubjects } from "@/constants/teacher/reports.constants";
 
+interface TestScore {
+  id: number;
+  subject: string;
+  score: string;
+  maxScore: string;
+}
+
 interface ReportFormProps {
-  student: { id: string; name: string; status: string };
+  student: { id: string; name: string; class: string; status: string };
   isHistoryView?: boolean;
   initialData?: any;
 }
@@ -17,7 +24,7 @@ export default function ReportForm({ student, isHistoryView = false, initialData
   // Initialize state based on history data if it exists, otherwise default empty
   const [rating, setRating] = useState<number>(initialData?.rating || 0);
   const [description, setDescription] = useState(initialData?.description || "");
-  const [testScores, setTestScores] = useState(
+  const [testScores, setTestScores] = useState<TestScore[]>(
     initialData?.testScores?.length > 0 
       ? initialData.testScores 
       : [{ id: Date.now(), subject: "", score: "", maxScore: "" }]
