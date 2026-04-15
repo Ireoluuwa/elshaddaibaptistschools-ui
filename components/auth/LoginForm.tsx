@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -127,12 +128,12 @@ const LoginForm = () => {
                 Remember me
               </span>
             </label>
-            <a
-              href="#"
+            <Link
+              href="/auth/forgot-password"
               className="text-[#006442] text-sm font-semibold hover:underline"
             >
               Forgot password?
-            </a>
+            </Link>
           </div>
 
           {/* Sign In Button */}

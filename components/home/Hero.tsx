@@ -63,7 +63,7 @@ const Hero = () => {
             <button className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-[#006442] hover:bg-[#005236] text-white text-base font-bold transition-all shadow-lg active:scale-95">
               Apply Now
             </button>
-            <button className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-white/10 backdrop-blur-md border border-white/40 hover:bg-white/20 text-white text-base font-bold transition-all active:scale-95">
+            <button className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-white/5 backdrop-blur-md border border-white/40 hover:bg-white/20 text-white text-base font-bold transition-all active:scale-95">
               Learn More
             </button>
           </motion.div>
