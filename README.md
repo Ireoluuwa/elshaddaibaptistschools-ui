@@ -39,25 +39,6 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Project Structure
-
-```
-components/
-  home/
-    Navbar.tsx        - Responsive navigation with mobile dropdown
-    Hero.tsx          - Animated hero section with gradient overlay
-    Features.tsx      - School highlights and key features
-    Facilities.tsx    - Campus facilities showcase
-    Faculty.tsx       - Staff and faculty profiles
-    Testimonials.tsx  - Student and parent testimonials
-    NewsAndEvents.tsx - Latest school news and events
-    CTA.tsx           - Call-to-action section
-    Footer.tsx        - Site footer with contact information
-app/
-  page.tsx            - Landing page composition
-  layout.tsx          - Root layout with fonts and metadata
-  globals.css         - Global styles and design tokens
-```
 
 ## Features
 
@@ -68,14 +49,4 @@ app/
 - Optimized imagery with gradient overlays
 - SEO-friendly semantic HTML structure
 
-## Deployment
 
-This project can be deployed on [Vercel](https://vercel.com) or any platform supporting Next.js.
-
-```bash
-npm run build
-```
-
-## License
-
-All rights reserved. El-Shaddai Baptist School.
