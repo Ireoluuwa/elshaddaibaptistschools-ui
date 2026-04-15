@@ -21,28 +21,6 @@ export default function PasswordForm() {
       </div>
 
       <form onSubmit={handleSave} className="flex flex-col gap-5">
-        {/* Current Password */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-gray-600">Current Password</label>
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <Lock size={16} />
-            </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              className="w-full h-11 pl-11 pr-12 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#006442] focus:ring-2 focus:ring-[#006442]/20 outline-none transition-all text-sm text-[#0e2e1d]"
-              placeholder="••••••••"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0e2e1d] transition-colors"
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-        </div>
-
         {/* New Password */}
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-gray-600">New Password</label>
