@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# El-Shaddai Baptist School
+
+The official website for El-Shaddai Baptist School — a premier learning institution committed to raising leaders with character and intellect through holistic education, moral integrity, and academic excellence.
+
+## About
+
+This project is the front-end UI for the El-Shaddai Baptist School website, built with modern web technologies and designed with a premium forest-green branded aesthetic.
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Runtime**: Bun
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18+ or [Bun](https://bun.sh/)
+
+### Installation
+
+```bash
+git clone https://github.com/Ireoluuwa/elshaddaibaptistschools-ui.git
+cd elshaddaibaptistschools-ui
+npm install
+```
+
+### Development
 
 ```bash
 npm run dev
 # or
-yarn dev
-# or
-pnpm dev
-# or
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+components/
+  home/
+    Navbar.tsx        - Responsive navigation with mobile dropdown
+    Hero.tsx          - Animated hero section with gradient overlay
+    Features.tsx      - School highlights and key features
+    Facilities.tsx    - Campus facilities showcase
+    Faculty.tsx       - Staff and faculty profiles
+    Testimonials.tsx  - Student and parent testimonials
+    NewsAndEvents.tsx - Latest school news and events
+    CTA.tsx           - Call-to-action section
+    Footer.tsx        - Site footer with contact information
+app/
+  page.tsx            - Landing page composition
+  layout.tsx          - Root layout with fonts and metadata
+  globals.css         - Global styles and design tokens
+```
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- Fully responsive design (mobile, tablet, desktop)
+- Smooth scroll-triggered entrance animations
+- Animated mobile navigation with staggered link reveals
+- Premium forest-green branded color palette
+- Optimized imagery with gradient overlays
+- SEO-friendly semantic HTML structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This project can be deployed on [Vercel](https://vercel.com) or any platform supporting Next.js.
 
-## Deploy on Vercel
+```bash
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All rights reserved. El-Shaddai Baptist School.
