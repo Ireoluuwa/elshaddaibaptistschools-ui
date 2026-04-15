@@ -1,8 +1,8 @@
 import {
   GraduationCap,
   Menu,
-  Users,
-  ShoppingCart,
+  Info,
+  Phone,
   UserCircle,
   ChevronDown,
 } from "lucide-react";
@@ -10,9 +10,9 @@ import {
 const Navbar = () => {
   const navLinks = [
     { name: "Home", href: "#", active: true },
-    { name: "About Us", href: "#", hasDropdown: true },
-    { name: "Events", href: "#", hasDropdown: true },
-    { name: "Shop", href: "#", hasDropdown: true },
+    { name: "About Us", href: "#" },
+    { name: "Events", href: "#" },
+    { name: "Shop", href: "#" },
     { name: "Members", href: "#" },
     { name: "Contact Us", href: "#" },
   ];
@@ -32,10 +32,10 @@ const Navbar = () => {
             {/* Top Tier Icons */}
             <div className="flex items-center gap-6 mb-1">
               <button className="text-[#0e2e1d] hover:text-[#006442] transition-colors">
-                <Users size={18} />
+                <Info size={18} />
               </button>
-              <button className="text-[#0e2e1d] hover:text-[#006442] transition-colors font-bold">
-                <ShoppingCart size={18} />
+              <button className="text-[#0e2e1d] hover:text-[#006442] transition-colors">
+                <Phone size={18} />
               </button>
               <button className="text-[#0e2e1d] hover:text-[#006442] transition-colors">
                 <UserCircle size={18} />
@@ -56,9 +56,6 @@ const Navbar = () => {
                     href={link.href}
                   >
                     {link.name}
-                    {link.hasDropdown && (
-                      <ChevronDown size={14} className="mt-0.5" />
-                    )}
                   </a>
                 ))}
               </nav>
