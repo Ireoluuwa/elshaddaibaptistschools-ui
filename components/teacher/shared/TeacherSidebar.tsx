@@ -18,6 +18,7 @@ import {
   Monitor,
   ChevronUp,
   Settings,
+  X,
 } from "lucide-react";
 
 const sidebarLinks = [
@@ -187,10 +188,10 @@ const TeacherSidebar = () => {
 
       {/* Mobile Toggle */}
       <button
-        onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-xl bg-[#0e2e1d] text-white flex items-center justify-center shadow-lg"
+        onClick={() => setMobileOpen(!mobileOpen)}
+        className="lg:hidden fixed top-4 right-4 z-[60] w-10 h-10 rounded-xl bg-[#0e2e1d] text-white flex items-center justify-center shadow-lg transition-transform active:scale-90"
       >
-        <Menu size={20} />
+        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
       {/* Mobile Overlay */}
