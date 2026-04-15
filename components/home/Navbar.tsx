@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   GraduationCap,
   Menu,
@@ -61,7 +62,7 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <a
                 key={link.name}
-                className={`text-sm font-bold transition-colors ${
+                className={`text-sm font-medium transition-colors ${
                   link.active
                     ? "text-[#006442]"
                     : "text-[#0e2e1d] hover:text-[#006442]"
@@ -97,49 +98,94 @@ const Navbar = () => {
           {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-3 rounded-full bg-gray-50 text-[#006442] hover:bg-gray-100 transition-all z-[60]"
+            className="lg:hidden p-3 rounded-full bg-gray-50 text-[#006442] hover:bg-gray-100 transition-all z-[60] relative"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            <AnimatePresence mode="wait">
+              {isOpen ? (
+                <motion.span
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X size={24} />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu size={24} />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </div>
 
-      {/* Full-screen Mobile Menu Overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-white z-50 lg:hidden animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex flex-col h-full pt-24 px-8 pb-12">
-            <nav className="flex flex-col gap-6 mb-auto">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  onClick={() => setIsOpen(false)}
-                  className={`text-2xl font-bold flex items-center justify-between group ${
-                    link.active ? "text-[#006442]" : "text-[#0e2e1d]"
-                  }`}
-                  href={link.href}
-                >
-                  {link.name}
-                  {link.name !== "Home" && (
-                    <ChevronDown
-                      size={20}
-                      className="group-hover:rotate-180 transition-transform text-gray-300"
-                    />
-                  )}
-                </a>
-              ))}
-            </nav>
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            className="lg:hidden overflow-hidden bg-white border-t border-gray-100 shadow-xl"
+          >
+            <div className="px-8 py-8">
+              <nav className="flex flex-col">
+                {navLinks.map((link, index) => (
+                  <motion.a
+                    key={link.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: index * 0.06,
+                      ease: "easeOut",
+                    }}
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 group cursor-pointer ${
+                      link.active
+                        ? "text-[#006442] font-bold"
+                        : "text-[#0e2e1d] font-semibold hover:text-[#006442]"
+                    }`}
+                    href={link.href}
+                  >
+                    <span className="text-lg">{link.name}</span>
+                    {link.name !== "Home" && link.name !== "Members" && link.name !== "Contact Us" && (
+                      <ChevronDown
+                        size={18}
+                        className="text-gray-400 group-hover:text-[#006442] group-hover:rotate-180 transition-all duration-300"
+                      />
+                    )}
+                  </motion.a>
+                ))}
+              </nav>
 
-            {/* Mobile Bottom Action */}
-            <div className="mt-12">
-              <button className="w-16 h-16 rounded-xl bg-[#006442] flex items-center justify-center text-white shadow-xl active:scale-90 transition-all">
-                <UserCircle size={32} />
-              </button>
+              {/* Mobile Bottom Action */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.35 }}
+                className="mt-8"
+              >
+                <button className="w-14 h-14 rounded-xl bg-[#006442] flex items-center justify-center text-white shadow-lg active:scale-90 transition-all hover:bg-[#005236]">
+                  <UserCircle size={28} />
+                </button>
+              </motion.div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 export default Navbar;
+
