@@ -1,16 +1,20 @@
-import React from "react";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
+import { motion } from "framer-motion";
 
 const NewsAndEvents = () => {
   return (
     <div className="w-full bg-white py-16 lg:py-24">
-      <div className="max-w-7xl mx-auto px-6 lg:px-20">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+        className="max-w-7xl mx-auto px-6 lg:px-20"
+      >
         <div className="flex flex-col lg:flex-row gap-12">
           <div className="flex-1 flex flex-col gap-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-secondary text-2xl font-bold">
-                Latest News
-              </h2>
+              <h2 className="text-secondary text-2xl font-bold">Latest News</h2>
               <a
                 className="text-primary font-medium hover:underline text-sm flex items-center gap-1"
                 href="#"
@@ -131,7 +135,7 @@ const NewsAndEvents = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
