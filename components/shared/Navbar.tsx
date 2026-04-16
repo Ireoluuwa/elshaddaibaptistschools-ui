@@ -17,9 +17,8 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", href: "#", active: true },
     { name: "About Us", href: "#" },
-    { name: "Events", href: "#" },
-    { name: "Shop", href: "#" },
-    { name: "Members", href: "#" },
+    { name: "Admissions", href: "#" },
+    { name: "News & Events", href: "#" },
     { name: "Contact Us", href: "#" },
   ];
 
