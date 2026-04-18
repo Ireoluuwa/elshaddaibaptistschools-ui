@@ -12,7 +12,7 @@ const AboutCTA = () => {
           {aboutCTA.description}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          {aboutCTA.buttons.map((btn, idx) => (
+          {aboutCTA.buttons.map((btn: any, idx: number) => (
              <button 
                 key={idx}
                 className={`flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 text-base font-bold leading-normal tracking-[0.015em] transition-colors ${

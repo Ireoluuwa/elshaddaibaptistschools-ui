@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   GraduationCap,
   Menu,
@@ -15,11 +16,12 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: "Home", href: "#", active: true },
+    { name: "Home", href: "/", active: true },
     {
-      name: "About Us",
+      name: "About",
       href: "/about",
       dropdown: [
+        { name: "About Us", href: "/about" },
         { name: "Academics", href: "#" },
         { name: "Gallery", href: "#" },
       ],
@@ -58,6 +60,7 @@ const Navbar = () => {
         {/* Main Header Container */}
         <div className="flex items-center justify-between py-4 lg:py-6">
           {/* Logo Section (Left) */}
+          <Link href="/">
           <div className="flex items-center">
             <img
               src="/logo.png"
@@ -65,6 +68,7 @@ const Navbar = () => {
               className="h-16 w-auto md:h-20"
             />
           </div>
+          </Link>
 
           {/* Desktop Navigation (Center) */}
           <nav className="hidden lg:flex items-center justify-center gap-8 flex-1 px-10">

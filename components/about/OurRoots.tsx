@@ -17,7 +17,7 @@ const OurRoots = () => {
               </h2>
             </div>
             <div className="text-gray-600 text-lg leading-relaxed flex flex-col gap-4">
-              {rootsSection.content.map((paragraph, idx) => (
+              {rootsSection.content.map((paragraph: string, idx: number) => (
                 <p key={idx}>{paragraph}</p>
               ))}
             </div>

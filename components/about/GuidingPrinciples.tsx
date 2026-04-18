@@ -16,7 +16,7 @@ const GuidingPrinciples = () => {
         </div>
         
         <div className="grid md:grid-cols-2 gap-8">
-          {principlesSection.principles.map((principle, idx) => {
+          {principlesSection.principles.map((principle: any, idx: number) => {
             const IconComponent = (Icons as any)[principle.icon];
             
             return (
