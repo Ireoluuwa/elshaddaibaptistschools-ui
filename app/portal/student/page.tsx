@@ -18,7 +18,7 @@ export default function StudentDashboardPage() {
           <div className="order-3 lg:order-none h-auto md:h-72">
              <WeeklyReportWidget />
           </div>
-          <div className="order-2 lg:order-none flex-1 min-h-[350px]">
+          <div className="order-2 lg:order-none flex-1 lg:min-h-[350px]">
              <AssignmentsWidget />
           </div>
         </div>
@@ -28,7 +28,7 @@ export default function StudentDashboardPage() {
           <div className="order-4 lg:order-none h-48 md:h-56 shrink-0">
              <FinanceWidget />
           </div>
-          <div className="order-1 lg:order-none flex-1 min-h-[350px]">
+          <div className="order-1 lg:order-none flex-1 lg:min-h-[350px]">
              <AnnouncementsWidget />
           </div>
         </div>
