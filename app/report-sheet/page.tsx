@@ -229,15 +229,23 @@ export default function ReportSheetPage() {
           </div>
 
           {/* Tuition Line */}
-          <div className="text-xs flex items-center justify-center gap-2 mt-6">
-            <span>Outstanding: ₦</span>
-            <span className="w-24 border-b border-black inline-block"></span>
-            <span>, Next Term Tuition: ₦</span>
-            <span className="w-24 border-b border-black inline-block"></span>
-            <span>, I.C.T: </span>
-            <span className="w-24 border-b border-black inline-block"></span>
-            <span>Total: </span>
-            <span className="w-24 border-b border-black inline-block"></span>
+          <div className="text-xs flex flex-col sm:flex-row items-center justify-center gap-2 mt-6">
+            <div className="flex items-center gap-2">
+              <span>Outstanding: ₦</span>
+              <span className="w-24 border-b border-black inline-block h-4"></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>, Next Term Tuition: ₦</span>
+              <span className="w-24 border-b border-black inline-block h-4"></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>, I.C.T: </span>
+              <span className="w-24 border-b border-black inline-block h-4"></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Total: </span>
+              <span className="w-24 border-b border-black inline-block h-4"></span>
+            </div>
           </div>
         </div>
       </div>
