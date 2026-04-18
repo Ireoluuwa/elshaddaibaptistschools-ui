@@ -1,3 +1,4 @@
+"use client"
 import React, { useState } from "react";
 import * as Icons from "lucide-react";
 import { galleryFilters } from "@/constants/gallery";
