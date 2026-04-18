@@ -61,14 +61,14 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose }) =>
           className="relative bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">Bulk Upload Results</h2>
+          <div className="flex items-center p-6 border-b border-gray-100 gap-3">
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 -ml-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
             >
               <X size={20} />
             </button>
+            <h2 className="text-xl font-bold text-gray-900">Bulk Upload Results</h2>
           </div>
 
           {/* Content */}
