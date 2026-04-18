@@ -13,10 +13,10 @@ const FinanceWidget = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="bg-gradient-to-br from-[#0a2316] via-[#0e2e1d] to-[#144229] rounded-3xl p-6 text-white shadow-xl flex flex-col h-full relative overflow-hidden group"
+      className="bg-[#0e2e1d] rounded-3xl p-6 text-white shadow-xl flex flex-col h-full relative overflow-hidden group"
     >
       {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl opacity-50 transform translate-x-20 -translate-y-20 transition-transform duration-1000 group-hover:scale-110" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl transform translate-x-20 -translate-y-20 transition-transform duration-1000 group-hover:scale-110" />
       <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full blur-2xl transform -translate-x-10 translate-y-10" />
 
       {/* Pattern Overlay */}

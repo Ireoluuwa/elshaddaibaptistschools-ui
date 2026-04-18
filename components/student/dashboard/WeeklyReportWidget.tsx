@@ -12,10 +12,10 @@ const WeeklyReportWidget = () => {
       transition={{ delay: 0.1 }}
       className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col h-full relative overflow-hidden group hover:shadow-md transition-shadow"
     >
-      {/* Decorative gradient blob */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none transition-transform group-hover:scale-150 duration-700" />
+      {/* Decorative solid shape */}
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-50 rounded-full transition-transform group-hover:scale-150 duration-700 pointer-events-none" />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 relative z-10">
         <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
           <TrendingUp className="text-emerald-600" size={20} />
           This Week's Report
@@ -25,7 +25,7 @@ const WeeklyReportWidget = () => {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 flex-1">
+      <div className="grid grid-cols-2 gap-4 flex-1 relative z-10">
         <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
             <span className="text-gray-500 text-sm font-medium">Avg Score</span>
@@ -48,10 +48,9 @@ const WeeklyReportWidget = () => {
           <p className="text-blue-600 text-xs font-medium mt-1">Completed</p>
         </div>
 
-        <div className="col-span-2 bg-gradient-to-r from-[#0e2e1d] to-emerald-950 rounded-2xl p-4 flex items-center justify-between text-white relative overflow-hidden">
-          <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-white/10 to-transparent pointer-events-none" />
+        <div className="col-span-2 bg-[#0e2e1d] rounded-2xl p-4 flex items-center justify-between text-white relative overflow-hidden">
           <div className="flex items-center gap-3 relative z-10">
-            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-emerald-300">
+            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-emerald-300">
               <Clock size={20} />
             </div>
             <div>
@@ -59,7 +58,7 @@ const WeeklyReportWidget = () => {
               <p className="text-lg font-bold text-white">100% Present</p>
             </div>
           </div>
-          <span className="relative z-10 text-emerald-400 font-bold text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-md">
+          <span className="relative z-10 text-emerald-400 font-bold text-sm bg-white/10 px-3 py-1.5 rounded-full border border-emerald-900">
             5 Days
           </span>
         </div>
