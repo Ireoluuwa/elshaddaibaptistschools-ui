@@ -39,7 +39,7 @@ export default function StudentFinancesPage() {
           </p>
         </div>
         
-        <button className="flex items-center gap-2 px-6 py-3 bg-[#006442] hover:bg-[#005236] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#006442]/20 active:scale-95">
+        <button className="w-fit flex items-center gap-2 px-6 py-3 bg-[#006442] hover:bg-[#005236] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#006442]/20 active:scale-95">
           <Download size={16} />
           Download
         </button>
