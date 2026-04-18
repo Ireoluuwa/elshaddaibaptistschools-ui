@@ -19,7 +19,7 @@ const DashboardHeader = () => {
       className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8"
     >
       <div>
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+        <h1 className="text-2xl font-black text-secondary tracking-tight">
           Dashboard
         </h1>
       </div>
