@@ -12,13 +12,6 @@ import {
 } from "@/constants/teacher/results.constants";
 import ResultForm from "@/components/teacher/results/result-form";
 import BulkUploadModal from "@/components/teacher/results/BulkUploadModal";
-import {
-  academicYears,
-  terms,
-  currentSession,
-  mockResults,
-} from "@/constants/teacher/results.constants";
-import ResultForm from "@/components/teacher/results/result-form";
 
 interface ResultPageProps {
   params: Promise<{ studentId: string }>;
