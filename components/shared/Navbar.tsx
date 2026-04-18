@@ -28,7 +28,7 @@ const Navbar = () => {
     },
     { name: "Admissions", href: "#" },
     { name: "News & Events", href: "/news" },
-    { name: "Contact Us", href: "#" },
+    { name: "Contact Us", href: "/contact" },
   ];
 
   const [aboutOpen, setAboutOpen] = useState(false); // For mobile submenu
