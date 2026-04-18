@@ -20,7 +20,7 @@ const DashboardHeader = () => {
     >
       <div>
         <h1 className="text-2xl font-black text-gray-900 tracking-tight">
-          Welcome back, <br/> <span className="text-emerald-700">Student</span>! 👋
+          Welcome back, <br/> <span className="text-emerald-700">Student</span>! 
         </h1>
       </div>
 
