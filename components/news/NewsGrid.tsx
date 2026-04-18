@@ -5,7 +5,7 @@ import { regularPosts } from "@/constants/news";
 const NewsGrid = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {regularPosts.map((post, idx) => (
+      {regularPosts.map((post: any, idx: number) => (
         <article key={idx} className="flex flex-col rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden">
           <div className="aspect-[16/10] w-full overflow-hidden bg-gray-100">
             <div 

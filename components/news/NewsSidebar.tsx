@@ -26,7 +26,7 @@ const NewsSidebar = () => {
           <Tags size={20} className="text-[#64748b]" />
         </h3>
         <ul className="space-y-3">
-          {sidebarCategories.map((cat, idx) => (
+          {sidebarCategories.map((cat: any, idx: number) => (
             <li key={idx}>
               <Link href={cat.link} className="group flex items-center justify-between rounded-lg p-2 hover:bg-[#f6f8f8] transition-colors">
                 <span className="text-[#101818] font-medium group-hover:text-primary">{cat.name}</span>
@@ -43,7 +43,7 @@ const NewsSidebar = () => {
           <Clock size={20} className="text-[#64748b]" />
         </h3>
         <div className="flex flex-col gap-4">
-          {recentPosts.map((post, idx) => (
+          {recentPosts.map((post: any, idx: number) => (
             <Link key={idx} href={post.link} className="group flex gap-4 items-start">
               <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200">
                 <div 
