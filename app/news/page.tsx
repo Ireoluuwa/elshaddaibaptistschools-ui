@@ -6,6 +6,7 @@ import FeaturedArticle from "@/components/news/FeaturedArticle";
 import NewsGrid from "@/components/news/NewsGrid";
 import NewsPagination from "@/components/news/NewsPagination";
 import NewsSidebar from "@/components/news/NewsSidebar";
+import CategoryDropdown from "@/components/news/CategoryDropdown";
 
 export default function NewsPage() {
   return (
@@ -16,6 +17,7 @@ export default function NewsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-8 flex flex-col gap-10">
             <NewsHeader />
+            <CategoryDropdown />
             <FeaturedArticle />
             <NewsGrid />
             <NewsPagination />

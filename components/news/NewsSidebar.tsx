@@ -6,21 +6,7 @@ import Link from "next/link";
 const NewsSidebar = () => {
   return (
     <aside className="lg:col-span-4 space-y-8">
-      <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-bold text-primary mb-4">Search News</h3>
-        <label className="relative block">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#64748b]">
-            <Search size={20} />
-          </span>
-          <input 
-            className="w-full rounded-lg border-0 bg-[#f6f8f8] py-3 pl-10 pr-4 text-[#101818] placeholder:text-[#64748b] focus:ring-2 focus:ring-primary focus:ring-opacity-50" 
-            placeholder="Type keywords..." 
-            type="text"
-          />
-        </label>
-      </div>
-
-      <div className="rounded-xl bg-white p-6 shadow-sm border border-gray-100">
+      <div className="hidden lg:block rounded-xl bg-white p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-primary mb-4 flex items-center justify-between">
           Categories
           <Tags size={20} className="text-[#64748b]" />
