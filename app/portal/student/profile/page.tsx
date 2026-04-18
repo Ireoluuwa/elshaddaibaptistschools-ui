@@ -2,8 +2,7 @@
 
 import React from "react";
 import StudentProfileBanner from "@/components/student/profile/StudentProfileBanner";
-import PersonalDetailsForm from "@/components/student/profile/PersonalDetailsForm";
-import GuardianForm from "@/components/student/profile/GuardianForm";
+import ProfileDetailsForm from "@/components/student/profile/ProfileDetailsForm";
 import StudentPasswordForm from "@/components/student/profile/StudentPasswordForm";
 
 export default function StudentProfilePage() {
@@ -28,10 +27,13 @@ export default function StudentProfilePage() {
       />
 
       {/* Forms Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-        <PersonalDetailsForm />
-        <GuardianForm />
-        <StudentPasswordForm />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="lg:col-span-2">
+          <ProfileDetailsForm />
+        </div>
+        <div className="lg:col-span-1">
+          <StudentPasswordForm />
+        </div>
       </div>
 
       {/* Footer */}
