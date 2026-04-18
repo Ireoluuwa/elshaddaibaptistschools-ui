@@ -4,6 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, FileCheck2 } from "lucide-react";
 import { academicYears, terms } from "@/constants/teacher/results.constants";
+import { useRouter } from "next/navigation";
 
 interface ResultCheckerModalProps {
   isOpen: boolean;
@@ -14,6 +15,8 @@ const ResultCheckerModal: React.FC<ResultCheckerModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const router = useRouter();
+
   if (!isOpen) return null;
 
   return (
@@ -78,7 +81,13 @@ const ResultCheckerModal: React.FC<ResultCheckerModalProps> = ({
             </div>
 
             {/* Submit Button */}
-            <button className="mt-2 w-full h-11 px-6 bg-[#006442] hover:bg-[#005236] text-white text-sm font-bold rounded-lg flex items-center justify-center transition-all shadow-md active:scale-[0.98]">
+            <button 
+              onClick={() => {
+                onClose();
+                router.push("/report-sheet");
+              }}
+              className="mt-2 w-full h-11 px-6 bg-[#006442] hover:bg-[#005236] text-white text-sm font-bold rounded-lg flex items-center justify-center transition-all shadow-md active:scale-[0.98]"
+            >
               Check Result
             </button>
           </div>
