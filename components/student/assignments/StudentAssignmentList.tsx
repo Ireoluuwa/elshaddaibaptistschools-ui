@@ -1,182 +1,131 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Paperclip, ChevronDown, ChevronUp, Download, Eye, Upload } from "lucide-react";
-import {
-  mockStudentAssignments,
-  studentStatusOptions,
-  StudentAssignment,
-} from "@/constants/student/assignments.constants";
-import { motion, AnimatePresence } from "framer-motion";
+import { Search, ChevronDown, ChevronUp, FileText, Download, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { studentAssignments, StudentAssignment } from "@/constants/student/assignments.constants";
 
-const StudentAssignmentList = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All Statuses");
+export default function StudentAssignmentList() {
+  const [activeTab, setActiveTab] = useState<"Latest" | "Due">("Latest");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const filtered = mockStudentAssignments.filter((a) => {
-    const matchesSearch = a.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase()) || 
-      a.subject.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "All Statuses" || a.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  const filtered = studentAssignments.filter((a) => {
+    if (activeTab === "Latest") {
+      return a.status === "Pending";
+    }
+    return a.status === "Overdue";
   });
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const statusBadge = (status: StudentAssignment["status"]) => {
-    const styles = {
-      Submitted: "text-emerald-700 bg-emerald-50",
-      Overdue: "text-red-600 bg-red-50",
-      Pending: "text-amber-700 bg-amber-50",
-    };
-    return (
-      <span
-        className={`inline-flex px-2.5 py-1 rounded-lg text-[11px] font-bold ${styles[status]}`}
-      >
-        {status}
-      </span>
-    );
-  };
-
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      {/* Controls */}
-      <div className="p-4 sm:p-5 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row gap-3 justify-between items-stretch sm:items-center">
-        <div className="relative w-full sm:max-w-xs">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <Search size={16} />
-          </div>
-          <input
-            type="text"
-            placeholder="Search assignments or subjects..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 h-9 rounded-lg border border-gray-200 focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all bg-white"
-          />
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
-        >
-          {studentStatusOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
+    <div className="min-h-[400px]">
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200 mb-2">
+        <div className="flex gap-8">
+          {(["Latest", "Due"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-4 text-sm font-bold transition-all relative ${
+                activeTab === tab ? "text-[#006442]" : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              {tab === "Latest" ? "Latest Assignments" : "Due Assignments"}
+              {activeTab === tab && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#006442] rounded-full" />
+              )}
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
-      {/* Assignment Items */}
+      {/* Assignment List */}
       <div className="divide-y divide-gray-100">
         {filtered.length > 0 ? (
           filtered.map((assignment) => (
             <div key={assignment.id} className="flex flex-col">
-              {/* Visible Row Header */}
-              <div
+              <button
                 onClick={() => toggleExpand(assignment.id)}
-                className={`px-5 sm:px-6 py-4 transition-colors cursor-pointer flex items-start justify-between gap-3 ${
-                  expandedId === assignment.id ? "bg-emerald-50/30" : "hover:bg-gray-50/50"
-                }`}
+                className={`w-full py-5 flex items-center justify-between hover:bg-white/50 transition-colors text-left group`}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-bold text-[#0e2e1d] truncate">
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#0e2e1d] uppercase tracking-tight group-hover:text-[#006442] transition-colors">
                       {assignment.title}
                     </h3>
-                    {assignment.hasAttachment && (
-                      <Paperclip size={13} className="text-gray-400 shrink-0" />
-                    )}
                   </div>
-                  <p className="text-xs text-gray-500 font-medium truncate">
-                    {assignment.subject} &bull; {assignment.teacher}
-                  </p>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                    <span>
-                      Given:{" "}
-                      <span className="font-medium text-gray-500">
-                        {assignment.startDate}
-                      </span>
-                    </span>
-                    <span>
-                      Due:{" "}
-                      <span className="font-medium text-gray-500">
-                        {assignment.dueDate}
-                      </span>
+                  <div className="flex items-center gap-4 text-[11px] font-medium text-gray-400">
+                    <span className="flex items-center gap-1.5">
+                      Deadline: <span className="text-gray-500 font-bold">{assignment.dueDate}</span>
                     </span>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-4 shrink-0">
-                  {statusBadge(assignment.status)}
-                  <div className="text-gray-400 hidden sm:block">
-                    {expandedId === assignment.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                  </div>
+                <div className="flex items-center gap-4 shrink-0 pr-2 leading-none">
+                  {expandedId === assignment.id ? (
+                    <ChevronUp size={16} className="text-[#006442]" />
+                  ) : (
+                    <ChevronDown size={16} className="text-gray-300 group-hover:text-gray-400" />
+                  )}
                 </div>
-              </div>
+              </button>
 
-              {/* Collapsible Content */}
-              <AnimatePresence>
-                {expandedId === assignment.id && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-dashed border-gray-100 bg-gray-50/30 flex flex-col gap-5">
-                      {/* Description */}
+              {/* Expanded Content */}
+              {expandedId === assignment.id && (
+                <div className="py-6 animate-in slide-in-from-top-2 duration-300">
+                  <div className="max-w-2xl">
+                    <div className="flex flex-col gap-6">
                       <div>
-                        <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Instructions</h4>
-                        <p className="text-sm text-gray-600 leading-relaxed max-w-3xl">
+                        <h4 className="text-[10px] font-black text-[#006442] uppercase tracking-[0.2em] mb-3 opacity-60">
+                          Task Description
+                        </h4>
+                        <p className="text-sm text-gray-500 leading-relaxed font-medium">
                           {assignment.description}
                         </p>
                       </div>
 
-                      {/* Attachments & Actions Row */}
-                      <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-end mt-2">
-                        <div className="flex flex-col gap-2">
-                          {assignment.hasAttachment && (
-                            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm w-fit">
-                              <Download size={16} className="text-[#006442]" />
-                              Download Materials
-                            </button>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-3 w-full sm:w-auto mt-4 sm:mt-0">
-                          {assignment.status === "Submitted" ? (
-                            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-800 rounded-lg text-sm font-bold w-full sm:w-auto justify-center">
-                              <Eye size={16} />
-                              View Submission {assignment.score && `(${assignment.score})`}
+                      {assignment.attachment && (
+                        <div>
+                          <h4 className="text-[10px] font-black text-[#006442] uppercase tracking-[0.2em] mb-4 opacity-60">
+                            Resources & Files
+                          </h4>
+                          <div className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white hover:border-[#006442]/20 transition-all shadow-sm">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-[#006442]/5 flex items-center justify-center text-[#006442]">
+                                <FileText size={20} />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-gray-700">
+                                  {assignment.attachment.name}
+                                </p>
+                                <p className="text-[10px] text-gray-400 font-medium tracking-tight">
+                                  {assignment.attachment.size}
+                                </p>
+                              </div>
                             </div>
-                          ) : (
-                            <button className="flex items-center gap-2 px-6 py-2 bg-[#006442] hover:bg-[#005236] text-white rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95 w-full sm:w-auto justify-center">
-                              <Upload size={16} />
-                              Submit Work
+                            <button className="flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[#006442] bg-[#006442]/5 hover:bg-[#006442]/10 rounded-lg transition-all">
+                              <Download size={14} />
+                              Download
                             </button>
-                          )}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+                </div>
+              )}
             </div>
           ))
         ) : (
-          <div className="px-6 py-10 text-center text-gray-400 text-sm">
-            No assignments found.
+          <div className="py-24 flex flex-col items-center justify-center text-gray-300">
+            <Clock size={32} className="opacity-10 mb-4" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+              No assignments found
+            </p>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default StudentAssignmentList;
+}

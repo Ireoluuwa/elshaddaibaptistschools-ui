@@ -10,15 +10,15 @@ export default function StudentAssignmentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-[#0e2e1d] text-2xl font-black tracking-tight uppercase">
-            Assignments
+            My Assignments
           </h1>
           <p className="text-gray-400 text-sm mt-1">
-            View your classwork and submit assignments.
+            View, track, and submit your school assignments.
           </p>
         </div>
       </div>
 
-      {/* Assignment List */}
+      {/* Assignment List Content */}
       <StudentAssignmentList />
 
       {/* Footer */}
