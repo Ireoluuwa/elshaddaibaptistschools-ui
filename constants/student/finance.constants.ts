@@ -26,6 +26,7 @@ export interface PaymentHistory {
   amount: number;
   method: string;
   status: "Approved" | "Verification Pending" | "Rejected";
+  currency?: string;
   receiptUrl?: string;
 }
 
