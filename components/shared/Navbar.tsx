@@ -18,7 +18,7 @@ const Navbar = () => {
     { name: "Home", href: "#", active: true },
     {
       name: "About Us",
-      href: "#",
+      href: "/about",
       dropdown: [
         { name: "Academics", href: "#" },
         { name: "Gallery", href: "#" },
