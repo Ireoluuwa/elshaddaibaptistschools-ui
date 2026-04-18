@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   GraduationCap,
   Menu,
@@ -14,9 +15,10 @@ import {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   const navLinks = [
-    { name: "Home", href: "/", active: true },
+    { name: "Home", href: "/" },
     {
       name: "About",
       href: "/about",
@@ -31,8 +33,8 @@ const Navbar = () => {
     { name: "Contact Us", href: "/contact" },
   ];
 
-  const [aboutOpen, setAboutOpen] = useState(false); // For mobile submenu
-  const [isAboutHovered, setIsAboutHovered] = useState(false); // For desktop submenu
+  const [aboutOpen, setAboutOpen] = useState(false); 
+  const [isAboutHovered, setIsAboutHovered] = useState(false); 
 
   return (
     <div className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-[#e9eef1]">
@@ -72,58 +74,62 @@ const Navbar = () => {
 
           {/* Desktop Navigation (Center) */}
           <nav className="hidden lg:flex items-center justify-center gap-8 flex-1 px-10">
-            {navLinks.map((link) => (
-              <div
-                key={link.name}
-                className="relative group py-2"
-                onMouseEnter={() => link.dropdown && setIsAboutHovered(true)}
-                onMouseLeave={() => link.dropdown && setIsAboutHovered(false)}
-              >
-                <a
+            {navLinks.map((link) => {
+              const isActive = (link.href !== "#" && pathname === link.href) || 
+                               (link.dropdown?.some(item => item.href !== "#" && pathname === item.href));
+              
+              return (
+                <div
                   key={link.name}
-                  className={`flex items-center gap-1 text-sm font-medium transition-colors ${
-                    link.active
-                      ? "text-[#006442]"
-                      : "text-[#0e2e1d] hover:text-[#006442]"
-                  }`}
-                  href={link.dropdown ? undefined : link.href}
+                  className="relative group py-2"
+                  onMouseEnter={() => link.dropdown && setIsAboutHovered(true)}
+                  onMouseLeave={() => link.dropdown && setIsAboutHovered(false)}
                 >
-                  {link.name}
-                  {link.dropdown && (
-                    <ChevronDown
-                      size={14}
-                      className={`transition-transform duration-300 ${
-                        isAboutHovered ? "rotate-180" : ""
-                      }`}
-                    />
-                  )}
-                </a>
-
-                {link.dropdown && (
-                  <AnimatePresence>
-                    {isAboutHovered && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-[calc(100%-4px)] left-0 min-w-[180px] bg-white rounded-xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-[100]"
-                      >
-                        {link.dropdown.map((item) => (
-                          <a
-                            key={item.name}
-                            href={item.href}
-                            className="block px-6 py-2.5 text-sm text-[#0e2e1d] hover:bg-[#006442]/5 hover:text-[#006442] transition-colors font-medium"
-                          >
-                            {item.name}
-                          </a>
-                        ))}
-                      </motion.div>
+                  <Link
+                    href={link.href}
+                    className={`flex items-center gap-1 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "text-[#006442]"
+                        : "text-[#0e2e1d] hover:text-[#006442]"
+                    }`}
+                  >
+                    {link.name}
+                    {link.dropdown && (
+                      <ChevronDown
+                        size={14}
+                        className={`transition-transform duration-300 ${
+                          isAboutHovered ? "rotate-180" : ""
+                        }`}
+                      />
                     )}
-                  </AnimatePresence>
-                )}
-              </div>
-            ))}
+                  </Link>
+
+                  {link.dropdown && (
+                    <AnimatePresence>
+                      {isAboutHovered && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-[calc(100%-4px)] left-0 min-w-[180px] bg-white rounded-xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 z-[100]"
+                        >
+                          {link.dropdown.map((item) => (
+                            <Link
+                              key={item.name}
+                              href={item.href}
+                              className="block px-6 py-2.5 text-sm text-[#0e2e1d] hover:bg-[#006442]/5 hover:text-[#006442] transition-colors font-medium"
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  )}
+                </div>
+              );
+            })}
           </nav>
 
           {/* Actions Section (Right) */}
@@ -191,67 +197,81 @@ const Navbar = () => {
           >
             <div className="px-8 py-8">
               <nav className="flex flex-col">
-                {navLinks.map((link, index) => (
-                  <div key={link.name} className="flex flex-col">
-                    <motion.a
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        duration: 0.3,
-                        delay: index * 0.06,
-                        ease: "easeOut",
-                      }}
-                      onClick={() => {
-                        if (link.dropdown) {
-                          setAboutOpen(!aboutOpen);
-                        } else {
-                          setIsOpen(false);
-                        }
-                      }}
-                      className={`flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 group cursor-pointer ${
-                        link.active
-                          ? "text-[#006442] font-bold"
-                          : "text-[#0e2e1d] font-semibold hover:text-[#006442]"
-                      }`}
-                      href={link.dropdown ? undefined : link.href}
-                    >
-                      <span className="text-lg">{link.name}</span>
-                      {link.dropdown && (
-                        <ChevronDown
-                          size={18}
-                          className={`text-gray-400 group-hover:text-[#006442] transition-all duration-300 ${
-                            aboutOpen ? "rotate-180" : ""
-                          }`}
-                        />
-                      )}
-                    </motion.a>
+                {navLinks.map((link, index) => {
+                  const isActive = (link.href !== "#" && pathname === link.href) || 
+                                   (link.dropdown?.some(item => item.href !== "#" && pathname === item.href));
 
-                    {link.dropdown && (
-                      <AnimatePresence>
-                        {aboutOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="bg-gray-50/50 rounded-lg overflow-hidden flex flex-col"
-                          >
-                            {link.dropdown.map((subItem) => (
-                              <a
-                                key={subItem.name}
-                                href={subItem.href}
-                                onClick={() => setIsOpen(false)}
-                                className="block py-4 px-8 text-base text-[#0e2e1d] hover:text-[#006442] font-medium border-l-4 border-transparent hover:border-[#006442] transition-all"
-                              >
-                                {subItem.name}
-                              </a>
-                            ))}
-                          </motion.div>
+                  return (
+                    <div key={link.name} className="flex flex-col">
+                      <Link
+                        href={link.dropdown ? "#" : link.href}
+                        onClick={(e) => {
+                          if (link.dropdown) {
+                            e.preventDefault();
+                            setAboutOpen(!aboutOpen);
+                          } else {
+                            setIsOpen(false);
+                          }
+                        }}
+                        className={`flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 group cursor-pointer ${
+                          isActive
+                            ? "text-[#006442] font-bold"
+                            : "text-[#0e2e1d] font-semibold hover:text-[#006442]"
+                        }`}
+                      >
+                        <motion.span 
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{
+                            duration: 0.3,
+                            delay: index * 0.06,
+                            ease: "easeOut",
+                          }}
+                          className="text-lg"
+                        >
+                          {link.name}
+                        </motion.span>
+                        {link.dropdown && (
+                          <ChevronDown
+                            size={18}
+                            className={`text-gray-400 group-hover:text-[#006442] transition-all duration-300 ${
+                              aboutOpen ? "rotate-180" : ""
+                            }`}
+                          />
                         )}
-                      </AnimatePresence>
-                    )}
-                  </div>
-                ))}
+                      </Link>
+
+                      {link.dropdown && (
+                        <AnimatePresence>
+                          {aboutOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="bg-gray-50/50 rounded-lg overflow-hidden flex flex-col"
+                            >
+                              {link.dropdown.map((subItem) => (
+                                <Link
+                                  key={subItem.name}
+                                  href={subItem.href}
+                                  onClick={() => setIsOpen(false)}
+                                  className={`block py-4 px-8 text-base font-medium border-l-4 transition-all ${
+                                    pathname === subItem.href
+                                      ? "text-[#006442] border-[#006442] bg-[#006442]/5"
+                                      : "text-[#0e2e1d] border-transparent hover:text-[#006442] hover:border-[#006442]/30"
+                                  }`}
+                                >
+                                  {subItem.name}
+                                </Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      )}
+                    </div>
+                  );
+                })}
               </nav>
 
               {/* Mobile Bottom Action */}
