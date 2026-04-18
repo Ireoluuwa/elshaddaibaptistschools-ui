@@ -71,30 +71,31 @@ export default function StudentResultPage({ params }: ResultPageProps) {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <Filter size={18} className="text-gray-400 shrink-0" />
-        <select
-          value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
-          className="w-full sm:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
-        >
-          {academicYears.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedTerm}
-          onChange={(e) => setSelectedTerm(e.target.value)}
-          className="w-full sm:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
-        >
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="flex-1 sm:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-xs sm:text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
+          >
+            {academicYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedTerm}
+            onChange={(e) => setSelectedTerm(e.target.value)}
+            className="flex-1 sm:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-xs sm:text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
+          >
           {terms.map((term) => (
             <option key={term} value={term}>
               {term}
             </option>
           ))}
         </select>
+        </div>
 
         {/* Status Badge */}
         {isCurrentSession ? (
@@ -103,7 +104,7 @@ export default function StudentResultPage({ params }: ResultPageProps) {
             Editable
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-gray-500 bg-gray-100 rounded-lg">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-gray-500 bg-gray-100 rounded-lg border border-gray-200">
             <Clock size={12} />
             Read Only
           </span>
