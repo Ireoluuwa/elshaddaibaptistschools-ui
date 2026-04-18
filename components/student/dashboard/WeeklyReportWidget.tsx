@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, BookOpen, Target, Clock } from "lucide-react";
+import { TrendingUp, Award } from "lucide-react";
 
 const WeeklyReportWidget = () => {
   return (
@@ -10,58 +10,32 @@ const WeeklyReportWidget = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col h-full relative overflow-hidden group hover:shadow-md transition-shadow"
+      className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col h-full relative overflow-hidden hover:shadow-md transition-shadow justify-center items-center text-center"
     >
-      {/* Decorative solid shape */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-50 rounded-full transition-transform group-hover:scale-150 duration-700 pointer-events-none" />
-
-      <div className="flex items-center justify-between mb-6 relative z-10">
-        <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <TrendingUp className="text-emerald-600" size={20} />
-          This Week's Report
+      <div className="absolute top-6 left-6 flex items-center gap-2">
+        <TrendingUp className="text-emerald-600" size={16} />
+        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+          Weekly Report
         </h2>
-        <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-          Excellent
-        </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 flex-1 relative z-10">
-        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-2">
-            <span className="text-gray-500 text-sm font-medium">Avg Score</span>
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-              <Target size={16} />
-            </div>
-          </div>
-          <p className="text-3xl font-black text-gray-900">86<span className="text-lg text-gray-400 font-bold">%</span></p>
-          <p className="text-emerald-600 text-xs font-medium mt-1">↑ +2.4% from last week</p>
+      <div className="mt-4 flex flex-col items-center justify-center flex-1">
+        <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-4">
+          <Award size={28} />
+        </div>
+        
+        <div className="flex items-baseline justify-center gap-1 mb-3">
+          <span className="text-6xl font-black text-gray-900 tracking-tighter">4.8</span>
+          <span className="text-2xl font-bold text-gray-400">/ 5</span>
         </div>
 
-        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-2">
-            <span className="text-gray-500 text-sm font-medium">Tasks</span>
-            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-              <BookOpen size={16} />
-            </div>
-          </div>
-          <p className="text-3xl font-black text-gray-900">12<span className="text-lg text-gray-400 font-bold">/14</span></p>
-          <p className="text-blue-600 text-xs font-medium mt-1">Completed</p>
-        </div>
+        <span className="text-sm font-black text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 border border-emerald-100">
+          Excellent
+        </span>
 
-        <div className="col-span-2 bg-[#0e2e1d] rounded-2xl p-4 flex items-center justify-between text-white relative overflow-hidden">
-          <div className="flex items-center gap-3 relative z-10">
-            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-emerald-300">
-              <Clock size={20} />
-            </div>
-            <div>
-              <p className="text-white/70 text-xs font-medium mb-0.5">Attendance</p>
-              <p className="text-lg font-bold text-white">100% Present</p>
-            </div>
-          </div>
-          <span className="relative z-10 text-emerald-400 font-bold text-sm bg-white/10 px-3 py-1.5 rounded-full border border-emerald-900">
-            5 Days
-          </span>
-        </div>
+        <p className="text-gray-500 font-medium text-sm max-w-xs">
+          Outstanding performance this week. Keep up the great work on your assignments!
+        </p>
       </div>
     </motion.div>
   );
