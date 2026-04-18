@@ -38,13 +38,14 @@ export default function ReportSheetPage() {
         {/* Header Block */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex gap-4 items-center">
-            {/* Logo Placeholder */}
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-[#006442] flex items-center justify-center p-2">
-              <div className="text-center font-bold text-[10px] sm:text-xs text-[#006442] leading-tight flex flex-col items-center">
-                <span>EL-SHADDAI</span>
-                <span className="text-[20px] sm:text-[24px]">🎓</span>
-                <span>COLLEGE</span>
-              </div>
+            <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0">
+              <Image 
+                src="/logo.png" 
+                alt="El-Shaddai Baptist College Logo" 
+                width={112} 
+                height={112}
+                className="w-full h-full object-contain"
+              />
             </div>
             {/* School Name */}
             <div className="flex flex-col">
