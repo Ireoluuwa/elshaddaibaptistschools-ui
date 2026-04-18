@@ -12,37 +12,36 @@ export default function ReportSheetPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 font-sans text-black overflow-auto print:bg-white print:py-0 print:px-0">
-      
+
       {/* Top Action Bar (Hidden when printing) */}
       <div className="max-w-[210mm] mx-auto flex items-center justify-between mb-6 print:hidden">
-        <Link 
-          href="/portal/student/results" 
-          className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-bold rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
+        <Link
+          href="/portal/student/results"
+          className="flex items-center gap-2 px-2 py-2 bg-white text-gray-700 font-bold rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
         >
           <ChevronLeft size={18} />
-          Back to Portal
         </Link>
-        
-        <button 
+
+        <button
           onClick={handlePrint}
           className="flex items-center gap-2 px-5 py-2 bg-[#006442] hover:bg-[#005236] text-white font-bold rounded-lg shadow-sm transition-colors"
         >
           <Download size={18} />
-          Download Result
+          Download
         </button>
       </div>
 
       {/* A4 Document Container */}
       <div className="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-8 md:p-12 print:shadow-none print:w-full print:max-w-none print:p-0 print:m-0 border border-transparent print:border-none">
-        
+
         {/* Header Block */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex gap-4 items-center">
             <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0">
-              <Image 
-                src="/logo.png" 
-                alt="El-Shaddai Baptist College Logo" 
-                width={112} 
+              <Image
+                src="/logo.png"
+                alt="El-Shaddai Baptist College Logo"
+                width={112}
                 height={112}
                 className="w-full h-full object-contain"
               />
@@ -56,10 +55,6 @@ export default function ReportSheetPage() {
                 BAPTIST COLLEGE
               </h1>
             </div>
-          </div>
-          {/* Report Sheet Label */}
-          <div className="bg-[#659146] text-white font-bold px-6 py-2 border-2 border-black -mt-4 -mr-4 print:-mt-0 print:-mr-0">
-            Report Sheet
           </div>
         </div>
 
@@ -137,12 +132,12 @@ export default function ReportSheetPage() {
                 ))}
               </tbody>
             </table>
-            
+
             {/* Term Summary Block Inside Main Table Container */}
             <div className="flex justify-between px-4 py-2 font-bold text-xs border-t border-black bg-gray-50/50">
-               <span>1st Term: 69.6%</span>
-               <span>2nd Term: 75.7%</span>
-               <span>3rd Term: 72.5%</span>
+              <span>1st Term: 69.6%</span>
+              <span>2nd Term: 75.7%</span>
+              <span>3rd Term: 72.5%</span>
             </div>
           </div>
 
@@ -150,106 +145,100 @@ export default function ReportSheetPage() {
           <div className="w-full md:w-56 flex flex-col gap-6 shrink-0">
             {/* Grading System Table */}
             <table className="w-full text-center text-xs font-bold border-collapse border-2 border-black">
-               <thead className="bg-[#f8cbab] italic font-serif">
-                 <tr>
-                   <th colSpan={2} className="border-b-2 border-black py-1">Grading System</th>
-                 </tr>
-               </thead>
-               <tbody>
-                  {[
-                    { gr: "A*", rng: "90 - 100" },
-                    { gr: "A+", rng: "85 - 89" },
-                    { gr: "A", rng: "80 - 84" },
-                    { gr: "A-", rng: "75 - 79" },
-                    { gr: "B+", rng: "70 - 74" },
-                    { gr: "B-", rng: "65 - 69" },
-                    { gr: "C+", rng: "61 - 64" },
-                    { gr: "C", rng: "55 - 60" },
-                    { gr: "C-", rng: "50 - 54" },
-                    { gr: "D", rng: "45 - 49" },
-                    { gr: "P", rng: "40 - 44" },
-                    { gr: "F", rng: "0 - 39" }
-                  ].map((row, i) => (
-                    <tr key={i}>
-                      <td className="border border-black py-0.5 px-2 text-left">{row.gr}</td>
-                      <td className="border border-black py-0.5 px-2">{row.rng}</td>
-                    </tr>
-                  ))}
-               </tbody>
+              <thead className="bg-[#f8cbab] italic font-serif">
+                <tr>
+                  <th colSpan={2} className="border-b-2 border-black py-1">Grading System</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { gr: "A*", rng: "90 - 100" },
+                  { gr: "A+", rng: "85 - 89" },
+                  { gr: "A", rng: "80 - 84" },
+                  { gr: "A-", rng: "75 - 79" },
+                  { gr: "B+", rng: "70 - 74" },
+                  { gr: "B-", rng: "65 - 69" },
+                  { gr: "C+", rng: "61 - 64" },
+                  { gr: "C", rng: "55 - 60" },
+                  { gr: "C-", rng: "50 - 54" },
+                  { gr: "D", rng: "45 - 49" },
+                  { gr: "P", rng: "40 - 44" },
+                  { gr: "F", rng: "0 - 39" }
+                ].map((row, i) => (
+                  <tr key={i}>
+                    <td className="border border-black py-0.5 px-2 text-left">{row.gr}</td>
+                    <td className="border border-black py-0.5 px-2">{row.rng}</td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
 
             {/* Attendance Table */}
             <table className="w-full text-center text-xs font-bold border-collapse border-2 border-black">
-               <thead className="bg-[#f8cbab]">
-                 <tr>
-                   <th colSpan={2} className="border-b-2 border-black py-1.5 text-white bg-[#e08f51]">Attendance</th>
-                 </tr>
-               </thead>
-               <tbody>
-                  <tr>
-                    <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Total Days of School:</td>
-                    <td className="border border-black py-1.5 px-2">126</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Days Attended:</td>
-                    <td className="border border-black py-1.5 px-2">120</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Days Absent:</td>
-                    <td className="border border-black py-1.5 px-2">06</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Vacation Date:</td>
-                    <td className="border border-black py-1.5 px-1 truncate text-[10px]">AUG 1st, 2025</td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Sch. Resumes:</td>
-                    <td className="border border-black py-1.5 px-1 truncate text-[10px]">SEPT. 8th, 2025</td>
-                  </tr>
-               </tbody>
+              <thead className="bg-[#f8cbab]">
+                <tr>
+                  <th colSpan={2} className="border-b-2 border-black py-1.5 text-white bg-[#e08f51]">Attendance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Total Days of School:</td>
+                  <td className="border border-black py-1.5 px-2">126</td>
+                </tr>
+                <tr>
+                  <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Days Attended:</td>
+                  <td className="border border-black py-1.5 px-2">120</td>
+                </tr>
+                <tr>
+                  <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Days Absent:</td>
+                  <td className="border border-black py-1.5 px-2">06</td>
+                </tr>
+                <tr>
+                  <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Vacation Date:</td>
+                  <td className="border border-black py-1.5 px-1 truncate text-[10px]">AUG 1st, 2025</td>
+                </tr>
+                <tr>
+                  <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Sch. Resumes:</td>
+                  <td className="border border-black py-1.5 px-1 truncate text-[10px]">SEPT. 8th, 2025</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
 
         {/* Footer Score Remarks */}
         <div className="mt-6 flex flex-col gap-6 text-sm font-bold">
-           <div className="flex justify-between items-center px-4">
-              <span>Total Marks Obtainable: 1900</span>
-              <span>Total Marks Obtained: 1378.5</span>
-              <span>Overall score: 72.8</span>
-           </div>
-           
-           <div className="text-center">
-              He shows a conscientious effort to learn. <span className="font-black text-lg">(PROMOTED)</span>
-           </div>
+          <div className="flex justify-between items-center px-4">
+            <span>Total Marks Obtainable: 1900</span>
+            <span>Total Marks Obtained: 1378.5</span>
+            <span>Overall score: 72.8</span>
+          </div>
 
-           <div className="flex justify-between items-end mt-4">
-              <span>V.P's Remark:</span>
-              <div className="w-64 border-b-2 border-black flex flex-col items-center">
-                 <span className="text-[10px] uppercase invisible">Signature</span>
-              </div>
-              <div className="w-48 border-b-2 border-black mt-10 text-right pr-2 text-[10px] block relative">
-                 <span className="absolute -bottom-4 right-0">Date & Signature</span>
-              </div>
-           </div>
-           
-           <div className="flex justify-end items-end mt-4">
-              <div className="w-1/2 border-b-2 border-black mt-10 text-right pr-2 text-[10px] block relative">
-                 <span className="absolute -bottom-4 right-0">Date & Signature</span>
-              </div>
-           </div>
+          <div className="text-center">
+            He shows a conscientious effort to learn. <span className="font-black text-lg">(PROMOTED)</span>
+          </div>
 
-           {/* Tuition Line */}
-           <div className="text-xs flex items-center justify-center gap-2 mt-6">
-              <span>Outstanding: ₦</span>
-              <span className="w-24 border-b border-black inline-block"></span>
-              <span>, Next Term Tuition: ₦</span>
-              <span className="w-24 border-b border-black inline-block"></span>
-              <span>, I.C.T: </span>
-              <span className="w-24 border-b border-black inline-block"></span>
-              <span>Total: </span>
-              <span className="w-24 border-b border-black inline-block"></span>
-           </div>
+          <div className="flex justify-between items-end mt-4">
+            <span>V.P's Remark:</span>
+            <div className="w-64 border-b-2 border-black flex flex-col items-center">
+              <span className="text-[10px] uppercase invisible">Signature</span>
+            </div>
+            <div className="w-48 border-b-2 border-black mt-10 text-right pr-2 text-[10px] block relative">
+              <span className="absolute -bottom-4 right-0">Date & Signature</span>
+            </div>
+          </div>
+
+          {/* Tuition Line */}
+          <div className="text-xs flex items-center justify-center gap-2 mt-6">
+            <span>Outstanding: ₦</span>
+            <span className="w-24 border-b border-black inline-block"></span>
+            <span>, Next Term Tuition: ₦</span>
+            <span className="w-24 border-b border-black inline-block"></span>
+            <span>, I.C.T: </span>
+            <span className="w-24 border-b border-black inline-block"></span>
+            <span>Total: </span>
+            <span className="w-24 border-b border-black inline-block"></span>
+          </div>
         </div>
       </div>
     </div>
