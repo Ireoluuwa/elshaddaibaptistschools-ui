@@ -19,19 +19,12 @@ const WeeklyReportWidget = () => {
         </h2>
       </div>
 
-      <div className="mt-4 flex flex-col items-center justify-center flex-1">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-4">
-          <Award size={28} />
-        </div>
-        
+      <div className="mt-4 flex flex-col py-4 items-center justify-center flex-1">
+
         <div className="flex items-baseline justify-center gap-1 mb-3">
           <span className="text-6xl font-black text-gray-900 tracking-tighter">4.8</span>
           <span className="text-2xl font-bold text-gray-400">/ 5</span>
         </div>
-
-        <span className="text-sm font-black text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 border border-emerald-100">
-          Excellent
-        </span>
 
         <p className="text-gray-500 font-medium text-sm max-w-xs">
           Outstanding performance this week. Keep up the great work on your assignments!
