@@ -24,7 +24,7 @@ const Navbar = () => {
       href: "/about",
       dropdown: [
         { name: "About Us", href: "/about" },
-        { name: "Academics", href: "#" },
+        { name: "Academics", href: "/academics" },
         { name: "Gallery", href: "#" },
       ],
     },
