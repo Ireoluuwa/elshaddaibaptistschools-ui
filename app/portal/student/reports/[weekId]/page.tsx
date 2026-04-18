@@ -70,9 +70,6 @@ export default function WeeklyReportDetailPage() {
                 </h2>
               </div>
               {renderRating(5, report.behavioralRating)}
-              <p className="mt-6 text-sm font-bold text-gray-500 leading-relaxed italic">
-                {report.behavioralRating === 5 ? "Exemplary behavior throughout the week." : "Demonstrating positive growth and engagement."}
-              </p>
             </section>
 
             {/* Teacher Comments */}
