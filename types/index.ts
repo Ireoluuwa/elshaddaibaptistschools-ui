@@ -5,4 +5,5 @@ export interface ApiResponse<T = any> {
 }
 
 export * from './student.types';
+export * from './teacher.types';
 export * from './auth.types';

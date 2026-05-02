@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getStudentProfile, updateStudentProfile, changePassword } from '@/services/profile.service';
+import { useQuery, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { getStudentProfile, updateStudentProfile, getTeacherProfile, updateTeacherProfile, changePassword } from '@/services/profile.service';
 
 export const useStudentProfile = () => {
   return useQuery({
@@ -15,6 +15,30 @@ export const useUpdateStudentProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-profile'] });
     },
+  });
+};
+
+export const useTeacherProfile = () => {
+  return useQuery({
+    queryKey: ['teacher-profile'],
+    queryFn: getTeacherProfile,
+  });
+};
+
+export const useUpdateTeacherProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTeacherProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-profile'] });
+    },
+  });
+};
+
+export const useSuspenseTeacherProfile = () => {
+  return useSuspenseQuery({
+    queryKey: ['teacher-profile'],
+    queryFn: getTeacherProfile,
   });
 };
 
