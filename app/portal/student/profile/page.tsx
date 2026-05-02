@@ -4,17 +4,17 @@ import React from "react";
 import StudentProfileBanner from "@/components/student/profile/StudentProfileBanner";
 import ProfileDetailsForm from "@/components/student/profile/ProfileDetailsForm";
 import StudentPasswordForm from "@/components/student/profile/StudentPasswordForm";
-import { useStudentProfile } from "@/hooks/profile.hooks";
-import DashboardSkeleton from "@/components/shared/DashboardSkeleton";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { getStudentProfile } from "@/services/profile.service";
 
 export default function StudentProfilePage() {
-  const { data: profile, isLoading, error } = useStudentProfile();
+  // useSuspenseQuery will suspend the component, triggering loading.tsx
+  const { data: profile } = useSuspenseQuery({
+    queryKey: ['student-profile'],
+    queryFn: getStudentProfile,
+  });
 
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
-
-  if (error || !profile) {
+  if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <p className="text-red-500 font-medium">Failed to load profile data.</p>
