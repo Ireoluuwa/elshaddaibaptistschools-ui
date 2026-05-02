@@ -7,13 +7,19 @@ const api = axios.create({
   },
 });
 
+// Helper function to extract cookie by name
+const getCookie = (name: string) => {
+  if (typeof document === 'undefined') return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+};
+
 api.interceptors.request.use(
   (config) => {
-    let token: string | null = null;
-    
-    if (typeof window !== 'undefined') {
-      token = localStorage.getItem('token'); 
-    }
+    // Read the token from cookies instead of localStorage
+    const token = getCookie('token');
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -28,8 +34,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Optional: Clear the cookie manually or redirect
+      // document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      // window.location.href = '/login';
     }
     return Promise.reject(error);
   }
