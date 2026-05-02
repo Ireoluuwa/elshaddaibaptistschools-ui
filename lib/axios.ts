@@ -18,7 +18,6 @@ const getCookie = (name: string) => {
 
 api.interceptors.request.use(
   (config) => {
-    // Read the token from cookies instead of localStorage
     const token = getCookie('token');
 
     if (token && config.headers) {
