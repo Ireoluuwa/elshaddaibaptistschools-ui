@@ -4,8 +4,30 @@ import React from "react";
 import StudentProfileBanner from "@/components/student/profile/StudentProfileBanner";
 import ProfileDetailsForm from "@/components/student/profile/ProfileDetailsForm";
 import StudentPasswordForm from "@/components/student/profile/StudentPasswordForm";
+import { useStudentProfile } from "@/hooks/profile.hooks";
+import DashboardSkeleton from "@/components/shared/DashboardSkeleton";
 
 export default function StudentProfilePage() {
+  const { data: profile, isLoading, error } = useStudentProfile();
+
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-red-500 font-medium">Failed to load profile data.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-[#006442] text-white rounded-lg text-sm"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-8">
       {/* Page Header */}
@@ -20,16 +42,16 @@ export default function StudentProfilePage() {
 
       {/* Main Banner Component */}
       <StudentProfileBanner
-        firstName="Student"
-        lastName="Name"
-        studentId="STU-2025-042"
-        currentClass="SS2 Science"
+        firstName={profile.firstName}
+        lastName={profile.lastName}
+        studentId={profile.studentId}
+        currentClass={`${profile.schoolClass || ''} ${profile.department || ''}`.trim() || 'N/A'}
       />
 
       {/* Forms Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2">
-          <ProfileDetailsForm />
+          <ProfileDetailsForm profile={profile} />
         </div>
         <div className="lg:col-span-1">
           <StudentPasswordForm />
