@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, ChevronUp, Settings, LogOut } from "lucide-react";
+import { useLogout } from "@/hooks/auth.hooks";
 
 interface SidebarProfileProps {
   collapsed: boolean;
@@ -15,6 +16,7 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
   onNavigate,
 }) => {
   const [profileOpen, setProfileOpen] = useState(false);
+  const handleLogout = useLogout();
 
   return (
     <div className="mt-auto px-3 pb-6 relative shrink-0">
@@ -43,13 +45,13 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
               Profile Settings
             </Link>
             <div className="h-px bg-white/8" />
-            <Link
-              href="/auth/login"
-              className="flex items-center gap-3 px-4 py-3 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 text-sm font-medium transition-all"
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 text-red-400/70 hover:text-red-400 hover:bg-red-500/10 text-sm font-medium transition-all"
             >
               <LogOut size={16} />
               Sign Out
-            </Link>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
