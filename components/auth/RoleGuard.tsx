@@ -4,7 +4,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useProfileQuery } from "@/hooks/auth.hooks";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import DashboardSkeleton from "@/components/shared/DashboardSkeleton";
 
 export default function RoleGuard({
   children,
@@ -21,8 +21,8 @@ export default function RoleGuard({
 
   useEffect(() => {
     if (userProfile) {
-     
       setUser(userProfile);
+
 
       if (userProfile.role.toLowerCase() !== allowedRole.toLowerCase()) {
         router.push(`/portal/${userProfile.role.toLowerCase()}`);
@@ -31,16 +31,10 @@ export default function RoleGuard({
       router.push("/auth/login");
     }
   }, [userProfile, isError, allowedRole, router, setUser]);
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <Loader2 className="w-10 h-10 text-[#006442] animate-spin" />
-        <p className="mt-4 text-sm text-gray-500 font-medium">Verifying access...</p>
-      </div>
-    );
-  }
 
-  // Double check before rendering children
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
   if (!userProfile || userProfile.role.toLowerCase() !== allowedRole.toLowerCase()) {
     return null;
   }
