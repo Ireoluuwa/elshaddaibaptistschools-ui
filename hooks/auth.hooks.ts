@@ -8,7 +8,7 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: loginService,
     onSuccess: (data) => {
-      document.cookie = `token=${data.token}; path=/;`;
+      document.cookie = `token=${data.access_token}; path=/;`;
       setUser(data.user);
     },
   });

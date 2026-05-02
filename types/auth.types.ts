@@ -1,16 +1,14 @@
 export interface User {
-  id: string;
-  email: string;
+  username: string;
   role: string;
-  // Add other fields based on your backend
 }
 
 export interface AuthResponse {
-  token: string;
+  access_token: string;
   user: User;
 }
 
 export interface LoginPayload {
-  email: string;
+  username: string;
   password?: string;
 }

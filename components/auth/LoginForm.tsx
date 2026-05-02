@@ -2,14 +2,41 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { User, Lock, ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLoginMutation } from "@/hooks/auth.hooks";
+import { toast } from "@/store/toast.store";
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
+  const { mutate: login, isPending } = useLoginMutation();
+  const router = useRouter();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username || !password) {
+      toast.warning("Missing Fields", "Please enter both username and password.");
+      return;
+    }
+    
+    login(
+      { username, password },
+      {
+        onSuccess: (data) => {
+          toast.success("Login Successful", `Welcome back, ${data.user.username}!`);
+          router.push(`/portal/${data.user.role.toLowerCase()}`);
+        },
+        onError: (error: any) => {
+          toast.error("Login Failed", error.response?.data?.message || "Invalid credentials.");
+        },
+      }
+    );
+  };
 
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-12 lg:py-0 bg-white">
@@ -39,10 +66,7 @@ const LoginForm = () => {
         </div>
 
         {/* Form */}
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="flex flex-col gap-6"
-        >
+        <form onSubmit={handleLogin} className="flex flex-col gap-6">
           {/* Username Field */}
           <div className="flex flex-col gap-2">
             <label
@@ -141,10 +165,20 @@ const LoginForm = () => {
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             type="submit"
-            className="w-full h-12 rounded-xl bg-[#006442] hover:bg-[#005236] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#006442]/20 transition-colors cursor-pointer"
+            disabled={isPending}
+            className="w-full h-12 rounded-xl bg-[#006442] hover:bg-[#005236] disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#006442]/20 transition-colors cursor-pointer"
           >
-            Sign In
-            <ArrowRight size={18} />
+            {isPending ? (
+              <>
+                Signing In...
+                <Loader2 size={18} className="animate-spin" />
+              </>
+            ) : (
+              <>
+                Sign In
+                <ArrowRight size={18} />
+              </>
+            )}
           </motion.button>
         </form>
 
