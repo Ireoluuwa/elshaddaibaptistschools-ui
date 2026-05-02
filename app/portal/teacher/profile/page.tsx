@@ -1,36 +1,57 @@
 "use client";
 
 import React from "react";
-import ProfileBanner from "@/components/teacher/profile/ProfileBanner";
-import ProfileForm from "@/components/teacher/profile/ProfileForm";
-import PasswordForm from "@/components/teacher/profile/PasswordForm";
+import TeacherProfileBanner from "@/components/teacher/profile/TeacherProfileBanner";
+import TeacherProfileDetailsForm from "@/components/teacher/profile/TeacherProfileDetailsForm";
+import TeacherPasswordForm from "@/components/teacher/profile/TeacherPasswordForm";
+import { useSuspenseTeacherProfile } from "@/hooks/profile.hooks";
 
 export default function TeacherProfilePage() {
+  const { data: profile } = useSuspenseTeacherProfile();
+
+  if (!profile) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-red-500 font-medium">Failed to load teacher profile.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-[#006442] text-white rounded-lg text-sm"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-8">
+    <div className="max-w-6xl mx-auto flex flex-col gap-8">
       {/* Page Header */}
       <div>
         <h1 className="text-[#0e2e1d] text-2xl font-black tracking-tight uppercase">
-          Profile Settings
+          Teacher Settings
         </h1>
         <p className="text-gray-400 text-sm mt-1">
-          Manage your identity, contact information, and security.
+          Manage your personal information, contact details, and account security.
         </p>
       </div>
 
       {/* Main Banner Component */}
-      <ProfileBanner
-        name="Mr. Anderson"
-        role="Senior Teacher"
-        id="TCH-2023-001"
-        subjects="Math & Physics"
-        classes="SS1, SS2"
+      <TeacherProfileBanner
+        firstName={profile.firstName}
+        lastName={profile.lastName}
+        username={profile.username}
+        role={profile.role}
+        currentClass={`${profile.schoolClass || ''} ${profile.department || ''}`.trim()}
       />
 
       {/* Forms Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <ProfileForm />
-        <PasswordForm />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="lg:col-span-2">
+          <TeacherProfileDetailsForm profile={profile} />
+        </div>
+        <div className="lg:col-span-1">
+          <TeacherPasswordForm />
+        </div>
       </div>
 
       {/* Footer */}
