@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, Settings, LogOut } from "lucide-react";
-import { useLogout } from "@/hooks/auth.hooks";
+import { useLogout, useProfileQuery } from "@/hooks/auth.hooks";
 
 interface SidebarProfileProps {
   collapsed: boolean;
@@ -17,6 +17,7 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
 }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const handleLogout = useLogout();
+  const { data: profile, isLoading } = useProfileQuery();
 
   return (
     <div className="mt-auto px-3 pb-6 relative shrink-0">
@@ -59,7 +60,8 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
       {/* User Card (clickable) */}
       <button
         onClick={() => setProfileOpen(!profileOpen)}
-        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer text-left"
+        disabled={isLoading}
+        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer text-left disabled:cursor-wait"
       >
         <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-400/20 overflow-hidden flex items-center justify-center shrink-0">
           <img
@@ -76,12 +78,21 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
               exit={{ opacity: 0, x: -5 }}
               className="flex-1 min-w-0"
             >
-              <p className="text-white text-sm font-semibold truncate">
-                Student Name
-              </p>
-              <p className="text-white/40 text-[11px] truncate">
-                JSS 1
-              </p>
+              {isLoading ? (
+                <>
+                  <div className="h-4 w-24 bg-white/10 rounded animate-pulse mb-1" />
+                  <div className="h-3 w-16 bg-white/5 rounded animate-pulse" />
+                </>
+              ) : (
+                <>
+                  <p className="text-white text-sm font-semibold truncate">
+                    {profile?.firstName || "Student"}
+                  </p>
+                  <p className="text-white/40 text-[11px] truncate">
+                    {profile?.schoolClass || "No Class"}
+                  </p>
+                </>
+              )}
             </motion.div>
             <ChevronUp
               size={14}
