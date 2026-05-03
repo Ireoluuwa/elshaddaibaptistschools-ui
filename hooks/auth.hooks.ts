@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { loginService, getProfileService } from '@/services/auth.service';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
@@ -27,10 +27,12 @@ export const useProfileQuery = () => {
 export const useLogout = () => {
   const router = useRouter();
   const logoutStore = useAuthStore((state) => state.logout);
+  const queryClient = useQueryClient();
 
   return () => {
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     logoutStore();
+    queryClient.clear();
     
     toast.info("Logged Out", "You have been securely logged out.");
     router.push('/auth/login');

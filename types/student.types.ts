@@ -6,7 +6,7 @@ export interface StudentProfile {
   lastName: string;
   schoolClass: string;
   department: string;
-  dateOfBirth: string; // ISO format date string
+  dateOfBirth: string;
   yearJoined: number;
   homeAddress: string;
   guardianName: string;
