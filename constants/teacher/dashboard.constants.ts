@@ -27,14 +27,14 @@ export const classroomActions: DashboardAction[] = [
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },
-  {
-    name: "Attendance",
-    description: "Mark daily register",
-    href: "/portal/teacher/attendance",
-    icon: UserCheck,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50",
-  },
+  // {
+  //   name: "Attendance",
+  //   description: "Mark daily register",
+  //   href: "/portal/teacher/attendance",
+  //   icon: UserCheck,
+  //   color: "text-emerald-600",
+  //   bgColor: "bg-emerald-50",
+  // },
   {
     name: "Upload Assignment",
     description: "Create new tasks",
