@@ -46,9 +46,9 @@ export default function StudentReportPage({ params }: ReportPageProps) {
 
   const { student, timeline, activeReport } = historyData;
 
-  // classId comes from the teacher's dashboard init; departmentId is optional (SSS only)
-  const classId = dashboardData?.classInfo?.id;
-  const departmentId = student?.departmentId ?? null;
+  // Use classId and departmentId returned from the student history data
+  const classId = student.classId;
+  const departmentId = student.departmentId;
 
   const selectedTimelineItem = timeline.find((t) => t.week === selectedWeek);
   const hasPastData = !!selectedTimelineItem?.reportId;
