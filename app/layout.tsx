@@ -30,7 +30,7 @@ export default function RootLayout({
         "font-sans"
       )}
     >
-      <body className="min-h-full flex flex-col bg-white">
+      <body className="min-h-full flex flex-col bg-white" suppressHydrationWarning>
         <Providers>
           {children}
           <ToastContainer />
