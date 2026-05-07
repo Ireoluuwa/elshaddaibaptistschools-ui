@@ -99,7 +99,7 @@ export default function ReportForm({
             label="Attendance"
             value={attendance}
             setValue={setAttendance}
-            max={7}
+            max={5}
             icon="calendar"
             isHistoryView={isHistoryView}
           />
