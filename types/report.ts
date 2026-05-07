@@ -49,6 +49,8 @@ export interface StudentHistoryData {
     name: string;
     class: string;
     studentId: string;
+    classId?: string;
+    departmentId?: string | null;
   };
   timeline: {
     week: number;
@@ -70,11 +72,15 @@ export interface Student {
   name: string;
   class: string;
   studentId?: string;
+  classId?: string;
+  departmentId?: string | null;
   status?: string;
 }
 
 export interface ReportFormProps {
   student: Student;
+  classId?: string;
+  departmentId?: string | null;
   isHistoryView?: boolean;
   initialData?: {
     rating: number;
