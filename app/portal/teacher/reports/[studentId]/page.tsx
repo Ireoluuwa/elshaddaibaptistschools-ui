@@ -46,10 +46,13 @@ export default function StudentReportPage({ params }: ReportPageProps) {
 
   const { student, timeline, activeReport } = historyData;
 
+  // classId comes from the teacher's dashboard init; departmentId is optional (SSS only)
+  const classId = dashboardData?.classInfo?.id;
+  const departmentId = student?.departmentId ?? null;
+
   const selectedTimelineItem = timeline.find((t) => t.week === selectedWeek);
   const hasPastData = !!selectedTimelineItem?.reportId;
 
-  // We only get full data for the active report from this endpoint
   let initialData = undefined;
   if (selectedWeek === currentWeek && activeReport) {
     initialData = {
@@ -137,7 +140,15 @@ export default function StudentReportPage({ params }: ReportPageProps) {
                   {activeReport?.status === 'submitted' ? 'SUBMITTED' : 'DRAFT'}
                 </span>
               </div>
-              <ReportForm student={{...student, class: student.class}} isHistoryView={false} initialData={initialData} />
+              <ReportForm 
+                student={{...student, class: student.class}} 
+                classId={classId} 
+                departmentId={departmentId} 
+                termId={termId}
+                weekNumber={currentWeek}
+                isHistoryView={false} 
+                initialData={initialData} 
+              />
             </div>
           ) : (
             // History View

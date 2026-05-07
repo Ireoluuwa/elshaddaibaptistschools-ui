@@ -14,7 +14,7 @@ export const getMappedSubjectsService = async (
   if (departmentId) params.departmentId = departmentId;
 
   const { data } = await api.get<ApiResponse<MappedSubject[]>>(
-    '/academics/subjects/mapped',
+    '/academics/subjects',
     { params }
   );
   return data.data;

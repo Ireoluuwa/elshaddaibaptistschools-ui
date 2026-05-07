@@ -81,6 +81,8 @@ export interface ReportFormProps {
   student: Student;
   classId?: string;
   departmentId?: string | null;
+  termId: string;
+  weekNumber: number;
   isHistoryView?: boolean;
   initialData?: {
     rating: number;
