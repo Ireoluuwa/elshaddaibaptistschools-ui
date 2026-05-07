@@ -96,7 +96,7 @@ export default function StudentReportPage({ params }: ReportPageProps) {
             History
           </div>
 
-          <div className="flex flex-col gap-1 max-h-[300px] md:max-h-none overflow-y-auto pr-2 scrollbar-hide">
+          <div className="flex flex-col gap-1 max-h-[400px] md:max-h-[calc(100vh-280px)] overflow-y-auto pr-2 custom-scrollbar">
             {timeline.map((item) => {
               const week = item.week;
               const isSelected = selectedWeek === week;
