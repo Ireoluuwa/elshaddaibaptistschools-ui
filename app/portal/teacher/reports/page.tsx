@@ -38,9 +38,11 @@ export default function ReportsPage() {
         <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100/50 self-start">
           <div className="flex flex-col">
             <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Active Period</span>
-            <span className="text-sm font-semibold">
-              {dashboardData ? `${activeTermName} • Week ${activeWeek}` : 'Loading...'}
-            </span>
+            {dashboardData ? (
+              <span className="text-sm font-semibold">{`${activeTermName} • Week ${activeWeek}`}</span>
+            ) : (
+              <div className="h-5 w-32 bg-emerald-200/60 rounded animate-pulse mt-0.5" />
+            )}
           </div>
         </div>
       </div>
