@@ -25,7 +25,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({ student }) => {
         <div>
           <h2 className="text-[#0e2e1d] text-xl font-bold">{student.name}</h2>
           <p className="text-gray-500 text-sm">
-            {student.class} • ID: {student.id}
+            {student.class} • ID: {student.studentId || student.id}
           </p>
         </div>
       </div>

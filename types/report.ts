@@ -69,6 +69,7 @@ export interface Student {
   id: string;
   name: string;
   class: string;
+  studentId?: string;
   status?: string;
 }
 
