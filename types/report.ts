@@ -43,6 +43,21 @@ export interface DashboardInitData {
   periods: any[];
 }
 
+export interface StudentHistoryData {
+  student: {
+    id: string;
+    name: string;
+    class: string;
+    studentId: string;
+  };
+  timeline: {
+    week: number;
+    reportId: string | null;
+    status: string;
+  }[];
+  activeReport: WeeklyReport | null;
+}
+
 export interface TestScore {
   id: number;
   subject: string;
