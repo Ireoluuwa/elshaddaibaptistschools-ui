@@ -1,55 +1,69 @@
 "use client";
 
 import React from "react";
-import { Star } from "lucide-react";
-import { behavioralRatings } from "@/constants/teacher/reports.constants";
+import { Star, CalendarCheck } from "lucide-react";
 
-interface BehavioralRatingProps {
-  rating: number;
-  setRating: (rating: number) => void;
+interface RatingStarsProps {
+  label: string;
+  value: number;
+  setValue: (value: number) => void;
+  max: number;
   isHistoryView: boolean;
+  icon?: "star" | "calendar";
 }
 
-export const BehavioralRating: React.FC<BehavioralRatingProps> = ({
-  rating,
-  setRating,
+export const RatingStars: React.FC<RatingStarsProps> = ({
+  label,
+  value,
+  setValue,
+  max,
   isHistoryView,
+  icon = "star",
 }) => {
-  const activeRating = behavioralRatings.find((r) => r.value === rating);
+  const stars = Array.from({ length: max }, (_, i) => i + 1);
 
   return (
     <div className="flex flex-col gap-3">
       <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400">
-        Behavioral Performance
+        {label}
       </h3>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((star) => (
+          {stars.map((s) => (
             <button
-              key={star}
+              key={s}
               type="button"
-              onClick={() => !isHistoryView && setRating(star)}
+              onClick={() => !isHistoryView && setValue(s)}
               disabled={isHistoryView}
-              className={`p-1.5 rounded-full transition-all ${
-                rating >= star ? "text-orange-400" : "text-gray-200"
+              className={`p-1 rounded-full transition-all ${
+                value >= s 
+                  ? (icon === "calendar" ? "text-emerald-500" : "text-orange-400") 
+                  : "text-gray-200"
               } ${
-                !isHistoryView && rating < star ? "hover:text-orange-200" : ""
+                !isHistoryView && value < s ? (icon === "calendar" ? "hover:text-emerald-200" : "hover:text-orange-200") : ""
               } ${isHistoryView ? "cursor-default" : ""}`}
             >
-              <Star
-                size={28}
-                fill={rating >= star ? "currentColor" : "none"}
-                strokeWidth={rating >= star ? 0 : 2}
-              />
+              {icon === "calendar" ? (
+                <CalendarCheck 
+                  size={24} 
+                  fill={value >= s ? "currentColor" : "none"}
+                  strokeWidth={value >= s ? 0 : 2}
+                />
+              ) : (
+                <Star
+                  size={24}
+                  fill={value >= s ? "currentColor" : "none"}
+                  strokeWidth={value >= s ? 0 : 2}
+                />
+              )}
             </button>
           ))}
         </div>
-        {activeRating && (
-          <span className="px-3 py-1 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">
-            {activeRating.label}
-          </span>
-        )}
+        <span className="ml-2 px-3 py-1 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700">
+          {value} / {max}
+        </span>
       </div>
     </div>
   );
 };
+

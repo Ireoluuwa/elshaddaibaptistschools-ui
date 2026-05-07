@@ -5,7 +5,7 @@ import { CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ReportFormProps, TestScore } from "../../../../types/report";
 import { ReportHeader } from "./ReportHeader";
-import { BehavioralRating } from "./BehavioralRating";
+import { RatingStars } from "./BehavioralRating";
 import { TeacherComments } from "./TeacherComments";
 import { TestScores } from "./TestScores";
 import { useMappedSubjects } from "@/hooks/academics.hooks";
@@ -94,31 +94,23 @@ export default function ReportForm({
       <ReportHeader student={student} />
 
       <form onSubmit={handleSave} className="p-6 flex flex-col gap-8">
-        <div className="flex flex-col sm:flex-row gap-8">
-          <div className="flex-1">
-            <BehavioralRating
-              rating={rating}
-              setRating={setRating}
-              isHistoryView={isHistoryView}
-            />
-          </div>
-          <div className="w-full sm:w-48">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">
-              Attendance
-            </h3>
-            <div className="flex items-center gap-3">
-              <input
-                type="number"
-                min="0"
-                max="7"
-                value={attendance}
-                onChange={(e) => setAttendance(Number(e.target.value))}
-                disabled={isHistoryView}
-                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-[#006442] outline-none text-lg font-bold text-center transition-all disabled:bg-gray-100 disabled:text-gray-500"
-              />
-              <span className="text-gray-400 font-medium">/ 7 days</span>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
+          <RatingStars
+            label="Attendance"
+            value={attendance}
+            setValue={setAttendance}
+            max={7}
+            icon="calendar"
+            isHistoryView={isHistoryView}
+          />
+          <RatingStars
+            label="Behavioral Score"
+            value={rating}
+            setValue={setRating}
+            max={5}
+            icon="star"
+            isHistoryView={isHistoryView}
+          />
         </div>
 
         <TeacherComments
