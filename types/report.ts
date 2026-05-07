@@ -87,6 +87,7 @@ export interface ReportFormProps {
   initialData?: {
     rating: number;
     description: string;
+    attendance: number;
     testScores: TestScore[];
   };
 }
