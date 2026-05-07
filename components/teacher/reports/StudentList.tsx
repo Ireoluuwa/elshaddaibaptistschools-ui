@@ -3,17 +3,17 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Search, Filter, Plus, FileEdit } from "lucide-react";
-import { mockStudents } from "@/constants/teacher/reports.constants";
+import { useInitTeacherDashboard } from "@/hooks/report.hooks";
 
 export default function StudentList() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterYear, setFilterYear] = useState("2023/2024");
-  const [filterTerm, setFilterTerm] = useState("Term 1");
+  // filterYear and filterTerm are commented out per instructions
 
-  const academicYears = ["2023/2024", "2022/2023"];
-  const terms = ["Term 1", "Term 2", "Term 3"];
+  const { data: dashboardData, isLoading, isError } = useInitTeacherDashboard();
 
-  const filteredStudents = mockStudents.filter((student) => {
+  const students = dashboardData?.students || [];
+
+  const filteredStudents = students.filter((student) => {
     return student.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
@@ -35,31 +35,7 @@ export default function StudentList() {
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-         
-          
-          {/* <select
-            value={filterYear}
-            onChange={(e) => setFilterYear(e.target.value)}
-            className="w-full md:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
-          >
-            {academicYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select> */}
-
-          {/* <select
-            value={filterTerm}
-            onChange={(e) => setFilterTerm(e.target.value)}
-            className="w-full md:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
-          >
-            {terms.map((term) => (
-              <option key={term} value={term}>
-                {term}
-              </option>
-            ))}
-          </select> */}
+          {/* Filters commented out internationally */}
         </div>
       </div>
 
@@ -74,7 +50,31 @@ export default function StudentList() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredStudents.length > 0 ? (
+            {isLoading ? (
+              // Skeleton Loader
+              [...Array(5)].map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
+                      <div className="h-4 bg-gray-200 rounded w-32" />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-4 bg-gray-200 rounded w-24" />
+                  </td>
+                  <td className="px-6 py-4 flex justify-end">
+                    <div className="h-8 bg-gray-200 rounded w-24" />
+                  </td>
+                </tr>
+              ))
+            ) : isError ? (
+              <tr>
+                <td colSpan={3} className="px-6 py-10 text-center text-red-500">
+                  Failed to load students. Please try again.
+                </td>
+              </tr>
+            ) : filteredStudents.length > 0 ? (
               filteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
@@ -85,7 +85,7 @@ export default function StudentList() {
                       <span className="font-bold text-[#0e2e1d]">{student.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-500 font-medium">{student.id}</td>
+                  <td className="px-6 py-4 text-gray-500 font-medium">{student.studentId}</td>
                   <td className="px-6 py-4 text-right">
                     <Link
                       href={`/portal/teacher/reports/${student.id}`}
@@ -109,3 +109,4 @@ export default function StudentList() {
     </div>
   );
 }
+

@@ -26,26 +26,21 @@ export interface WeeklyReport {
 }
 
 export interface DashboardInitData {
-  profile: {
+  activePeriod: {
+    termId: string | null;
+    yearId: string | null;
+    week: number;
+  };
+  classInfo: {
     id: string;
-    firstName: string;
-    lastName: string;
-    schoolClass: {
-      id: string;
-      name: string;
-    };
+    name: string;
   };
   students: {
     id: string;
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-  }[];
-  currentTerm: {
-    id: string;
     name: string;
-    currentWeek: number;
-  };
+    studentId: string;
+  }[];
+  periods: any[];
 }
 
 export interface TestScore {
