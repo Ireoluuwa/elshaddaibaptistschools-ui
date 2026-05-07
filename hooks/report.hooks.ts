@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getStudentHistoryService, initTeacherDashboardService, submitReportService } from '@/services/report.service';
 
 export const useInitTeacherDashboard = () => {
@@ -9,8 +9,13 @@ export const useInitTeacherDashboard = () => {
 };
 
 export const useSubmitReport = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: submitReportService,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacherDashboardInit'] });
+      queryClient.invalidateQueries({ queryKey: ['studentHistory'] });
+    },
   });
 };
 

@@ -101,7 +101,7 @@ export default function StudentReportPage({ params }: ReportPageProps) {
               const week = item.week;
               const isSelected = selectedWeek === week;
               const isCurrent = week === currentWeek;
-              const isSubmitted = item.status === 'submitted' || item.status === 'PUBLISHED';
+              const isSubmitted = item.status === 'PUBLISHED';
 
               return (
                 <button
@@ -138,7 +138,7 @@ export default function StudentReportPage({ params }: ReportPageProps) {
                   Evaluating Week {currentWeek}
                 </span>
                 <span className="text-xs font-semibold text-emerald-600 bg-white px-2 py-1 rounded-md border border-emerald-100">
-                  {activeReport?.status === 'submitted' ? 'SUBMITTED' : 'DRAFT'}
+                  {activeReport?.status === 'PUBLISHED' ? 'SUBMITTED' : 'DRAFT'}
                 </span>
               </div>
               <ReportForm 

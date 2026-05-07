@@ -12,13 +12,13 @@ export interface ReportPayload {
   behavioralScore: number;
   attendance: number;
   teacherRemark: string;
-  status: 'draft' | 'submitted';
+  status: 'DRAFT' | 'PUBLISHED';
 }
 
 export interface WeeklyReport {
   id: string;
   weekNumber: number;
-  status: 'draft' | 'submitted';
+  status: 'DRAFT' | 'PUBLISHED';
   scores: WeeklyScore[];
   behavioralScore: number;
   attendance: number;

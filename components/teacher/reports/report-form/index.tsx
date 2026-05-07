@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ReportFormProps, TestScore } from "../../../../types/report";
@@ -9,7 +9,6 @@ import { RatingStars } from "./BehavioralRating";
 import { TeacherComments } from "./TeacherComments";
 import { TestScores } from "./TestScores";
 import { useMappedSubjects } from "@/hooks/academics.hooks";
-import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useSubmitReport } from "@/hooks/report.hooks";
 import { toast } from "@/store/toast.store";
 
@@ -25,27 +24,78 @@ export default function ReportForm({
   const router = useRouter();
   const { mutateAsync: submitReport, isPending } = useSubmitReport();
 
-  // Unique localStorage key scoped per student so different students don't clash
-  const draftKey = `report_draft_${student.id}`;
-
-  const [rating, setRating] = useLocalStorage<number>(
-    isHistoryView ? `__readonly_rating` : `${draftKey}_rating`,
-    initialData?.rating ?? 0
-  );
-  const [description, setDescription] = useLocalStorage<string>(
-    isHistoryView ? `__readonly_desc` : `${draftKey}_desc`,
-    initialData?.description ?? ""
-  );
-  const [attendance, setAttendance] = useLocalStorage<number>(
-    isHistoryView ? `__readonly_attn` : `${draftKey}_attn`,
-    initialData?.attendance ?? 5
-  );
-  const [testScores, setTestScores, clearTestScores] = useLocalStorage<TestScore[]>(
-    isHistoryView ? `__readonly_scores` : `${draftKey}_scores`,
+  // Standard React state - local storage removed as requested
+  const [rating, setRating] = useState<number>(initialData?.rating ?? 0);
+  const [description, setDescription] = useState<string>(initialData?.description ?? "");
+  const [attendance, setAttendance] = useState<number>(initialData?.attendance ?? 5);
+  const [testScores, setTestScores] = useState<TestScore[]>(
     initialData?.testScores && initialData.testScores.length > 0
       ? initialData.testScores
       : []
   );
+
+  const isDirtyRef = useRef(false);
+
+  // Sync initialData to local states when it changes (e.g. after backend fetch)
+  useEffect(() => {
+    if (initialData && !isDirtyRef.current) {
+      setRating(initialData.rating ?? 0);
+      setDescription(initialData.description ?? "");
+      setAttendance(initialData.attendance ?? 5);
+      setTestScores(initialData.testScores ?? []);
+    }
+  }, [initialData]);
+
+  // AUTO-SAVE LOGIC: Debounce changes and save to backend as DRAFT
+  useEffect(() => {
+    if (isHistoryView || isPending) return;
+
+    const timer = setTimeout(async () => {
+      // Don't auto-save if user hasn't touched anything yet (to avoid overwriting initial load)
+      if (!isDirtyRef.current) return;
+
+      try {
+        await submitReport({
+          studentId: student.id,
+          termId,
+          weekNumber,
+          behavioralScore: rating,
+          attendance: Number(attendance),
+          teacherRemark: description,
+          status: 'DRAFT',
+          scores: testScores
+            .filter(ts => ts.subject && ts.score)
+            .map(ts => ({
+              subjectName: ts.subject,
+              score: Number(ts.score),
+              total: Number(ts.maxScore) || 100
+            }))
+        });
+      } catch (error) {
+        console.error("Auto-save failed:", error);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [rating, description, attendance, testScores, student.id, termId, weekNumber, isHistoryView, submitReport]);
+
+  // Track changes to mark as dirty
+  const onRatingChange = (val: number) => {
+    setRating(val);
+    isDirtyRef.current = true;
+  };
+  const onDescriptionChange = (val: string) => {
+    setDescription(val);
+    isDirtyRef.current = true;
+  };
+  const onAttendanceChange = (val: number) => {
+    setAttendance(val);
+    isDirtyRef.current = true;
+  };
+  const onTestScoresChange = (val: TestScore[]) => {
+    setTestScores(val);
+    isDirtyRef.current = true;
+  };
 
   // Fetch mapped subjects for this class/department — cached for 5 min by React Query
   const { data: subjects = [], isLoading: isLoadingSubjects } = useMappedSubjects(
@@ -64,7 +114,7 @@ export default function ReportForm({
         behavioralScore: rating,
         attendance: Number(attendance),
         teacherRemark: description,
-        status: 'submitted',
+        status: 'PUBLISHED',
         scores: testScores
           .filter(ts => ts.subject && ts.score)
           .map(ts => ({
@@ -74,15 +124,7 @@ export default function ReportForm({
           }))
       });
 
-      toast.success("Report submitted successfully!");
-      
-      if (!isHistoryView) {
-        clearTestScores();
-        window.localStorage.removeItem(`${draftKey}_rating`);
-        window.localStorage.removeItem(`${draftKey}_desc`);
-        window.localStorage.removeItem(`${draftKey}_attn`);
-      }
-
+      toast.success("Report published successfully!");
       router.push("/portal/teacher/reports");
     } catch (error) {
       console.error("Failed to submit report:", error);
@@ -98,7 +140,7 @@ export default function ReportForm({
           <RatingStars
             label="Attendance"
             value={attendance}
-            setValue={setAttendance}
+            setValue={onAttendanceChange}
             max={5}
             icon="calendar"
             isHistoryView={isHistoryView}
@@ -106,7 +148,7 @@ export default function ReportForm({
           <RatingStars
             label="Behavioral Score"
             value={rating}
-            setValue={setRating}
+            setValue={onRatingChange}
             max={5}
             icon="star"
             isHistoryView={isHistoryView}
@@ -116,13 +158,13 @@ export default function ReportForm({
         <TeacherComments
           student={student}
           description={description}
-          setDescription={setDescription}
+          setDescription={onDescriptionChange}
           isHistoryView={isHistoryView}
         />
 
         <TestScores
           testScores={testScores}
-          setTestScores={setTestScores}
+          setTestScores={onTestScoresChange}
           isHistoryView={isHistoryView}
           subjects={subjects}
           isLoadingSubjects={isLoadingSubjects}
@@ -138,10 +180,10 @@ export default function ReportForm({
               {isPending ? (
                 <>
                   <CheckCircle2 size={18} className="mr-2 animate-pulse" />
-                  Submitting...
+                  Publishing...
                 </>
               ) : (
-                "Submit Report"
+                "Publish Report"
               )}
             </button>
           </div>
