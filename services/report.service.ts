@@ -1,6 +1,6 @@
 import api from '@/lib/axios';
 import { ApiResponse } from '@/types';
-import { DashboardInitData, ReportPayload, WeeklyReport } from '@/types/report';
+import { DashboardInitData, ReportPayload, WeeklyReport, StudentHistoryData } from '@/types/report';
 
 export const initTeacherDashboardService = async (): Promise<DashboardInitData> => {
   const { data } = await api.get<ApiResponse<DashboardInitData>>('/reports/dashboard-init');
@@ -12,8 +12,8 @@ export const submitReportService = async (payload: ReportPayload): Promise<Weekl
   return data.data;
 };
 
-export const getStudentHistoryService = async (studentId: string, termId: string): Promise<WeeklyReport[]> => {
-  const { data } = await api.get<ApiResponse<WeeklyReport[]>>(`/reports/student-history`, {
+export const getStudentHistoryService = async (studentId: string, termId: string): Promise<StudentHistoryData> => {
+  const { data } = await api.get<ApiResponse<StudentHistoryData>>(`/reports/student-history`, {
     params: { studentId, termId }
   });
   return data.data;
