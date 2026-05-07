@@ -35,9 +35,9 @@ export default function StudentList() {
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <Filter size={18} className="text-gray-400 shrink-0" />
+         
           
-          <select
+          {/* <select
             value={filterYear}
             onChange={(e) => setFilterYear(e.target.value)}
             className="w-full md:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
@@ -47,9 +47,9 @@ export default function StudentList() {
                 {year}
               </option>
             ))}
-          </select>
+          </select> */}
 
-          <select
+          {/* <select
             value={filterTerm}
             onChange={(e) => setFilterTerm(e.target.value)}
             className="w-full md:w-auto h-10 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
@@ -59,7 +59,7 @@ export default function StudentList() {
                 {term}
               </option>
             ))}
-          </select>
+          </select> */}
         </div>
       </div>
 
