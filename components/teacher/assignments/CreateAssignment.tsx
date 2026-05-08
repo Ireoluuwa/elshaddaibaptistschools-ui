@@ -16,36 +16,43 @@ import api from "@/lib/axios"; // For fetching classes
 
 interface CreateAssignmentProps {
   onClose: () => void;
+  initialData?: any;
 }
 
-const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
+const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialData }) => {
+  const isEditing = !!initialData;
   const queryClient = useQueryClient();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [classId, setClassId] = useState("");
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [dueDate, setDueDate] = useState(initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : "");
+  const [startDate, setStartDate] = useState(initialData?.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
+  const [classId, setClassId] = useState(initialData?.schoolClass?.id || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Fetch classes for the teacher
-  const { data: classes = [], isLoading: isLoadingClasses } = useQuery({
+  const { data: rawClasses = [], isLoading: isLoadingClasses } = useQuery({
     queryKey: ['teacher-classes'],
     queryFn: async () => {
       const { data } = await api.get('/academics/classes');
-      return data;
+      return data.data || data;
     }
   });
 
+  const classes = Array.isArray(rawClasses) ? rawClasses : [];
+
   const mutation = useMutation({
-    mutationFn: (payload: any) => assignmentService.createAssignment(payload),
+    mutationFn: (payload: any) => 
+      isEditing 
+        ? assignmentService.updateAssignment(initialData.id, payload)
+        : assignmentService.createAssignment(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["assignments"] });
-      toast.success("Assignment created successfully");
+      toast.success(`Assignment ${isEditing ? 'updated' : 'created'} successfully`);
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to create assignment");
+      toast.error(error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} assignment`);
     }
   });
 
@@ -61,7 +68,6 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
       startDate: new Date(startDate).toISOString(),
       dueDate: new Date(dueDate).toISOString(),
       classId,
-      // attachmentUrl would go here after a file upload
     });
   };
 
@@ -76,7 +82,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
       <div className="p-4 sm:p-5 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
           <span className="w-1 h-4 bg-[#006442] rounded-full" />
-          New Assignment
+          {isEditing ? 'Edit Assignment' : 'New Assignment'}
         </h2>
         <button
           onClick={onClose}
@@ -195,10 +201,10 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
             {mutation.isPending ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                Creating...
+                {isEditing ? "Updating..." : "Creating..."}
               </>
             ) : (
-              "Create Assignment"
+              isEditing ? "Update Assignment" : "Create Assignment"
             )}
           </button>
         </div>
