@@ -75,18 +75,27 @@ export const TestScores: React.FC<TestScoresProps> = ({
                 <select
                   value={test.subject}
                   onChange={(e) => updateTestScore(test.id, "subject", e.target.value)}
-                  disabled={isHistoryView}
+                  disabled={isHistoryView || isLoadingSubjects}
                   className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 >
-                  <option value="" disabled>
-                    Select Subject
+                  <option value="">
+                    {isLoadingSubjects ? "Loading Subjects..." : "Select Subject"}
                   </option>
                   {subjects.map((sub) => (
                     <option key={sub.id} value={sub.name}>
                       {sub.name}
                     </option>
                   ))}
+                  {/* Fallback for existing data if subjects haven't loaded yet or name changed */}
+                  {test.subject && !subjects.find(s => s.name === test.subject) && (
+                    <option value={test.subject}>{test.subject}</option>
+                  )}
                 </select>
+                {subjects.length === 0 && !isLoadingSubjects && (
+                  <p className="text-[10px] text-amber-600 mt-1 px-1">
+                    No subjects mapped for this class. Please contact admin.
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">

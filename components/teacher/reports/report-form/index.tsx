@@ -46,13 +46,16 @@ export default function ReportForm({
     }
   }, [initialData]);
 
+  const [isPublishing, setIsPublishing] = useState(false);
+
   // AUTO-SAVE LOGIC: Debounce changes and save to backend as DRAFT
   useEffect(() => {
-    if (isHistoryView || isPending) return;
+    // Block auto-save if we are already publishing or in history view
+    if (isHistoryView || isPublishing || isPending) return;
 
     const timer = setTimeout(async () => {
-      // Don't auto-save if user hasn't touched anything yet (to avoid overwriting initial load)
-      if (!isDirtyRef.current) return;
+      // Don't auto-save if user hasn't touched anything yet or if we've just published
+      if (!isDirtyRef.current || isPublishing) return;
 
       try {
         await submitReport({
@@ -77,7 +80,7 @@ export default function ReportForm({
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [rating, description, attendance, testScores, student.id, termId, weekNumber, isHistoryView, submitReport]);
+  }, [rating, description, attendance, testScores, student.id, termId, weekNumber, isHistoryView, submitReport, isPublishing, isPending]);
 
   // Track changes to mark as dirty
   const onRatingChange = (val: number) => {
@@ -105,6 +108,7 @@ export default function ReportForm({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsPublishing(true); // Lock auto-save
     
     try {
       await submitReport({
@@ -124,9 +128,11 @@ export default function ReportForm({
           }))
       });
 
+      isDirtyRef.current = false; // Reset dirty state
       toast.success("Report published successfully!");
       router.push("/portal/teacher/reports");
     } catch (error) {
+      setIsPublishing(false); // Unlock if failed
       console.error("Failed to submit report:", error);
     }
   };
@@ -135,7 +141,7 @@ export default function ReportForm({
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <ReportHeader student={student} />
 
-      <form onSubmit={handleSave} className="p-6 flex flex-col gap-8">
+      <form onSubmit={(e) => e.preventDefault()} className="p-6 flex flex-col gap-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
           <RatingStars
             label="Attendance"
@@ -173,11 +179,12 @@ export default function ReportForm({
         {!isHistoryView && (
           <div className="flex justify-end pt-6 mt-4 border-t border-gray-100">
             <button
-              type="submit"
-              disabled={rating === 0}
+              type="button"
+              onClick={handleSave}
+              disabled={rating === 0 || isPublishing || isPending}
               className="h-11 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-semibold rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isPending ? (
+              {isPublishing ? (
                 <>
                   <CheckCircle2 size={18} className="mr-2 animate-pulse" />
                   Publishing...
