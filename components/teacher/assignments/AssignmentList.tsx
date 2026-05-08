@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Trash2, Paperclip } from "lucide-react";
+import { Search, Trash2, Paperclip, Pencil } from "lucide-react";
 import {
   mockAssignments,
   statusOptions,
@@ -103,6 +103,9 @@ const AssignmentList = () => {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {statusBadge(assignment.status)}
+                  <button className="p-1.5 text-gray-300 hover:text-[#006442] hover:bg-[#f0f7f4] rounded-lg transition-colors">
+                    <Pencil size={15} />
+                  </button>
                   <button className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                     <Trash2 size={15} />
                   </button>
