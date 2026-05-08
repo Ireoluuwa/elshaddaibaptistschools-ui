@@ -1,18 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronDown, Calendar, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronDown, Calendar, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { academicYears, academicTerms, totalWeeks, mockWeeklyReports } from "@/constants/student/reports.constants";
+import { useStudentDashboard } from "@/hooks/report.hooks";
 
 export default function WeeklyReportsPage() {
-  const [year, setYear] = useState(academicYears[1]);
-  const [term, setTerm] = useState(academicTerms[0]);
+  const [selectedTermId, setSelectedTermId] = useState<string | undefined>(undefined);
+  
+  const { data: dashboard, isLoading, isError } = useStudentDashboard(selectedTermId);
 
-  // Check if a report exists for a given week
-  const hasReport = (weekNum: number) => {
-    return mockWeeklyReports.some(r => r.week === weekNum && r.term === term && r.year === year);
-  };
+  // Sync selectedTermId with activeTermId on first load
+  useEffect(() => {
+    if (dashboard?.activeTermId && !selectedTermId) {
+      setSelectedTermId(dashboard.activeTermId);
+    }
+  }, [dashboard, selectedTermId]);
+
+  if (isLoading) return <ReportsSkeleton />;
+  if (isError || !dashboard) return <ErrorState />;
+
+  const currentYear = dashboard.periods.find(y => 
+    y.terms.some(t => t.id === selectedTermId)
+  );
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -31,11 +41,14 @@ export default function WeeklyReportsPage() {
         <div className="relative group">
           <div className="relative">
             <select
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
+              value={currentYear?.id}
+              onChange={(e) => {
+                const year = dashboard.periods.find(y => y.id === e.target.value);
+                if (year) setSelectedTermId(year.terms[0].id);
+              }}
               className="h-10 pl-4 pr-10 appearance-none bg-white border border-gray-200 rounded-xl text-sm font-bold text-[#334155] focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none transition-all cursor-pointer"
             >
-              {academicYears.map(y => <option key={y} value={y}>{y}</option>)}
+              {dashboard.periods.map(y => <option key={y.id} value={y.id}>{y.name}</option>)}
             </select>
             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-[#006442] transition-colors" />
           </div>
@@ -44,11 +57,15 @@ export default function WeeklyReportsPage() {
         <div className="relative group">
           <div className="relative">
             <select
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
+              value={selectedTermId}
+              onChange={(e) => setSelectedTermId(e.target.value)}
               className="h-10 pl-4 pr-10 appearance-none bg-white border border-gray-200 rounded-xl text-sm font-bold text-[#334155] focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none transition-all cursor-pointer"
             >
-              {academicTerms.map(t => <option key={t} value={t}>{t}</option>)}
+              {currentYear?.terms.map(t => (
+                <option key={t.id} value={t.id}>
+                  {t.name} {t.isCurrent ? "(Current)" : ""}
+                </option>
+              ))}
             </select>
             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-[#006442] transition-colors" />
           </div>
@@ -65,12 +82,12 @@ export default function WeeklyReportsPage() {
         </div>
 
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6">
-          {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((weekNum) => {
-            const available = hasReport(weekNum);
+          {dashboard.timeline.map((item) => {
+            const available = item.isAvailable;
             return (
-              <div key={weekNum} className="flex flex-col items-center gap-3">
+              <div key={item.week} className="flex flex-col items-center gap-3">
                 <Link
-                  href={available ? `/portal/student/reports/week-${weekNum}` : "#"}
+                  href={available ? `/portal/student/reports/${item.reportId}` : "#"}
                   className={`
                     w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold transition-all relative
                     ${available 
@@ -79,7 +96,7 @@ export default function WeeklyReportsPage() {
                     }
                   `}
                 >
-                  {weekNum}
+                  {item.week}
                   {available && (
                     <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center text-[#006442] shadow-sm">
                        <CheckCircle2 size={14} />
@@ -87,7 +104,7 @@ export default function WeeklyReportsPage() {
                   )}
                 </Link>
                 <span className={`text-[10px] font-bold uppercase tracking-widest ${available ? "text-[#006442]" : "text-gray-300"}`}>
-                  Week {weekNum}
+                  Week {item.week}
                 </span>
               </div>
             );
@@ -108,3 +125,50 @@ export default function WeeklyReportsPage() {
     </div>
   );
 }
+
+function ReportsSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-pulse">
+      <div className="flex flex-col gap-2">
+        <div className="h-8 w-48 bg-gray-200 rounded-lg" />
+        <div className="h-4 w-72 bg-gray-100 rounded-lg" />
+      </div>
+      <div className="flex gap-3">
+        <div className="h-10 w-32 bg-gray-200 rounded-xl" />
+        <div className="h-10 w-40 bg-gray-200 rounded-xl" />
+      </div>
+      <div className="mt-4 flex flex-col gap-6">
+        <div className="h-4 w-24 bg-gray-100 rounded" />
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-gray-100" />
+              <div className="h-2 w-12 bg-gray-100 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorState() {
+  return (
+    <div className="max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[400px] text-center gap-4">
+      <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin" />
+      </div>
+      <h2 className="text-xl font-bold text-gray-800">Something went wrong</h2>
+      <p className="text-gray-500 max-w-sm">
+        We couldn't load your reports. Please try refreshing the page or contact support if the issue persists.
+      </p>
+      <button 
+        onClick={() => window.location.reload()}
+        className="px-6 py-2 bg-[#006442] text-white rounded-xl text-sm font-bold"
+      >
+        Retry
+      </button>
+    </div>
+  );
+}
+
