@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { Search, Trash2, Paperclip, Pencil, ChevronDown } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { Search, Trash2, Paperclip, Pencil, Loader2 } from "lucide-react";
+import { useInView } from "react-intersection-observer";
 import {
   mockAssignments,
   statusOptions,
@@ -14,6 +15,11 @@ const AssignmentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [isAutoLoading, setIsAutoLoading] = useState(false);
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
 
   const filtered = useMemo(() => {
     return mockAssignments.filter((a) => {
@@ -29,9 +35,16 @@ const AssignmentList = () => {
   const visibleAssignments = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
-  };
+  useEffect(() => {
+    if (inView && hasMore && !isAutoLoading) {
+      setIsAutoLoading(true);
+      // Simulate a small delay for a "neat" loading feel
+      setTimeout(() => {
+        setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
+        setIsAutoLoading(false);
+      }, 600);
+    }
+  }, [inView, hasMore, isAutoLoading]);
 
   const statusBadge = (status: Assignment["status"]) => {
     const styles = {
@@ -136,20 +149,23 @@ const AssignmentList = () => {
             ))}
 
             {hasMore && (
-              <div className="p-6 flex justify-center bg-gray-50/30">
-                <button
-                  onClick={handleLoadMore}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-500 hover:text-[#006442] hover:border-[#006442] hover:shadow-sm transition-all uppercase tracking-widest"
-                >
-                  Load More Assignments
-                  <ChevronDown size={14} />
-                </button>
+              <div ref={ref} className="p-8 flex justify-center bg-gray-50/10">
+                {isAutoLoading && (
+                  <div className="flex items-center gap-3 text-[#006442] animate-in fade-in zoom-in duration-300">
+                    <Loader2 size={18} className="animate-spin" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">
+                      Loading Assignments...
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
             {!hasMore && filtered.length > ITEMS_PER_PAGE && (
-               <div className="p-6 text-center text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">
-                 End of List
+               <div className="p-8 text-center bg-gray-50/10 border-t border-gray-50">
+                 <p className="text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em]">
+                   You've reached the end
+                 </p>
                </div>
             )}
           </>
