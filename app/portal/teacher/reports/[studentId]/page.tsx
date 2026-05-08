@@ -46,7 +46,6 @@ export default function StudentReportPage({ params }: ReportPageProps) {
 
   const { student, timeline, activeReport } = historyData;
 
-  // Use classId and departmentId returned from the student history data
   const classId = student.classId;
   const departmentId = student.departmentId;
 

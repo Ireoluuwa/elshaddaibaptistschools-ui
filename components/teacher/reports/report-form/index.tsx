@@ -48,13 +48,13 @@ export default function ReportForm({
 
   const [isPublishing, setIsPublishing] = useState(false);
 
-  // AUTO-SAVE LOGIC: Debounce changes and save to backend as DRAFT
+ 
   useEffect(() => {
-    // Block auto-save if we are already publishing or in history view
+    
     if (isHistoryView || isPublishing || isPending) return;
 
     const timer = setTimeout(async () => {
-      // Don't auto-save if user hasn't touched anything yet or if we've just published
+   
       if (!isDirtyRef.current || isPublishing) return;
 
       try {
