@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, MessageSquare, ListTodo, Star, Loader2, AlertCircle } from "lucide-react";
+import { ChevronLeft, MessageSquare, ListTodo, Star, Loader2, AlertCircle, Calendar } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useReportDetail } from "@/hooks/report.hooks";
@@ -60,19 +60,43 @@ export default function WeeklyReportDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
           
-          {/* Left Column: Behavior & Comments */}
-          <div className="flex flex-col gap-12">
+          {/* Left Column: Behavior, Attendance & Comments */}
+          <div className="flex flex-col gap-10">
             
-            {/* Behavioral Rating */}
-            <section>
-              <div className="flex items-center gap-3 mb-6">
-                <Star size={16} className="text-[#006442]" />
-                <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400">
-                  Behavioral Grade
-                </h2>
-              </div>
-              {renderRating(5, report.behavioralScore)}
-            </section>
+            <div className="grid grid-cols-2 gap-8">
+              {/* Behavioral Rating */}
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <Star size={16} className="text-[#006442]" />
+                  <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                    Behavior
+                  </h2>
+                </div>
+                {renderRating(5, report.behavioralScore)}
+              </section>
+
+              {/* Attendance */}
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <Calendar size={16} className="text-[#006442]" />
+                  <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                    Attendance
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={`h-full flex-1 ${i < report.attendance ? "bg-[#006442]" : "bg-gray-200/50"}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold text-[#006442]">{report.attendance}/5</span>
+                </div>
+                <p className="text-[9px] text-gray-400 font-medium mt-1 uppercase tracking-wider">Days Present</p>
+              </section>
+            </div>
 
             {/* Teacher Comments */}
             <section>
@@ -86,7 +110,7 @@ export default function WeeklyReportDetailPage() {
                  <p className="text-sm text-gray-500 leading-relaxed font-medium italic">
                    "{report.teacherRemark || "No remarks provided for this week."}"
                  </p>
-                 <div className="pt-6 mt-2 border-t border-gray-100 flex items-center justify-between">
+                 {/* <div className="pt-6 mt-2 border-t border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                        <div className="w-8 h-8 rounded-full bg-[#006442] flex items-center justify-center text-white text-[10px] font-bold">
                          {report.teacherName.split(' ').map(n => n[0]).join('')}
@@ -94,7 +118,7 @@ export default function WeeklyReportDetailPage() {
                        <span className="text-[11px] font-bold text-gray-500 uppercase">{report.teacherName}</span>
                     </div>
                     <span className="text-[9px] font-bold text-[#006442]/50 uppercase tracking-widest leading-none">Form Teacher</span>
-                 </div>
+                 </div> */}
               </div>
             </section>
 
