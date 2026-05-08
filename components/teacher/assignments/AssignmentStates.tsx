@@ -25,7 +25,7 @@ export const AssignmentEmptyState = () => (
       <Search size={28} />
     </div>
     <div className="flex flex-col gap-1">
-      <p className="text-gray-500 font-bold text-sm">No assignments found</p>
+      <p className="text-gray-500 font-bold text-sm">No assignment</p>
       <p className="text-gray-400 text-xs">Try adjusting your search or filters</p>
     </div>
   </div>

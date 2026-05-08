@@ -1,4 +1,4 @@
-import { api } from "./auth.service";
+import api from "@/lib/axios";
 
 export interface Assignment {
   id: string;
@@ -8,7 +8,7 @@ export interface Assignment {
   dueDate: string;
   attachmentUrl?: string;
   status: "Active" | "Past Due" | "Draft";
-  hasAttachment: boolean; // Computed on frontend if needed, or returned from backend
+  hasAttachment: boolean;
 }
 
 export interface PaginatedAssignments {
@@ -23,15 +23,17 @@ export interface PaginatedAssignments {
 }
 
 export const assignmentService = {
-  getAssignments: async (page = 1, limit = 10, search = "") => {
+  getAssignments: async (page = 1, limit = 10, search = "", status = "") => {
     const params = new URLSearchParams({
       page: String(page),
       limit: String(limit),
     });
     if (search) params.append("search", search);
+    if (status) params.append("filter.status", status);
 
-    const { data } = await api.get<PaginatedAssignments>(`/assignments?${params.toString()}`);
-    return data;
+    const { data } = await api.get<any>(`/assignments?${params.toString()}`);
+    // Handle wrapped response structure
+    return data.data || data;
   },
 
   getAssignmentDetails: async (id: string) => {

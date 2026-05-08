@@ -2,12 +2,14 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { assignmentService } from "@/services/assignment.service";
 import { toast } from "@/store/toast.store";
 
-export const useAssignments = (search = "") => {
+export const useAssignments = (search = "", status = "") => {
   return useInfiniteQuery({
-    queryKey: ["assignments", search],
-    queryFn: ({ pageParam = 1 }) => assignmentService.getAssignments(pageParam, 10, search),
+    queryKey: ["assignments", search, status],
+    queryFn: ({ pageParam = 1 }) => assignmentService.getAssignments(pageParam, 10, search, status),
     initialPageParam: 1,
+    retry: false, 
     getNextPageParam: (lastPage) => {
+      if (!lastPage?.meta) return undefined;
       const next = lastPage.meta.currentPage + 1;
       return next <= lastPage.meta.totalPages ? next : undefined;
     },

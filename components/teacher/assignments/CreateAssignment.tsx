@@ -7,30 +7,62 @@ import {
   FileText,
   CheckCircle2,
   CalendarDays,
+  Loader2,
 } from "lucide-react";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { assignmentService } from "@/services/assignment.service";
+import { toast } from "@/store/toast.store";
+import api from "@/lib/axios"; // For fetching classes
 
 interface CreateAssignmentProps {
   onClose: () => void;
 }
 
 const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [classId, setClassId] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isSaved, setIsSaved] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const canSubmit = title.trim() !== "" && dueDate !== "";
+  // Fetch classes for the teacher
+  const { data: classes = [], isLoading: isLoadingClasses } = useQuery({
+    queryKey: ['teacher-classes'],
+    queryFn: async () => {
+      const { data } = await api.get('/academics/classes');
+      return data;
+    }
+  });
+
+  const mutation = useMutation({
+    mutationFn: (payload: any) => assignmentService.createAssignment(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assignments"] });
+      toast.success("Assignment created successfully");
+      onClose();
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to create assignment");
+    }
+  });
+
+  const canSubmit = title.trim() !== "" && dueDate !== "" && classId !== "";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
-    setIsSaved(true);
-    setTimeout(() => {
-      setIsSaved(false);
-      onClose();
-    }, 1500);
+
+    mutation.mutate({
+      title,
+      description,
+      startDate: new Date(startDate).toISOString(),
+      dueDate: new Date(dueDate).toISOString(),
+      classId,
+      // attachmentUrl would go here after a file upload
+    });
   };
 
   const handleRemoveFile = () => {
@@ -39,7 +71,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
       {/* Header */}
       <div className="p-4 sm:p-5 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
@@ -54,24 +86,43 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-5 sm:p-6 flex flex-col gap-5">
-        {/* Title */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-            Assignment Title
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. Physics Project: Motion"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all placeholder:text-gray-300"
-          />
+      <form onSubmit={handleSubmit} className="p-5 sm:p-6 flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Title */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Assignment Title
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Physics Project: Motion"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all placeholder:text-gray-300"
+            />
+          </div>
+
+          {/* Class Selector */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Assigned Class
+            </label>
+            <select
+              value={classId}
+              onChange={(e) => setClassId(e.target.value)}
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm transition-all text-gray-600"
+            >
+              <option value="">Select Class</option>
+              {classes.map((cls: any) => (
+                <option key={cls.id} value={cls.id}>{cls.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Description */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
             Description
           </label>
           <textarea
@@ -83,71 +134,48 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
           />
         </div>
 
-        {/* Due Date */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
-            <CalendarDays size={12} />
-            Due Date
-          </label>
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            className="w-full sm:w-1/2 h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm transition-all text-gray-600 cursor-pointer"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Start Date */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
+              <CalendarDays size={12} />
+              Start Date
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm transition-all text-gray-600 cursor-pointer"
+            />
+          </div>
+
+          {/* Due Date */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
+              <CalendarDays size={12} />
+              Due Date
+            </label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm transition-all text-gray-600 cursor-pointer"
+            />
+          </div>
         </div>
 
-        {/* File Upload */}
+        {/* File Upload Placeholder */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
             Attachment (optional)
           </label>
-
-          {selectedFile ? (
-            <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50/50">
-              <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
-                <FileText size={18} className="text-emerald-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#0e2e1d] truncate">
-                  {selectedFile.name}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {(selectedFile.size / 1024).toFixed(1)} KB
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleRemoveFile}
-                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="flex items-center justify-center gap-2 w-full p-6 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/30 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-500 transition-all cursor-pointer"
-            >
-              <Upload size={18} />
-              <span className="text-sm font-medium">
-                Upload document (PDF, DOC, IMG)
-              </span>
-            </button>
-          )}
-
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-            onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                setSelectedFile(e.target.files[0]);
-              }
-            }}
-            className="hidden"
-          />
+          <button
+            type="button"
+            className="flex items-center justify-center gap-2 w-full p-4 border border-dashed border-gray-200 rounded-xl bg-gray-50/30 text-gray-400 text-xs font-medium cursor-not-allowed opacity-50"
+          >
+            <Upload size={14} />
+            <span>Upload functionality coming soon</span>
+          </button>
         </div>
 
         {/* Actions */}
@@ -161,13 +189,13 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose }) => {
           </button>
           <button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!canSubmit || mutation.isPending}
             className="h-10 px-6 bg-[#006442] hover:bg-[#005236] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSaved ? (
+            {mutation.isPending ? (
               <>
-                <CheckCircle2 size={16} />
-                Created!
+                <Loader2 size={16} className="animate-spin" />
+                Creating...
               </>
             ) : (
               "Create Assignment"
