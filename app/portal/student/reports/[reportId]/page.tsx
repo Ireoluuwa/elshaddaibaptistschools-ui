@@ -1,16 +1,16 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, Download, Award, MessageSquare, ListTodo, Star } from "lucide-react";
+import { ChevronLeft, MessageSquare, ListTodo, Star, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { mockWeeklyReports } from "@/constants/student/reports.constants";
+import { useReportDetail } from "@/hooks/report.hooks";
 
 export default function WeeklyReportDetailPage() {
   const params = useParams();
-  const reportId = params.weekId as string;
+  const reportId = params.reportId as string;
   
-  const report = mockWeeklyReports.find(r => r.id === reportId) || mockWeeklyReports[0];
+  const { data: report, isLoading, isError } = useReportDetail(reportId);
 
   const renderRating = (total: number, current: number) => {
     return (
@@ -19,7 +19,7 @@ export default function WeeklyReportDetailPage() {
           <Star 
             key={i} 
             size={24} 
-            className={`${i < current ? "text-[#006442]" : "text-gray-100 placeholder:opacity-20"}`}
+            className={`${i < current ? "text-[#006442]" : "text-gray-100"}`}
             fill={i < current ? "currentColor" : "none"} 
             strokeWidth={i < current ? 0 : 2}
           />
@@ -27,6 +27,9 @@ export default function WeeklyReportDetailPage() {
       </div>
     );
   };
+
+  if (isLoading) return <ReportDetailSkeleton />;
+  if (isError || !report) return <ReportDetailError />;
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
@@ -37,22 +40,21 @@ export default function WeeklyReportDetailPage() {
           className="flex items-center gap-2 px-2 py-2 bg-white text-gray-500 font-bold rounded-xl border border-gray-100 hover:bg-gray-50 transition-all shadow-sm group"
         >
           <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-         
         </Link>
       </div>
 
-      {/* Main Report Body (No Card) */}
+      {/* Main Report Body */}
       <div className="min-h-[600px] print:p-0">
         
         {/* Report Header */}
         <div className="mb-12 border-b border-gray-100 pb-8">
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-2xl font-black text-[#0e2e1d] uppercase tracking-tight">
-              Week {report.week} Report
+              Week {report.weekNumber} Report
             </h1>
           </div>
           <p className="text-gray-400 text-sm font-medium">
-            {report.term} • {report.year}
+            {report.term.name} • {report.term.academicYear.name}
           </p>
         </div>
 
@@ -69,7 +71,7 @@ export default function WeeklyReportDetailPage() {
                   Behavioral Grade
                 </h2>
               </div>
-              {renderRating(5, report.behavioralRating)}
+              {renderRating(5, report.behavioralScore)}
             </section>
 
             {/* Teacher Comments */}
@@ -81,24 +83,24 @@ export default function WeeklyReportDetailPage() {
                 </h2>
               </div>
               <div className="flex flex-col gap-4">
-                 <p className="text-sm text-gray-500 leading-relaxed font-medium">
-                   "{report.teacherComments}"
+                 <p className="text-sm text-gray-500 leading-relaxed font-medium italic">
+                   "{report.teacherRemark || "No remarks provided for this week."}"
                  </p>
                  <div className="pt-6 mt-2 border-t border-gray-100 flex items-center justify-between">
-                   <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#006442] flex items-center justify-center text-white text-[10px] font-bold">
-                        MT
-                      </div>
-                      <span className="text-[11px] font-bold text-gray-500 uppercase">Miss Tomori</span>
-                   </div>
-                   <span className="text-[9px] font-bold text-[#006442]/50 uppercase tracking-widest leading-none">Form Teacher</span>
+                    <div className="flex items-center gap-2">
+                       <div className="w-8 h-8 rounded-full bg-[#006442] flex items-center justify-center text-white text-[10px] font-bold">
+                         {report.teacherName.split(' ').map(n => n[0]).join('')}
+                       </div>
+                       <span className="text-[11px] font-bold text-gray-500 uppercase">{report.teacherName}</span>
+                    </div>
+                    <span className="text-[9px] font-bold text-[#006442]/50 uppercase tracking-widest leading-none">Form Teacher</span>
                  </div>
               </div>
             </section>
 
           </div>
 
-          {/* Right Column: Mini Scores */}
+          {/* Right Column: Assessment Table */}
           <section>
             <div className="flex items-center gap-3 mb-6">
               <ListTodo size={16} className="text-[#006442]" />
@@ -108,18 +110,23 @@ export default function WeeklyReportDetailPage() {
             </div>
             
             <div className="divide-y divide-gray-100">
-              {report.testScores.map((score, i) => (
+              {report.scores.map((score, i) => (
                 <div key={i} className="flex items-center justify-between py-5 group">
                    <div className="flex flex-col gap-1">
-                     <p className="text-sm font-bold text-gray-700 uppercase tracking-tight group-hover:text-[#006442] transition-colors">{score.subject}</p>
+                     <p className="text-sm font-bold text-gray-700 uppercase tracking-tight group-hover:text-[#006442] transition-colors">{score.subjectName}</p>
                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Academic Assessment</p>
                    </div>
                    <div className="text-right">
-                     <p className="text-sm font-bold text-[#006442]">{score.score} / {score.maxScore}</p>
+                     <p className="text-sm font-bold text-[#006442]">{score.score} / {score.total}</p>
                      <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest leading-none mt-1">Score</p>
                    </div>
                 </div>
               ))}
+              {report.scores.length === 0 && (
+                <div className="py-8 text-center text-gray-400 text-xs font-medium">
+                  No academic scores recorded for this week.
+                </div>
+              )}
             </div>
           </section>
 
@@ -129,6 +136,51 @@ export default function WeeklyReportDetailPage() {
       <footer className="text-center text-gray-400 text-[10px] py-12 font-bold uppercase tracking-[0.2em]">
         &copy; {new Date().getFullYear()} El-Shaddai Schools. Student Portal.
       </footer>
+    </div>
+  );
+}
+
+function ReportDetailSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto flex flex-col gap-8 animate-pulse">
+      <div className="h-10 w-10 bg-gray-100 rounded-xl" />
+      <div className="mb-12 border-b border-gray-100 pb-8">
+        <div className="h-8 w-48 bg-gray-200 rounded-lg mb-2" />
+        <div className="h-4 w-32 bg-gray-100 rounded-lg" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+        <div className="flex flex-col gap-12">
+          <div className="h-24 w-full bg-gray-50 rounded-2xl" />
+          <div className="h-48 w-full bg-gray-50 rounded-2xl" />
+        </div>
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-16 w-full bg-gray-50 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReportDetailError() {
+  return (
+    <div className="max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[500px] text-center gap-6">
+      <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
+        <AlertCircle size={40} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tight">Report Not Found</h2>
+        <p className="text-gray-500 max-w-sm font-medium">
+          The report you're looking for might have been removed or is temporarily unavailable.
+        </p>
+      </div>
+      <Link 
+        href="/portal/student/reports"
+        className="px-8 py-3 bg-[#006442] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#006442]/20 hover:scale-105 transition-all"
+      >
+        Go Back to Reports
+      </Link>
     </div>
   );
 }
