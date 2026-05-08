@@ -91,3 +91,25 @@ export interface ReportFormProps {
     testScores: TestScore[];
   };
 }
+export interface StudentDashboardData {
+  periods: {
+    id: string;
+    name: string;
+    terms: { id: string; name: string; isCurrent: boolean }[];
+  }[];
+  activeTermId: string;
+  selectedTermId: string;
+  timeline: {
+    week: number;
+    reportId: string | null;
+    isAvailable: boolean;
+  }[];
+}
+
+export interface StudentReportDetail extends WeeklyReport {
+  teacherName: string;
+  term: {
+    name: string;
+    academicYear: { name: string };
+  };
+}
