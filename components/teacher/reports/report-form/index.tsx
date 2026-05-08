@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ReportFormProps, TestScore } from "../../../../types/report";
@@ -24,7 +24,7 @@ export default function ReportForm({
   const router = useRouter();
   const { mutateAsync: submitReport, isPending } = useSubmitReport();
 
-  // Standard React state - local storage removed as requested
+  // Local state only - no auto-save or local storage
   const [rating, setRating] = useState<number>(initialData?.rating ?? 0);
   const [description, setDescription] = useState<string>(initialData?.description ?? "");
   const [attendance, setAttendance] = useState<number>(initialData?.attendance ?? 5);
@@ -34,81 +34,31 @@ export default function ReportForm({
       : []
   );
 
-  const isDirtyRef = useRef(false);
-
-  // Sync initialData to local states when it changes (e.g. after backend fetch)
+  // Load initial data when switching students or when data is available
   useEffect(() => {
-    if (initialData && !isDirtyRef.current) {
+    if (initialData) {
       setRating(initialData.rating ?? 0);
       setDescription(initialData.description ?? "");
       setAttendance(initialData.attendance ?? 5);
       setTestScores(initialData.testScores ?? []);
     }
-  }, [initialData]);
+  }, [initialData, student.id]);
 
   const [isPublishing, setIsPublishing] = useState(false);
 
- 
-  useEffect(() => {
-    
-    if (isHistoryView || isPublishing || isPending) return;
+  const onRatingChange = (val: number) => setRating(val);
+  const onDescriptionChange = (val: string) => setDescription(val);
+  const onAttendanceChange = (val: number) => setAttendance(val);
+  const onScoresChange = (val: TestScore[]) => setTestScores(val);
 
-    const timer = setTimeout(async () => {
-   
-      if (!isDirtyRef.current || isPublishing) return;
-
-      try {
-        await submitReport({
-          studentId: student.id,
-          termId,
-          weekNumber,
-          behavioralScore: rating,
-          attendance: Number(attendance),
-          teacherRemark: description,
-          status: 'DRAFT',
-          scores: testScores
-            .filter(ts => ts.subject && ts.score)
-            .map(ts => ({
-              subjectName: ts.subject,
-              score: Number(ts.score),
-              total: Number(ts.maxScore) || 100
-            }))
-        });
-      } catch (error) {
-        console.error("Auto-save failed:", error);
-      }
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [rating, description, attendance, testScores, student.id, termId, weekNumber, isHistoryView, submitReport, isPublishing, isPending]);
-
-  // Track changes to mark as dirty
-  const onRatingChange = (val: number) => {
-    setRating(val);
-    isDirtyRef.current = true;
-  };
-  const onDescriptionChange = (val: string) => {
-    setDescription(val);
-    isDirtyRef.current = true;
-  };
-  const onAttendanceChange = (val: number) => {
-    setAttendance(val);
-    isDirtyRef.current = true;
-  };
-  const onTestScoresChange = (val: TestScore[]) => {
-    setTestScores(val);
-    isDirtyRef.current = true;
-  };
-
-  // Fetch mapped subjects for this class/department — cached for 5 min by React Query
+  // Fetch mapped subjects for this class/department
   const { data: subjects = [], isLoading: isLoadingSubjects } = useMappedSubjects(
     classId,
     departmentId
   );
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsPublishing(true); // Lock auto-save
+  const handlePublish = async () => {
+    setIsPublishing(true);
     
     try {
       await submitReport({
@@ -128,11 +78,10 @@ export default function ReportForm({
           }))
       });
 
-      isDirtyRef.current = false; // Reset dirty state
       toast.success("Report published successfully!");
       router.push("/portal/teacher/reports");
     } catch (error) {
-      setIsPublishing(false); // Unlock if failed
+      setIsPublishing(false);
       console.error("Failed to submit report:", error);
     }
   };
@@ -141,7 +90,11 @@ export default function ReportForm({
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <ReportHeader student={student} />
 
-      <form onSubmit={(e) => e.preventDefault()} className="p-6 flex flex-col gap-8">
+      <form 
+        onSubmit={(e) => e.preventDefault()} 
+        onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+        className="p-6 flex flex-col gap-8"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
           <RatingStars
             label="Attendance"
@@ -170,7 +123,7 @@ export default function ReportForm({
 
         <TestScores
           testScores={testScores}
-          setTestScores={onTestScoresChange}
+          setTestScores={onScoresChange}
           isHistoryView={isHistoryView}
           subjects={subjects}
           isLoadingSubjects={isLoadingSubjects}
@@ -180,17 +133,23 @@ export default function ReportForm({
           <div className="flex justify-end pt-6 mt-4 border-t border-gray-100">
             <button
               type="button"
-              onClick={handleSave}
-              disabled={rating === 0 || isPublishing || isPending}
-              className="h-11 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-semibold rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handlePublish}
+              disabled={isPending || isHistoryView || isPublishing}
+              className={`
+                flex items-center gap-2 px-8 py-3 bg-[#006442] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#006442]/20 hover:scale-105 active:scale-95 transition-all
+                disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed
+              `}
             >
               {isPublishing ? (
                 <>
-                  <CheckCircle2 size={18} className="mr-2 animate-pulse" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Publishing...
                 </>
               ) : (
-                "Publish Report"
+                <>
+                  <CheckCircle2 size={18} />
+                  Publish Report
+                </>
               )}
             </button>
           </div>
