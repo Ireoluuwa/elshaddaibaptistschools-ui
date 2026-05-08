@@ -96,8 +96,8 @@ const AssignmentList = () => {
         </select>
       </div>
 
-      {/* Assignment Items */}
-      <div className="divide-y divide-gray-100">
+      {/* Assignment Items - Scrollable Container */}
+      <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto custom-scrollbar">
         {visibleAssignments.length > 0 ? (
           <>
             {visibleAssignments.map((assignment) => (
