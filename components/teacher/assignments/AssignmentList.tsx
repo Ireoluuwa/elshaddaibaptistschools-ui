@@ -1,25 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
-import { Search, Trash2, Paperclip, Pencil } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Search, Trash2, Paperclip, Pencil, ChevronDown } from "lucide-react";
 import {
   mockAssignments,
   statusOptions,
   Assignment,
 } from "@/constants/teacher/assignments.constants";
 
+const ITEMS_PER_PAGE = 5;
+
 const AssignmentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  const filtered = mockAssignments.filter((a) => {
-    const matchesSearch = a.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "All Statuses" || a.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filtered = useMemo(() => {
+    return mockAssignments.filter((a) => {
+      const matchesSearch = a.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "All Statuses" || a.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [searchTerm, statusFilter]);
+
+  const visibleAssignments = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
+  };
 
   const statusBadge = (status: Assignment["status"]) => {
     const styles = {
@@ -48,13 +60,19 @@ const AssignmentList = () => {
             type="text"
             placeholder="Search assignments..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setVisibleCount(ITEMS_PER_PAGE); // Reset pagination on search
+            }}
             className="w-full pl-9 pr-4 h-9 rounded-lg border border-gray-200 focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all bg-white"
           />
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setVisibleCount(ITEMS_PER_PAGE); // Reset pagination on filter
+          }}
           className="h-9 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
         >
           {statusOptions.map((opt) => (
@@ -67,52 +85,74 @@ const AssignmentList = () => {
 
       {/* Assignment Items */}
       <div className="divide-y divide-gray-100">
-        {filtered.length > 0 ? (
-          filtered.map((assignment) => (
-            <div
-              key={assignment.id}
-              className="px-5 sm:px-6 py-4 hover:bg-gray-50/50 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-bold text-[#0e2e1d] truncate">
-                      {assignment.title}
-                    </h3>
-                    {assignment.hasAttachment && (
-                      <Paperclip size={13} className="text-gray-400 shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-400 truncate">
-                    {assignment.description}
-                  </p>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                    <span>
-                      Start:{" "}
-                      <span className="font-medium text-gray-500">
-                        {assignment.startDate}
+        {visibleAssignments.length > 0 ? (
+          <>
+            {visibleAssignments.map((assignment) => (
+              <div
+                key={assignment.id}
+                className="px-5 sm:px-6 py-4 hover:bg-gray-50/50 transition-colors group"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-sm font-bold text-[#0e2e1d] truncate group-hover:text-[#006442] transition-colors">
+                        {assignment.title}
+                      </h3>
+                      {assignment.hasAttachment && (
+                        <Paperclip size={13} className="text-gray-400 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-400 truncate">
+                      {assignment.description}
+                    </p>
+                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                      <span>
+                        Start:{" "}
+                        <span className="font-medium text-gray-500">
+                          {assignment.startDate}
+                        </span>
                       </span>
-                    </span>
-                    <span>
-                      Due:{" "}
-                      <span className="font-medium text-gray-500">
-                        {assignment.dueDate}
+                      <span>
+                        Due:{" "}
+                        <span className="font-medium text-gray-500">
+                          {assignment.dueDate}
+                        </span>
                       </span>
-                    </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {statusBadge(assignment.status)}
-                  <button className="p-1.5 text-gray-300 hover:text-[#006442] hover:bg-[#f0f7f4] rounded-lg transition-colors">
-                    <Pencil size={15} />
-                  </button>
-                  <button className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                    <Trash2 size={15} />
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {statusBadge(assignment.status)}
+                    <div className="flex items-center gap-1 ml-2 transition-opacity">
+                      <button className="p-1.5 text-gray-400 hover:text-[#006442] hover:bg-[#f0f7f4] rounded-lg transition-all">
+                        <Pencil size={15} />
+                      </button>
+                      <button className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+
+            {hasMore && (
+              <div className="p-6 flex justify-center bg-gray-50/30">
+                <button
+                  onClick={handleLoadMore}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-500 hover:text-[#006442] hover:border-[#006442] hover:shadow-sm transition-all uppercase tracking-widest"
+                >
+                  Load More Assignments
+                  <ChevronDown size={14} />
+                </button>
+              </div>
+            )}
+
+            {!hasMore && filtered.length > ITEMS_PER_PAGE && (
+               <div className="p-6 text-center text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">
+                 End of List
+               </div>
+            )}
+          </>
         ) : (
           <div className="px-6 py-10 text-center text-gray-400 text-sm">
             No assignments found.
