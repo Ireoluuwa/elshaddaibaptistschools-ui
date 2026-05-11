@@ -11,12 +11,14 @@ import {
   AssignmentLoadingMore 
 } from "./AssignmentStates";
 import CreateAssignment from "./CreateAssignment";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 
 const AssignmentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [editingAssignment, setEditingAssignment] = useState<any>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const {
     data,
@@ -28,7 +30,7 @@ const AssignmentList = () => {
     error
   } = useAssignments(debouncedSearch, statusFilter);
 
-  const { mutate: deleteAssignment } = useDeleteAssignment();
+  const { mutate: deleteAssignment, isPending: isDeleting } = useDeleteAssignment();
   const { ref, inView } = useInView();
 
   // Debounce search to prevent API spam
@@ -64,8 +66,14 @@ const AssignmentList = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this assignment?")) {
-      deleteAssignment(id);
+    setDeletingId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deletingId) {
+      deleteAssignment(deletingId, {
+        onSuccess: () => setDeletingId(null),
+      });
     }
   };
 
@@ -78,6 +86,18 @@ const AssignmentList = () => {
           onClose={() => setEditingAssignment(null)} 
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal 
+        isOpen={!!deletingId}
+        onClose={() => setDeletingId(null)}
+        onConfirm={confirmDelete}
+        isPending={isDeleting}
+        title="Delete Assignment"
+        message="Are you sure you want to delete this assignment? This action cannot be undone and students will no longer be able to access it."
+        confirmText="Delete Assignment"
+        variant="danger"
+      />
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col max-h-[800px]">
         {/* Search & Filter Header */}
