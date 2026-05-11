@@ -42,6 +42,8 @@ export default function TeacherProfilePage() {
         username={profile.username}
         role={profile.role}
         currentClass={`${profile.schoolClass || ''} ${profile.department || ''}`.trim()}
+        profileId={profile.id}
+        avatarUrl={profile.avatarUrl}
       />
 
       {/* Forms Section */}

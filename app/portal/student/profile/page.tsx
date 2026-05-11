@@ -46,6 +46,8 @@ export default function StudentProfilePage() {
         lastName={profile.lastName}
         studentId={profile.studentId}
         currentClass={`${profile.schoolClass || ''} ${profile.department || ''}`.trim() || 'N/A'}
+        profileId={profile.id}
+        avatarUrl={profile.avatarUrl}
       />
 
       {/* Forms Section */}

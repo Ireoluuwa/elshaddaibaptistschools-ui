@@ -34,7 +34,7 @@ export const storageService = {
       .from('profile_image')
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: true, // overwrite existing avatar
+        upsert: true, 
       });
 
     if (error) {
