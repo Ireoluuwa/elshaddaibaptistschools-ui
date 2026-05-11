@@ -1,4 +1,7 @@
+import { pagesMetadata } from '@/constants/metadata';
 import Navbar from "@/components/shared/Navbar";
+
+export const metadata = pagesMetadata.about;
 import Footer from "@/components/shared/Footer";
 import Hero from "@/components/about/Hero";
 import OurRoots from "@/components/about/OurRoots";
