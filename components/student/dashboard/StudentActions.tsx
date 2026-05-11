@@ -6,7 +6,6 @@ import {
   ClipboardList, 
   BarChart3, 
   FileText, 
-  Wallet, 
   User, 
   Monitor,
   LucideIcon
@@ -47,14 +46,6 @@ const studentActions: StudentAction[] = [
     bgColor: "bg-rose-50",
   },
   {
-    name: "Finance",
-    description: "Fee & payment info",
-    href: "/portal/student/finance",
-    icon: Wallet,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50",
-  },
-  {
     name: "My Profile",
     description: "Update your info",
     href: "/portal/student/profile",
@@ -79,7 +70,7 @@ const StudentActions = () => {
         <span className="w-1 h-4 bg-[#006442] rounded-full" />
         Quick Actions
       </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {studentActions.map((action) => {
           const Icon = action.icon;
           return (
