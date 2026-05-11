@@ -12,6 +12,7 @@ export interface StudentProfile {
   guardianName: string;
   guardianPhone: string;
   guardianEmail: string;
+  avatarUrl: string | null;
 }
 
 export interface ChangePasswordPayload {

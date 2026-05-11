@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { getStudentProfile, updateStudentProfile, getTeacherProfile, updateTeacherProfile, changePassword } from '@/services/profile.service';
+import { storageService } from '@/services/storage.service';
 
 export const useStudentProfile = () => {
   return useQuery({
@@ -45,5 +46,31 @@ export const useSuspenseTeacherProfile = () => {
 export const useChangePassword = () => {
   return useMutation({
     mutationFn: changePassword,
+  });
+};
+
+export const useUploadStudentAvatar = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ file, profileId }: { file: File; profileId: string }) => {
+      const avatarUrl = await storageService.uploadProfileImage(file, profileId);
+      return updateStudentProfile({ avatarUrl });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student-profile'] });
+    },
+  });
+};
+
+export const useUploadTeacherAvatar = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ file, profileId }: { file: File; profileId: string }) => {
+      const avatarUrl = await storageService.uploadProfileImage(file, profileId);
+      return updateTeacherProfile({ avatarUrl });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-profile'] });
+    },
   });
 };

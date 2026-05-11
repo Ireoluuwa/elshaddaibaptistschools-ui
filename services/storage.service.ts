@@ -19,11 +19,34 @@ export const storageService = {
       throw new Error(error.message);
     }
 
-    // Get the public URL
     const { data: { publicUrl } } = supabase.storage
       .from('assignments')
       .getPublicUrl(filePath);
 
     return publicUrl;
-  }
+  },
+
+  uploadProfileImage: async (file: File, userId: string): Promise<string> => {
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const filePath = `${userId}/avatar.${fileExt}`;
+
+    const { error } = await supabase.storage
+      .from('profile_image')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true, // overwrite existing avatar
+      });
+
+    if (error) {
+      console.error('Supabase profile image upload error:', error);
+      throw new Error(error.message);
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('profile_image')
+      .getPublicUrl(filePath);
+
+    // Append cache-busting timestamp so the browser doesn't show stale image
+    return `${publicUrl}?t=${Date.now()}`;
+  },
 };

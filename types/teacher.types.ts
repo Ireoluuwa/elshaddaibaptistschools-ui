@@ -9,6 +9,7 @@ export interface TeacherProfile {
   address: string;
   email: string;
   phoneNumber: string;
+  avatarUrl: string | null;
 }
 
 export type UpdateTeacherPayload = Partial<
