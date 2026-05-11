@@ -25,6 +25,11 @@ body {
   font-family: var(--font-sans), sans-serif;
 }
 
+/* Prevent Safari auto-zoom on input focus */
+input, textarea, select {
+  font-size: 1rem;
+}
+
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
