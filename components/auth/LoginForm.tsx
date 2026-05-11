@@ -85,7 +85,7 @@ const LoginForm = () => {
                 placeholder="Student or Staff ID"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50/50 text-[#0e2e1d] text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006442]/30 focus:border-[#006442] transition-all"
+                className="w-full h-12 pl-12 pr-4 rounded-xl border border-gray-200 bg-gray-50/50 text-[#0e2e1d] text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006442]/30 focus:border-[#006442] transition-all"
               />
             </div>
           </div>
@@ -108,7 +108,7 @@ const LoginForm = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 pl-12 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-[#0e2e1d] text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006442]/30 focus:border-[#006442] transition-all"
+                className="w-full h-12 pl-12 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-[#0e2e1d] text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006442]/30 focus:border-[#006442] transition-all"
               />
               <button
                 type="button"

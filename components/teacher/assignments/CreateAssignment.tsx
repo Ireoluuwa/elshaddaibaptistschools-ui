@@ -144,7 +144,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
               placeholder="e.g. Physics Project: Motion"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all placeholder:text-gray-300"
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-base transition-all placeholder:text-gray-300"
             />
           </div>
 
@@ -156,7 +156,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
             <select
               value={classId}
               onChange={(e) => setClassId(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm transition-all text-gray-600"
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-base transition-all text-gray-600"
             >
               <option value="">Select Class</option>
               {classes.map((cls: any) => (
@@ -176,7 +176,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all placeholder:text-gray-300 resize-none"
+            className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-base transition-all placeholder:text-gray-300 resize-none"
           />
         </div>
 
@@ -191,7 +191,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm transition-all text-gray-600 cursor-pointer"
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-base transition-all text-gray-600 cursor-pointer"
             />
           </div>
 
@@ -205,7 +205,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-sm transition-all text-gray-600 cursor-pointer"
+              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] outline-none text-base transition-all text-gray-600 cursor-pointer"
             />
           </div>
         </div>
