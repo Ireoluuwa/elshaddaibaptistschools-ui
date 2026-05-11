@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { assignmentService } from "@/services/assignment.service";
 import { toast } from "@/store/toast.store";
 
@@ -27,5 +27,12 @@ export const useDeleteAssignment = () => {
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to delete assignment");
     },
+  });
+};
+export const useStudentAssignments = (page = 1) => {
+  return useQuery({
+    queryKey: ['student-assignments', page],
+    queryFn: () => assignmentService.getStudentAssignments(page),
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 };
