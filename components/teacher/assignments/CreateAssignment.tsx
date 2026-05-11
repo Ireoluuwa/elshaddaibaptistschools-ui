@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   X,
   Upload,
@@ -30,16 +30,24 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Fetch classes for the teacher
+  // Fetch classes for the teacher with 30min cache
   const { data: rawClasses = [], isLoading: isLoadingClasses } = useQuery({
     queryKey: ['teacher-classes'],
     queryFn: async () => {
       const { data } = await api.get('/academics/classes');
-      return data.data || data;
-    }
+      return data.data; // Response structure is { data: [...] }
+    },
+    staleTime: 30 * 60 * 1000, // 30 minutes cache
   });
 
   const classes = Array.isArray(rawClasses) ? rawClasses : [];
+
+  // Auto-select class if only one exists
+  useEffect(() => {
+    if (classes.length === 1 && !classId) {
+      setClassId(classes[0].id);
+    }
+  }, [classes, classId]);
 
   const mutation = useMutation({
     mutationFn: (payload: any) => 
@@ -111,7 +119,7 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
           {/* Class Selector */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-              Assigned Class
+              Target Class
             </label>
             <select
               value={classId}
