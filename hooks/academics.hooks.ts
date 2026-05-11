@@ -1,11 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import { getMappedSubjectsService } from '@/services/academics.service';
+import { academicsService } from '@/services/academics.service';
 
 export const useMappedSubjects = (classId?: string | null, departmentId?: string | null) => {
   return useQuery({
     queryKey: ['mappedSubjects', classId, departmentId ?? null],
-    queryFn: () => getMappedSubjectsService(classId!, departmentId),
+    queryFn: () => academicsService.getMappedSubjects(classId!, departmentId),
     enabled: !!classId,
-    staleTime: 5 * 60 * 1000, // cache for 5 minutes — subject lists rarely change
+    staleTime: 5 * 60 * 1000, 
+  });
+};
+
+export const useTeacherClasses = () => {
+  return useQuery({
+    queryKey: ['teacher-classes'],
+    queryFn: () => academicsService.getTeacherClasses(),
+    staleTime: 30 * 60 * 1000, // 30 minutes cache
   });
 };

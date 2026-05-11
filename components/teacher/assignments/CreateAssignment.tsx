@@ -9,10 +9,10 @@ import {
   CalendarDays,
   Loader2,
 } from "lucide-react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assignmentService } from "@/services/assignment.service";
+import { useTeacherClasses } from "@/hooks/academics.hooks";
 import { toast } from "@/store/toast.store";
-import api from "@/lib/axios"; // For fetching classes
 
 interface CreateAssignmentProps {
   onClose: () => void;
@@ -26,22 +26,29 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
   const [description, setDescription] = useState(initialData?.description || "");
   const [dueDate, setDueDate] = useState(initialData?.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : "");
   const [startDate, setStartDate] = useState(initialData?.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
-  const [classId, setClassId] = useState(initialData?.schoolClass?.id || "");
+  const [classId, setClassId] = useState(
+    initialData?.schoolClass?.id || 
+    initialData?.classId || 
+    initialData?.schoolClassId || 
+    ""
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const { data: rawClasses = [], isLoading: isLoadingClasses } = useQuery({
-    queryKey: ['teacher-classes'],
-    queryFn: async () => {
-      const { data } = await api.get('/academics/classes');
-      return data.data;
-    },
-    staleTime: 30 * 60 * 1000, 
-  });
+ 
+  const { data: rawClasses = [], isLoading: isLoadingClasses } = useTeacherClasses();
 
   const classes = Array.isArray(rawClasses) ? rawClasses : [];
 
-  // Auto-select class if only one exists
+  // Sync classId if initialData changes
+  useEffect(() => {
+    if (initialData) {
+      const id = initialData?.schoolClass?.id || initialData?.classId || initialData?.schoolClassId;
+      if (id) setClassId(id);
+    }
+  }, [initialData]);
+
+
   useEffect(() => {
     if (classes.length === 1 && !classId) {
       setClassId(classes[0].id);

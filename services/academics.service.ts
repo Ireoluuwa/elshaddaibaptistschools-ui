@@ -6,16 +6,23 @@ export interface MappedSubject {
   name: string;
 }
 
-export const getMappedSubjectsService = async (
-  classId: string,
-  departmentId?: string | null
-): Promise<MappedSubject[]> => {
-  const params: Record<string, string> = { classId };
-  if (departmentId) params.departmentId = departmentId;
+export const academicsService = {
+  getMappedSubjects: async (
+    classId: string,
+    departmentId?: string | null
+  ): Promise<MappedSubject[]> => {
+    const params: Record<string, string> = { classId };
+    if (departmentId) params.departmentId = departmentId;
 
-  const { data } = await api.get<ApiResponse<MappedSubject[]>>(
-    '/academics/subjects',
-    { params }
-  );
-  return data.data;
+    const { data } = await api.get<ApiResponse<MappedSubject[]>>(
+      '/academics/subjects',
+      { params }
+    );
+    return data.data;
+  },
+
+  getTeacherClasses: async () => {
+    const { data } = await api.get('/academics/classes');
+    return data.data;
+  },
 };
