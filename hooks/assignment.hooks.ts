@@ -29,10 +29,23 @@ export const useDeleteAssignment = () => {
     },
   });
 };
-export const useStudentAssignments = (page = 1) => {
+export const useStudentAssignments = (page = 1, type: 'active' | 'past' = 'active') => {
   return useQuery({
-    queryKey: ['student-assignments', page],
-    queryFn: () => assignmentService.getStudentAssignments(page),
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    queryKey: ['student-assignments', type, page],
+    queryFn: () => assignmentService.getStudentAssignments(page, type),
+    staleTime: 5 * 60 * 1000, 
+  });
+};
+
+export const useStudentAssignmentsInfinite = (type: 'active' | 'past' = 'active') => {
+  return useInfiniteQuery({
+    queryKey: ['student-assignments-infinite', type],
+    queryFn: ({ pageParam = 1 }) => assignmentService.getStudentAssignments(pageParam as number, type),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage?.meta) return undefined;
+      const next = lastPage.meta.currentPage + 1;
+      return next <= lastPage.meta.totalPages ? next : undefined;
+    },
   });
 };

@@ -61,9 +61,22 @@ export const assignmentService = {
     return data;
   },
 
-  getStudentAssignments: async (page = 1) => {
+  getStudentAssignments: async (page = 1, type: 'active' | 'past' = 'active') => {
+    const today = new Date().toISOString();
+    
+    const params: any = { 
+      page, 
+      sort: type === 'active' ? 'dueDate:ASC' : 'dueDate:DESC'
+    };
+
+    if (type === 'active') {
+      params['filter.dueDate'] = `$gte:${today}`;
+    } else {
+      params['filter.dueDate'] = `$lt:${today}`;
+    }
+
     const { data } = await api.get<ApiResponse<PaginatedAssignments>>(`/assignments/student`, {
-      params: { page }
+      params
     });
     return data.data;
   },
