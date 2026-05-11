@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp, Settings, LogOut } from "lucide-react";
 import { useLogout, useProfileQuery } from "@/hooks/auth.hooks";
+import { useTeacherProfile } from "@/hooks/profile.hooks";
 
 interface SidebarProfileProps {
   collapsed: boolean;
@@ -18,6 +19,7 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
   const [profileOpen, setProfileOpen] = useState(false);
   const handleLogout = useLogout();
   const { data: profile, isLoading } = useProfileQuery();
+  const { data: teacherProfile } = useTeacherProfile();
 
   return (
     <div className="mt-auto px-3 pb-6 relative shrink-0">
@@ -65,7 +67,7 @@ const SidebarProfile: React.FC<SidebarProfileProps> = ({
       >
         <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-400/20 overflow-hidden flex items-center justify-center shrink-0">
           <img
-            src="/no-profile.png"
+            src={teacherProfile?.avatarUrl || "/no-profile.png"}
             alt="Profile"
             className="w-full h-full object-cover"
           />
