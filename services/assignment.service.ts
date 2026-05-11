@@ -61,9 +61,9 @@ export const assignmentService = {
     return data;
   },
 
-  getStudentAssignments: async (page = 1, limit = 10) => {
+  getStudentAssignments: async (page = 1) => {
     const { data } = await api.get<ApiResponse<PaginatedAssignments>>(`/assignments/student`, {
-      params: { page, limit }
+      params: { page }
     });
     return data.data;
   },
