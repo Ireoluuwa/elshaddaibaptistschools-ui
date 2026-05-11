@@ -29,10 +29,10 @@ export const useDeleteAssignment = () => {
     },
   });
 };
-export const useStudentAssignments = (page = 1, type: 'active' | 'past' = 'active') => {
+export const useStudentAssignments = (page = 1, type: 'active' | 'past' = 'active', limit = 10) => {
   return useQuery({
-    queryKey: ['student-assignments', type, page],
-    queryFn: () => assignmentService.getStudentAssignments(page, type),
+    queryKey: ['student-assignments', type, page, limit],
+    queryFn: () => assignmentService.getStudentAssignments(page, type, limit),
     staleTime: 5 * 60 * 1000, 
   });
 };

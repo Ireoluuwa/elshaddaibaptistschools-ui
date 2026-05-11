@@ -3,13 +3,13 @@
 import React from "react";
 import { ClipboardList, ArrowRight, Clock, Calendar, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useStudentAssignmentsInfinite } from "@/hooks/assignment.hooks";
+import { useStudentAssignments } from "@/hooks/assignment.hooks";
 
 const AssignmentsWidget = () => {
-  const { data, isLoading, isError } = useStudentAssignmentsInfinite("active");
+  
+  const { data, isLoading, isError } = useStudentAssignments(1, "active", 5);
 
-  // Show only the first 4 assignments in the widget
-  const assignments = data?.pages.flatMap(p => p.data).slice(0, 4) || [];
+  const assignments = data?.data || [];
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full overflow-hidden">
@@ -28,7 +28,7 @@ const AssignmentsWidget = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 divide-y divide-gray-50 overflow-hidden">
+      <div className="flex-1 divide-y divide-gray-50 overflow-y-auto">
         {isLoading ? (
           <AssignmentsWidgetSkeleton />
         ) : isError ? (

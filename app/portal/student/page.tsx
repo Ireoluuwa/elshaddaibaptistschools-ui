@@ -18,12 +18,12 @@ export default function StudentDashboardPage() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Assignments — takes 2 columns */}
-        <div className="lg:col-span-2 min-h-[400px]">
+        <div className="lg:col-span-2 h-[420px]">
           <AssignmentsWidget />
         </div>
 
         {/* Sidebar — Announcements */}
-        <div className="min-h-[300px]">
+        <div className="h-[420px]">
           <AnnouncementsWidget />
         </div>
       </div>

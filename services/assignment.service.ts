@@ -61,11 +61,12 @@ export const assignmentService = {
     return data;
   },
 
-  getStudentAssignments: async (page = 1, type: 'active' | 'past' = 'active') => {
+  getStudentAssignments: async (page = 1, type: 'active' | 'past' = 'active', limit = 10) => {
     const today = new Date().toISOString();
     
     const params: any = { 
       page, 
+      limit,
       sort: type === 'active' ? 'dueDate:ASC' : 'dueDate:DESC'
     };
 

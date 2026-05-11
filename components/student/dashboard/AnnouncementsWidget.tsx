@@ -2,8 +2,6 @@
 
 import React from "react";
 import { Megaphone, Calendar, ChevronRight, Bell } from "lucide-react";
-
-// Static for now — wire to a real endpoint when ready
 const announcements = [
   {
     id: 1,
