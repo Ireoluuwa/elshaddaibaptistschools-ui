@@ -8,9 +8,11 @@ import {
   CheckCircle2,
   CalendarDays,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assignmentService } from "@/services/assignment.service";
+import { storageService } from "@/services/storage.service";
 import { useTeacherClasses } from "@/hooks/academics.hooks";
 import { toast } from "@/store/toast.store";
 
@@ -33,11 +35,11 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
     ""
   );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [attachmentUrl, setAttachmentUrl] = useState(initialData?.attachmentUrl || "");
+  const [isUploading, setIsUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
- 
   const { data: rawClasses = [], isLoading: isLoadingClasses } = useTeacherClasses();
-
   const classes = Array.isArray(rawClasses) ? rawClasses : [];
 
   // Sync classId if initialData changes
@@ -47,7 +49,6 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
       if (id) setClassId(id);
     }
   }, [initialData]);
-
 
   useEffect(() => {
     if (classes.length === 1 && !classId) {
@@ -70,23 +71,48 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
     }
   });
 
-  const canSubmit = title.trim() !== "" && dueDate !== "" && classId !== "";
+  const canSubmit = title.trim() !== "" && dueDate !== "" && classId !== "" && !isUploading;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
 
+    let finalAttachmentUrl = attachmentUrl;
+
+    // 1. Upload file if selected
+    if (selectedFile) {
+      setIsUploading(true);
+      try {
+        finalAttachmentUrl = await storageService.uploadAssignmentFile(selectedFile);
+        setAttachmentUrl(finalAttachmentUrl);
+      } catch (error: any) {
+        toast.error("Failed to upload attachment: " + error.message);
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+
+    // 2. Mutate with the (new or existing) attachment URL
     mutation.mutate({
       title,
       description,
       startDate: new Date(startDate).toISOString(),
       dueDate: new Date(dueDate).toISOString(),
       classId,
+      attachmentUrl: finalAttachmentUrl,
     });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
   };
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
+    setAttachmentUrl("");
     if (fileRef.current) fileRef.current.value = "";
   };
 
@@ -184,18 +210,52 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
           </div>
         </div>
 
-        {/* File Upload Placeholder */}
+        {/* File Upload */}
         <div className="flex flex-col gap-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
             Attachment (optional)
           </label>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 w-full p-4 border border-dashed border-gray-200 rounded-xl bg-gray-50/30 text-gray-400 text-xs font-medium cursor-not-allowed opacity-50"
-          >
-            <Upload size={14} />
-            <span>Upload functionality coming soon</span>
-          </button>
+          
+          <input 
+            type="file" 
+            ref={fileRef} 
+            onChange={handleFileChange} 
+            className="hidden" 
+          />
+
+          {!selectedFile && !attachmentUrl ? (
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="flex items-center justify-center gap-2 w-full p-4 border border-dashed border-gray-200 rounded-xl bg-gray-50/30 text-gray-400 text-xs font-medium hover:bg-gray-100 hover:border-[#006442]/30 transition-all"
+            >
+              <Upload size={14} />
+              <span>Click to upload assignment file</span>
+            </button>
+          ) : (
+            <div className="flex items-center justify-between p-4 bg-[#006442]/5 border border-[#006442]/10 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#006442]/10 flex items-center justify-center text-[#006442]">
+                  <FileText size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-700 truncate max-w-[200px]">
+                    {selectedFile ? selectedFile.name : "Attached File"}
+                  </p>
+                  <p className="text-[10px] text-[#006442] font-medium tracking-tight">
+                    {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : "File uploaded"}
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={handleRemoveFile}
+                className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
@@ -209,13 +269,13 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
           </button>
           <button
             type="submit"
-            disabled={!canSubmit || mutation.isPending}
+            disabled={!canSubmit || mutation.isPending || isUploading}
             className="h-10 px-6 bg-[#006442] hover:bg-[#005236] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {mutation.isPending ? (
+            {mutation.isPending || isUploading ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                {isEditing ? "Updating..." : "Creating..."}
+                {isUploading ? "Uploading..." : (isEditing ? "Updating..." : "Creating...")}
               </>
             ) : (
               isEditing ? "Update Assignment" : "Create Assignment"
