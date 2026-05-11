@@ -54,7 +54,7 @@ export default function WeeklyReportDetailPage() {
             </h1>
           </div>
           <p className="text-gray-400 text-sm font-medium">
-            {report.term.name} • {report.term.academicYear.name}
+            {report.term?.name || "Term Info N/A"} • {report.term?.academicYear?.name || "Year N/A"}
           </p>
         </div>
 

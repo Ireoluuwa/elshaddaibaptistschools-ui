@@ -166,8 +166,7 @@ export default function StudentReportPage({ params }: ReportPageProps) {
                 <div className="p-12 text-center text-gray-500 flex flex-col items-center gap-3">
                   <FileEdit size={32} className="text-gray-300" />
                   <p>A report was submitted for Week {selectedWeek}.</p>
-                  <p className="text-xs text-gray-400 mt-2">Past report viewing details requires fetching by ID.</p>
-                </div>
+                  </div>
               ) : (
                 <div className="p-12 text-center text-gray-400 flex flex-col items-center gap-3">
                   <Clock size={32} className="text-gray-300" />
