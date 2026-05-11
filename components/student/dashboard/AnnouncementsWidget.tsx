@@ -64,12 +64,7 @@ const AnnouncementsWidget = () => {
                   <span className="text-[11px] text-gray-400 font-medium">{item.date}</span>
                 </span>
               </div>
-              <div className="flex flex-col items-end gap-2 shrink-0">
-                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${item.tagColor}`}>
-                  {item.tag}
-                </span>
-                <ChevronRight size={14} className="text-gray-200 group-hover:text-[#006442] transition-colors" />
-              </div>
+
             </div>
           </div>
         ))}
