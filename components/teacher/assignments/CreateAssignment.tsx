@@ -30,14 +30,13 @@ const CreateAssignment: React.FC<CreateAssignmentProps> = ({ onClose, initialDat
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Fetch classes for the teacher with 30min cache
   const { data: rawClasses = [], isLoading: isLoadingClasses } = useQuery({
     queryKey: ['teacher-classes'],
     queryFn: async () => {
       const { data } = await api.get('/academics/classes');
-      return data.data; // Response structure is { data: [...] }
+      return data.data;
     },
-    staleTime: 30 * 60 * 1000, // 30 minutes cache
+    staleTime: 30 * 60 * 1000, 
   });
 
   const classes = Array.isArray(rawClasses) ? rawClasses : [];
