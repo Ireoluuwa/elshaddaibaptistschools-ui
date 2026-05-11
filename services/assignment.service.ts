@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+import { ApiResponse } from "@/types";
 
 export interface Assignment {
   id: string;
@@ -9,6 +10,10 @@ export interface Assignment {
   attachmentUrl?: string;
   status: "Active" | "Past Due" | "Draft";
   hasAttachment: boolean;
+  schoolClass?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface PaginatedAssignments {
@@ -54,5 +59,12 @@ export const assignmentService = {
   deleteAssignment: async (id: string) => {
     const { data } = await api.delete(`/assignments/${id}`);
     return data;
+  },
+
+  getStudentAssignments: async (page = 1, limit = 10) => {
+    const { data } = await api.get<ApiResponse<PaginatedAssignments>>(`/assignments/student`, {
+      params: { page, limit }
+    });
+    return data.data;
   },
 };
