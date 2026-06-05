@@ -47,21 +47,19 @@ const Facilities = () => {
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
               }}
-              className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition-all duration-300"
+              className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 h-80"
             >
-              <div className="aspect-[4/5] w-full overflow-hidden bg-gray-200">
-                <img
-                  alt={item.alt}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  src={item.img}
-                />
-              </div>
-              <div className="absolute inset-x-0 bottom-0 bg-[#0e2e1d]/80 py-4 h-1/2 flex items-end"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform">
-                <h3 className="text-white font-bold text-xl mb-1">
+              <img
+                alt={item.alt}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                src={item.img}
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-secondary/85 via-secondary/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h3 className="text-white font-bold text-xl mb-1 drop-shadow">
                   {item.title}
                 </h3>
-                <p className="text-gray-200 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <p className="text-gray-200 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 max-h-0 group-hover:max-h-10 overflow-hidden">
                   {item.desc}
                 </p>
               </div>
