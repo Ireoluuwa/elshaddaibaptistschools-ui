@@ -30,7 +30,7 @@ const AcademicStage: React.FC<AcademicStageProps> = ({
   return (
     <section className="grid md:grid-cols-12 gap-8 md:gap-12 lg:gap-16 items-start" id={id}>
       {/* Left Column: Info */}
-      <div className="md:col-span-4 lg:col-span-3 sticky top-32">
+      <div className="md:col-span-4 lg:col-span-3 md:sticky md:top-32">
         <div className="size-20 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-8 shadow-sm">
           {StageIcon && <StageIcon size={40} />}
         </div>
