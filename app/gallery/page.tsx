@@ -6,7 +6,6 @@ import React from 'react';
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 import GalleryHeader from "@/components/gallery/GalleryHeader";
-import GalleryFilters from "@/components/gallery/GalleryFilters";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 
 export default function GalleryPage() {
@@ -16,7 +15,6 @@ export default function GalleryPage() {
       
       <main className="flex-grow w-full">
         <GalleryHeader />
-        <GalleryFilters />
         <GalleryGrid />
       </main>
       
