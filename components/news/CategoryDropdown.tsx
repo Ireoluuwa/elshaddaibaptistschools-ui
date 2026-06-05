@@ -14,7 +14,7 @@ const CategoryDropdown = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm"
       >
-        <div className="flex items-center gap-2 text-primary">
+        <div className="flex items-center gap-2 text-secondary">
           <Tags size={20} />
           <span className="font-bold">Filter by Category</span>
         </div>
