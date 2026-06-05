@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const CTA = () => {
   return (
@@ -20,20 +21,22 @@ const CTA = () => {
           bright future for your child today.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-[#006442] hover:bg-[#005236] text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg"
-          >
-            Start Application
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex min-w-[160px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-transparent border border-white hover:bg-white/10 text-white text-base font-bold leading-normal tracking-[0.015em]"
-          >
-            Contact Admissions
-          </motion.button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/admissions"
+              className="flex min-w-40 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-[#006442] hover:bg-[#005236] text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg"
+            >
+              Start Application
+            </Link>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/contact"
+              className="flex min-w-40 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-transparent border border-white hover:bg-white/10 text-white text-base font-bold leading-normal tracking-[0.015em]"
+            >
+              Contact Admissions
+            </Link>
+          </motion.div>
         </div>
       </motion.div>
     </div>
