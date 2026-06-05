@@ -6,10 +6,7 @@ const AcademicsHero = () => {
     <section className="relative w-full bg-[#f6f8f8] py-12 md:py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-6 lg:px-20 flex flex-col items-center text-center">
         <div className="max-w-3xl mb-12">
-          <span className="inline-block py-1 px-4 rounded-full bg-primary/10 text-primary font-bold text-sm mb-6 border border-primary/20 uppercase tracking-widest">
-            {academicsHero.tag}
-          </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-secondary tracking-tight mb-6 leading-tight">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-secondary tracking-tight mb-6 leading-tight">
             Nurturing Minds, <br/>
             <span className="text-primary">{academicsHero.titleAccent}</span>
           </h1>
