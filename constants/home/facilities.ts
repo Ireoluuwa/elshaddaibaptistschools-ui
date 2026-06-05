@@ -7,10 +7,10 @@ export const facilitiesSection = {
 
 export const facilitiesData = [
   {
-    title: "Modern Library",
-    desc: "Over 10,000 resources for research and study.",
+    title: "Our Scholars",
+    desc: "Confident, disciplined students shaped for excellence.",
     img: "/facility-library.jpeg",
-    alt: "Modern Library with shelves of books",
+    alt: "Two El-Shaddai students in uniform",
   },
   {
     title: "Science Lab",
