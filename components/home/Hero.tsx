@@ -105,7 +105,7 @@ const Hero = () => {
               </Link>
               <Link
                 href={current.ctaSecondaryHref}
-                className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-white/5 backdrop-blur-md border border-white/40 hover:bg-white/20 text-white text-base font-bold transition-all active:scale-95"
+                className="flex min-w-[150px] cursor-pointer items-center justify-center rounded-lg h-12 px-8 border-2 border-white text-white text-base font-bold transition-all duration-300 hover:bg-white hover:text-secondary active:scale-95 backdrop-blur-sm"
               >
                 {current.ctaSecondary}
               </Link>
