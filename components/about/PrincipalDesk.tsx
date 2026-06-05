@@ -31,23 +31,17 @@ const PrincipalDesk = () => {
               </h2>
             </div>
             
-            <blockquote className="text-gray-700 text-lg md:text-xl italic leading-relaxed font-light">
+            <blockquote className="text-gray-700 text-sm md:text-xl italic leading-relaxed font-light">
               {principalDesk.quote}
             </blockquote>
-            
+
             <div className="mt-2">
-              <h4 className="text-secondary font-bold text-xl">
+              <h4 className="text-secondary font-bold text-lg md:text-xl">
                 {principalDesk.name}
               </h4>
               <p className="text-gray-500 text-sm">
                 {principalDesk.role}
               </p>
-            </div>
-            
-            <div className="mt-4">
-              <button className="inline-flex cursor-pointer items-center justify-center rounded-lg h-11 px-8 bg-primary hover:bg-primary/90 text-white text-sm font-bold transition-colors shadow-md">
-                {principalDesk.buttonText}
-              </button>
             </div>
           </div>
           
