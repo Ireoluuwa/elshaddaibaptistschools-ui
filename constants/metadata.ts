@@ -61,6 +61,18 @@ export const pagesMetadata = {
       url: '/gallery',
     },
   },
+  admissions: {
+    title: 'Admissions',
+    description:
+      'Apply to El-Shaddai Baptist Schools for the 2025/2026 academic session. Learn about our admissions process, requirements, and available programmes from Nursery to Senior Secondary.',
+    alternates: { canonical: '/admissions' },
+    openGraph: {
+      title: 'Admissions | El-Shaddai Baptist Schools',
+      description:
+        'Admissions are open for 2025/2026. Discover our process, requirements, and school levels.',
+      url: '/admissions',
+    },
+  },
   news: {
     title: 'News & Events',
     description:
