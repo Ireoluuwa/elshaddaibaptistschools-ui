@@ -5,8 +5,8 @@ const Footer = () => {
   return (
     <footer className="bg-[#0b1215] text-[#94a3b8] pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-6 lg:px-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-16">
+          <div className="lg:col-span-3 flex flex-col gap-6">
             <div className="flex items-center gap-3">
               <img
                 src="/logo.png"
@@ -75,7 +75,29 @@ const Footer = () => {
               ))}
             </div>
           </div>
-          <div>
+          <div className="lg:col-span-2">
+            <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">
+              Quick Links
+            </h3>
+            <ul className="flex flex-col gap-4 text-sm font-medium">
+              {[
+                { name: "Home", href: "/" },
+                { name: "About Us", href: "/about" },
+                { name: "Academics", href: "/academics" },
+                { name: "Admissions", href: "/admissions" },
+                { name: "Gallery", href: "/gallery" },
+                { name: "News & Events", href: "/news" },
+                { name: "Contact Us", href: "/contact" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link className="hover:text-white transition-colors" href={link.href}>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="lg:col-span-4">
             <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">
               Contact Us
             </h3>
@@ -83,22 +105,20 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="text-[#006442] shrink-0 mt-0.5" size={18} />
                 <span className="leading-relaxed">
-                  12 Education Road, Victoria Island,
-                  <br />
-                  Lagos, Nigeria.
+                  12 Education Road, Victoria Island,<br />Lagos, Nigeria.
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="text-[#006442] shrink-0" size={18} />
                 <span>+234 801 234 5678</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail className="text-[#006442] shrink-0" size={18} />
-                <span>admissions@elshaddaibaptist.edu.ng</span>
+              <li className="flex items-start gap-3">
+                <Mail className="text-[#006442] shrink-0 mt-0.5" size={18} />
+                <span className="break-all">admissions@elshaddaibaptist.edu.ng</span>
               </li>
             </ul>
           </div>
-          <div>
+          <div className="lg:col-span-3">
             <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">
               Location
             </h3>
@@ -113,14 +133,6 @@ const Footer = () => {
         </div>
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-medium tracking-wide">
           <p>© 2023 El-Shaddai Baptist School. All rights reserved.</p>
-          <div className="flex gap-8">
-            <a className="hover:text-white transition-colors" href="#">
-              Privacy Policy
-            </a>
-            <a className="hover:text-white transition-colors" href="#">
-              Terms of Use
-            </a>
-          </div>
         </div>
       </div>
     </footer>
