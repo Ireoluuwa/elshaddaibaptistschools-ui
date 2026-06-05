@@ -1,4 +1,5 @@
-import { School, MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail } from "lucide-react";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -73,26 +74,6 @@ const Footer = () => {
                 </a>
               ))}
             </div>
-          </div>
-          <div>
-            <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">
-              Quick Links
-            </h3>
-            <ul className="flex flex-col gap-4 text-sm font-medium">
-              {[
-                "School Portal",
-                "Academic Calendar",
-                "Staff Directory",
-                "Careers",
-                "Alumni",
-              ].map((link) => (
-                <li key={link}>
-                  <a className="hover:text-white transition-colors" href="#">
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
           <div>
             <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">

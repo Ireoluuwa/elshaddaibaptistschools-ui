@@ -7,7 +7,6 @@ import Hero from "@/components/about/Hero";
 import OurRoots from "@/components/about/OurRoots";
 import GuidingPrinciples from "@/components/about/GuidingPrinciples";
 import PrincipalDesk from "@/components/about/PrincipalDesk";
-import AboutCTA from "@/components/about/AboutCTA";
 
 export default function AboutUs() {
   return (
@@ -17,7 +16,6 @@ export default function AboutUs() {
       <OurRoots />
       <GuidingPrinciples />
       <PrincipalDesk />
-      <AboutCTA />
       <Footer />
     </main>
   );
