@@ -1,14 +1,13 @@
 import React from "react";
 import * as Icons from "lucide-react";
-import { Download } from "lucide-react";
 
 interface AcademicStageProps {
   id: string;
   icon: string;
   title: string;
   description: string;
-  syllabusLink: string;
-  syllabusText: string;
+  syllabusLink?: string;
+  syllabusText?: string;
   sections: Array<{
     title: string;
     icon: string;
@@ -41,13 +40,6 @@ const AcademicStage: React.FC<AcademicStageProps> = ({
         <p className="text-[#64748b] mb-5 md:mb-8 leading-relaxed text-sm md:text-lg">
           {description}
         </p>
-        <a
-          className="inline-flex items-center gap-2 text-primary text-sm font-bold hover:text-secondary transition-colors group px-4 py-2.5 bg-primary/5 rounded-xl border border-primary/10"
-          href={syllabusLink}
-        >
-          <Download size={16} className="transition-transform group-hover:translate-y-1" />
-          {syllabusText}
-        </a>
       </div>
 
       {/* Right Column: Cards */}
