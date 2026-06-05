@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { heroSlides } from "@/constants/home/hero";
 
 const Hero = () => {
@@ -96,12 +97,18 @@ const Hero = () => {
               {current.subtitle}
             </p>
             <div className="flex flex-wrap justify-center gap-4 mt-6">
-              <button className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-[#006442] hover:bg-[#005236] text-white text-base font-bold transition-all shadow-lg active:scale-95">
+              <Link
+                href={current.ctaPrimaryHref}
+                className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-[#006442] hover:bg-[#005236] text-white text-base font-bold transition-all shadow-lg active:scale-95"
+              >
                 {current.ctaPrimary}
-              </button>
-              <button className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-white/5 backdrop-blur-md border border-white/40 hover:bg-white/20 text-white text-base font-bold transition-all active:scale-95">
+              </Link>
+              <Link
+                href={current.ctaSecondaryHref}
+                className="flex min-w-[150px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-white/5 backdrop-blur-md border border-white/40 hover:bg-white/20 text-white text-base font-bold transition-all active:scale-95"
+              >
                 {current.ctaSecondary}
-              </button>
+              </Link>
             </div>
           </motion.div>
         </AnimatePresence>

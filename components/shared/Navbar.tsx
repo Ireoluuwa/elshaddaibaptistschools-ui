@@ -51,9 +51,9 @@ const Navbar = () => {
             <button className="text-[#0e2e1d] hover:text-[#006442]">
               <Phone size={16} />
             </button>
-            <button className="text-[#0e2e1d] hover:text-[#006442]">
+            <Link href="/portal" className="text-[#0e2e1d] hover:text-[#006442]">
               <UserCircle size={16} />
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -142,15 +142,15 @@ const Navbar = () => {
               <button className="text-[#0e2e1d] hover:text-[#006442] transition-colors">
                 <Phone size={18} />
               </button>
-              <button className="text-[#0e2e1d] hover:text-[#006442] transition-colors">
+              <Link href="/portal" className="text-[#0e2e1d] hover:text-[#006442] transition-colors">
                 <UserCircle size={18} />
-              </button>
+              </Link>
             </div>
 
             {/* Bottom Tier Button */}
-            <button className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-bold transition-all shadow-md active:scale-95 leading-none">
+            <Link href="/auth/login" className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-bold transition-all shadow-md active:scale-95 leading-none">
               <span className="truncate">Be a Member</span>
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle Button */}
@@ -281,9 +281,9 @@ const Navbar = () => {
                 transition={{ duration: 0.3, delay: 0.35 }}
                 className="mt-8"
               >
-                <button className="w-14 h-14 rounded-xl bg-[#006442] flex items-center justify-center text-white shadow-lg active:scale-90 transition-all hover:bg-[#005236]">
+                <Link href="/portal" className="w-14 h-14 rounded-xl bg-[#006442] flex items-center justify-center text-white shadow-lg active:scale-90 transition-all hover:bg-[#005236]">
                   <UserCircle size={28} />
-                </button>
+                </Link>
               </motion.div>
             </div>
           </motion.div>
