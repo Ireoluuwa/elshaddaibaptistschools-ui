@@ -28,7 +28,7 @@ const Navbar = () => {
         { name: "Gallery", href: "/gallery" },
       ],
     },
-    { name: "Admissions", href: "#" },
+    { name: "Admissions", href: "/admissions" },
     { name: "News & Events", href: "/news" },
     { name: "Contact Us", href: "/contact" },
   ];
