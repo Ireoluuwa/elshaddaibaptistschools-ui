@@ -33,8 +33,8 @@ export default function AdmissionsForm() {
 
       {/* Page header */}
       <div className="bg-secondary py-16 px-6 text-center">
-        <h1 className="text-white text-4xl md:text-5xl font-black">Apply for Admission</h1>
-        <p className="text-green-100 mt-3 max-w-xl mx-auto">Fill in the form below and our team will be in touch within 3 working days.</p>
+        <h1 className="text-white text-2xl md:text-5xl font-black">Apply for Admission</h1>
+        <p className="text-green-100 mt-2 text-sm md:text-base max-w-xl mx-auto">Fill in the form below and our team will be in touch within 3 working days.</p>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 lg:px-10 py-16 space-y-20">
