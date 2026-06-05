@@ -9,19 +9,19 @@ export const facilitiesData = [
   {
     title: "Modern Library",
     desc: "Over 10,000 resources for research and study.",
-    img: "/banner1.jpeg",
+    img: "/facility-library.jpeg",
     alt: "Modern Library with shelves of books",
   },
   {
     title: "Science Lab",
     desc: "Fully equipped Physics, Chemistry & Biology stations.",
-    img: "/banner2.jpeg",
+    img: "/facility-lab.jpeg",
     alt: "Science Lab with students performing experiments",
   },
   {
     title: "ICT Center",
     desc: "High-speed internet and coding workshops.",
-    img: "/banner3.jpeg",
+    img: "/ict-center.jpeg",
     alt: "ICT Center with computers",
   },
 ];
