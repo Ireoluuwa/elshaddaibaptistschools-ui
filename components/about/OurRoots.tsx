@@ -9,10 +9,10 @@ const OurRoots = () => {
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           <div className="flex-1 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <span className="text-secondary font-bold uppercase tracking-wider text-sm">
+              <span className="text-primary font-bold uppercase tracking-wider text-sm">
                 {rootsSection.label}
               </span>
-              <h2 className="text-primary text-3xl md:text-4xl font-black leading-tight">
+              <h2 className="text-secondary text-3xl md:text-4xl font-black leading-tight">
                 {rootsSection.title}
               </h2>
             </div>
