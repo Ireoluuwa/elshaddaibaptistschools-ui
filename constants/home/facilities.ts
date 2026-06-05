@@ -24,10 +24,4 @@ export const facilitiesData = [
     img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC5RKekcrgDUlDCtjwmHATDdnkUzfYr_3tVVQFoGwelzRbCVsWb8R_JL04PK3yRG9XAwG51E4On_sa7ifcxT7F7ZSbN2JPOBLhiC4BJtqngZRB6wsbr8v0a2VUydqrbNA1QjZxL2lYMecQufBvr6CP_RjhC31S2wzFHUUq-MPSlnpHItdgsFxsFYKfEjFhlPfDyGG_2KVmXoQToV5i4e3CDHvd1OHRd0magsSUeDZso5hhliU5tllUTomRjcQKReVx00tULB42iEQ",
     alt: "ICT Center with computers",
   },
-  {
-    title: "Sports Complex",
-    desc: "Football pitch, basketball courts, and track.",
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCEEAZfjfO-BiLuFu2J9A1uUrHl9NOjRRfF67pXapJUz8CRMKNzD6zkXKD7tHIKAHfLM0VGxeHnJCzN02nZxql2-ACi3B1oWSUUufeVryRfr4RpWTD83eJ71E_s6gncMHKh9bTy4GzRCvluyZcCLPgMEQPMTwv846fLExgo4mK4wubI92ap6U7kZ6gHaTZbSmRGZWtX5dZiS4tNagTh8hCb7l_2MG2nRNeUIU6wARip4l0NO9QItUoawmkOOygF-jUHkRLrUrNO2A",
-    alt: "Sports Complex field",
-  },
 ];
