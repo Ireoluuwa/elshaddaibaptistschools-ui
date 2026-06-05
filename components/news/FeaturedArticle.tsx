@@ -22,10 +22,10 @@ const FeaturedArticle = () => {
             <Calendar size={16} /> {featuredPost.date}
           </span>
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-secondary leading-tight">
+        <h2 className="text-lg md:text-3xl font-bold text-secondary leading-tight">
           {featuredPost.title}
         </h2>
-        <p className="text-[#101818] text-base leading-relaxed line-clamp-3">
+        <p className="text-[#101818] text-sm md:text-base leading-relaxed line-clamp-3">
           {featuredPost.description}
         </p>
         <Link href={featuredPost.link} className="inline-flex items-center text-primary font-bold text-sm hover:underline mt-2 group-hover:translate-x-1 transition-transform">

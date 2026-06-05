@@ -18,7 +18,7 @@ const NewsGrid = () => {
             <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
               {post.tag}
             </span>
-            <h3 className="text-xl font-bold text-secondary leading-tight">
+            <h3 className="text-base md:text-xl font-bold text-secondary leading-tight">
               {post.title}
             </h3>
             <p className="text-[#64748b] text-sm leading-relaxed line-clamp-3 flex-grow">
