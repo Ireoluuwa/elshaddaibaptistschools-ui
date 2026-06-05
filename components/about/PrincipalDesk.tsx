@@ -26,7 +26,7 @@ const PrincipalDesk = () => {
               <span className="text-primary font-bold uppercase tracking-wider text-sm block mb-2">
                 {principalDesk.label}
               </span>
-              <h2 className="text-secondary text-3xl font-bold">
+              <h2 className="text-secondary text-xl md:text-3xl font-bold">
                 {principalDesk.title}
               </h2>
             </div>
