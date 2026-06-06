@@ -1,5 +1,6 @@
 import { MapPin, Phone, Mail } from "lucide-react";
 import Link from "next/link";
+import { contactMap } from "@/constants/contact";
 
 const Footer = () => {
   return (
@@ -90,11 +91,16 @@ const Footer = () => {
             <h3 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">
               Location
             </h3>
-            <div className="rounded-xl overflow-hidden h-40 bg-white/5 border border-white/10 group cursor-pointer">
-              <img
-                alt="Map of Nigeria location"
-                className="w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX99Glh_Mwh_ZxiM7URnwrVuQkq7QPMannkCV_2KTTCVgWLtYePDGoi-gxEbIrv11qMcVtzQMW5l1GDvPT4H14yAdGZMQgh0L-bgMCHTmdwmsXRzI2pR_SiQMi75A7XReLjd1JnkSo2h99ceSZWjdFLMI7IjGHxstgXq2bAGCNalP-f715ELpu4kI6XMpnth0PaHRulm15l-pF5CXD4mS4lcMR2nD3vY2WmYRB1Q-7y08putFuMNom4fzydxzCnOkjyHis00mfQg"
+            <div className="rounded-xl overflow-hidden h-40 border border-white/10">
+              <iframe
+                src={contactMap.embedSrc}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={contactMap.schoolName}
               />
             </div>
           </div>
