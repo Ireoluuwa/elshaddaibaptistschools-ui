@@ -3,7 +3,7 @@ export const academicsHero = {
   title: "Nurturing Minds, Building Futures",
   titleAccent: "Building Futures",
   description: "Our comprehensive curriculum is designed to challenge and inspire students at every stage of their development, blending Nigerian values with global educational standards.",
-  image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAHlLfQFlBi4cCrgWzU2BcGuvKFLZ26OUfwtGgX05Er3xXxwz5Hjhzs0Gwi5u7KcXgMfETgbAsSWAGWbeQB-L1Bj1sqTHdGBMyHQPdXWCLiHRHpR2iACXDHc3svs2N03wNqqHR32CxWWZr1kh5tY6KZ2z8O2n4iEEki6_C9P5nIltrFqQMhHHUekx0L9W9WiV3he0QVy1lubV0RiBqoRiyrlWr_XwiC_wkslLhzjaxC7G3WGGcYh12D8sfGaQjQRERF7LctDscl7g",
+  image: "",
   imageAlt: "Students collaborating in a modern classroom setting",
   imageCaption: "Discover our learning path"
 };
