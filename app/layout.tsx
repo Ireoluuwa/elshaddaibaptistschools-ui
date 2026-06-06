@@ -13,12 +13,12 @@ const poppins = Poppins({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://elshaddaibaptistschools.com';
 const siteDescription =
-  'El-Shaddai Baptist Schools — Building a legacy of academic excellence and moral integrity in Lagos, Nigeria since 1998. Nurturing faith, character, and academic brilliance.';
+  'El-Shaddai Baptist Schools — Building a legacy of academic excellence and moral integrity in Ibadan, Nigeria since 1998. Nurturing faith, character, and academic brilliance.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'El-Shaddai Baptist Schools | Lagos, Nigeria',
+    default: 'El-Shaddai Baptist Schools | Ibadan, Nigeria',
     template: '%s | El-Shaddai Baptist Schools',
   },
   description: siteDescription,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     locale: 'en_NG',
     url: siteUrl,
     siteName: 'El-Shaddai Baptist Schools',
-    title: 'El-Shaddai Baptist Schools | Lagos, Nigeria',
+    title: 'El-Shaddai Baptist Schools | Ibadan, Nigeria',
     description: siteDescription,
     images: [
       {
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'El-Shaddai Baptist Schools | Lagos, Nigeria',
+    title: 'El-Shaddai Baptist Schools | Ibadan, Nigeria',
     description: siteDescription,
     images: ['/logo.png'],
   },
@@ -71,6 +71,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
