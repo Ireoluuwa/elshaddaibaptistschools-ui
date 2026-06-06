@@ -15,7 +15,7 @@ export const facilitiesData = [
   {
     title: "Science Lab",
     desc: "Fully equipped Physics, Chemistry & Biology stations.",
-    img: "/facility-lab.jpeg",
+    img: "/gallery/facility-lab.jpeg",
     alt: "Science Lab with students performing experiments",
   },
   {
