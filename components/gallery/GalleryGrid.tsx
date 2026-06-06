@@ -64,10 +64,9 @@ const GalleryGrid = () => {
         <div className="mt-16 flex justify-center">
           <button
             onClick={() => setVisible((v) => v + LOAD_MORE_COUNT)}
-            className="flex h-14 min-w-60 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-secondary px-2 text-white text-base font-black tracking-widest transition-all hover:bg-primary hover:rotate-1 hover:shadow-xl shadow-primary/20 group"
+            className="group cursor-pointer"
           >
-            <RotateCw size={24} className="mr-3 transition-transform group-hover:rotate-180 duration-500" />
-           
+            <RotateCw size={28} className="text-secondary transition-transform duration-500 group-hover:rotate-180" />
           </button>
         </div>
       )}
