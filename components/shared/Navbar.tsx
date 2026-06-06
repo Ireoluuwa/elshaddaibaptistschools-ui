@@ -149,7 +149,7 @@ const Navbar = () => {
 
             {/* Bottom Tier Button */}
             <Link href="/auth/login" className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-bold transition-all shadow-md active:scale-95 leading-none">
-              <span className="truncate">Be a Member</span>
+              <span className="truncate">Portal</span>
             </Link>
           </div>
 
