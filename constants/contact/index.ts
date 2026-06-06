@@ -7,7 +7,7 @@ export const contactDetails = [
     {
         icon: "MapPin",
         title: "Visit Us",
-        details: ["123 Education Way, Victoria Island,", "Lagos, Nigeria"]
+        details: ["Adeoye Street, Agbowo-UI,", "Ibadan, Nigeria 200213"]
     },
     {
         icon: "Phone",
@@ -22,10 +22,10 @@ export const contactDetails = [
 ];
 
 export const contactMap = {
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCC_ErkR8laC531jsyofIunJukY03w36MQhlNmvewRjc4H8d4tGcffItsC-uiMNKeIhjybk3nX_sME4c922t8Hl1jA4UF3IqoTlGn7NAeV6gAkFOj1O0h0c2wpqzLJe9XH4zNm6OloFn4_xOutTVC0A8NQ8p893cj95gJKgpNzMgJq1Qr9REBdckjau2yvUA4QB0F04DzbGSQUpoFqbsXh_M8__X3Y-cMK5bx-wMsPtzDQ6nISP2JwiJ_R2gPPMzcURhY635onWZA",
     schoolName: "El-Shaddai Baptist School",
-    address: "123 Education Way, Lagos",
-    mapLink: "#"
+    address: "Adeoye Street, Agbowo-UI, Ibadan, Nigeria 200213",
+    embedSrc: "https://maps.google.com/maps?q=Adeoye+Street,+Agbowo-UI,+Ibadan,+Nigeria+200213&output=embed",
+    mapLink: "https://www.google.com/maps/search/?api=1&query=Adeoye+Street,+Agbowo-UI,+Ibadan,+Nigeria+200213"
 };
 
 export const contactForm = {
