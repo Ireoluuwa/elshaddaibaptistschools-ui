@@ -3,7 +3,7 @@ export const academicsHero = {
   title: "Nurturing Minds, Building Futures",
   titleAccent: "Building Futures",
   description: "Our comprehensive curriculum is designed to challenge and inspire students at every stage of their development, blending Nigerian values with global educational standards.",
-  image: "/debate1.jpg",
+  image: "/gallery/debate1.jpg",
   imageAlt: "Students collaborating in a modern classroom setting",
   imageCaption: "Discover our learning path"
 };
