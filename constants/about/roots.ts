@@ -6,6 +6,6 @@ export const rootsSection = {
     "Over the decades, we have grown into a premier institution, recognized for consistently producing top-tier graduates who excel in universities across the globe. Our journey from a small block of classrooms to a sprawling campus with state-of-the-art facilities is a testament to our unwavering commitment to quality education.",
     "We honor our past by maintaining the core values of discipline and hard work that our founders instilled, while embracing modern innovation to prepare our students for the future."
   ],
-  image: "/about.jpeg",
+  image: "/graduation1.jpg",
   imageCaption: "Our first administrative block, circa 1998"
 };
