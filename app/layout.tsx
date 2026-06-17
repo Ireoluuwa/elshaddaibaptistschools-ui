@@ -13,7 +13,7 @@ const poppins = Poppins({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://elshaddaibaptistschools.com';
 const siteDescription =
-  'El-Shaddai Baptist Schools — Building a legacy of academic excellence and moral integrity in Ibadan, Nigeria since 1998. Nurturing faith, character, and academic brilliance.';
+  'Faith-based school in Ibadan, Nigeria. Nurturing academic excellence, strong character, and Christian values since 1998.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -32,20 +32,11 @@ export const metadata: Metadata = {
     siteName: 'El-Shaddai Baptist Schools',
     title: 'El-Shaddai Baptist Schools | Ibadan, Nigeria',
     description: siteDescription,
-    images: [
-      {
-        url: '/logo.png',
-        width: 800,
-        height: 600,
-        alt: 'El-Shaddai Baptist Schools Logo',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'El-Shaddai Baptist Schools | Ibadan, Nigeria',
     description: siteDescription,
-    images: ['/logo.png'],
   },
   icons: {
     icon: [
