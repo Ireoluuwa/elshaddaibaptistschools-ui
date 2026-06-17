@@ -7,12 +7,12 @@ export const contactDetails = [
     {
         icon: "MapPin",
         title: "Visit Us",
-        details: ["Adeoye Street, Agbowo-UI,", "Ibadan, Nigeria 200213"]
+        details: ["2, Adeoye Street, Agbowo,", "Ibadan"]
     },
     {
         icon: "Phone",
         title: "Call Us",
-        details: ["+234 800 123 4567", "+234 800 987 6543"]
+        details: ["08025896352", "08034490208"]
     },
     {
         icon: "Mail",
