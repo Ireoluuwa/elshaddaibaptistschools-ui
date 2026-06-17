@@ -51,15 +51,23 @@ export const academicStages = [
     syllabusText: "Download JSS Curriculum (PDF)",
     sections: [
       {
-        title: "Core Subjects",
+        title: "Subjects Offered",
         icon: "Beaker",
         items: [
           "Mathematics",
           "English Language",
-          "Basic Science & Technology",
+          "French",
+          "Yoruba",
+          "Cultural and Creative Arts",
+          "Basic Science",
+          "Digital Technology",
+          "Agricultural Science",
+          "Physical Health Education",
+          "Music",
+          "National Value Education",
+          "Christian Religious Studies",
           "Business Studies",
-          "Civic Education",
-          "French Language"
+          "History"
         ]
       },
       {
