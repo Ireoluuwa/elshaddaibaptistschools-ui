@@ -83,14 +83,13 @@ export const academicStages = [
     syllabusText: "Download SSS Curriculum (PDF)",
     sections: [
       {
-        title: "Core Focus Areas",
+        title: "Subjects Offered",
         icon: "Sigma",
         items: [
-          "Sciences: Physics, Chemistry, Biology",
-          "Arts: Literature-in-English, Government, CRS",
-          "Commercial: Economics, Financial Accounting, Commerce",
-          "Mathematics & English (Compulsory)",
-          "Data Processing / Computer Studies"
+          "Compulsory: Mathematics, English Language, Economics, CHS",
+          "Sciences: Physics, Chemistry, Biology, Agricultural Science, Geography",
+          "Arts: Literature in English, Government, CRS, Yoruba",
+          "Commercial: Commerce, Financial Accounts, Marketing"
         ]
       },
       {
