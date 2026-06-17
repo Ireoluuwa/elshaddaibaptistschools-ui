@@ -12,7 +12,7 @@ export const newsData = [
   {
     category: "Academic",
     title: "School Wins Regional Debate Competition",
-    desc: "Our senior debate team took home the first prize trophy at the Lagos State Inter-School Debate held last Friday.",
+    desc: "Our senior debate team took home the first prize trophy at the Oyo State Inter-School Debate held last Friday.",
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCyFqhRK0NUEKV2LFp8pwQUhL0WJ0Ft0PkwUoc2hwm3dAC_iPJIA1Xg02GuTYug6lDpdAV5h0xhHr-jDXBqJNlR6iwDor6MtrN1gkhBfI15a_vY4kWhbcE2GVPhDWPVsNfM5QfTZ1jvObfRAxyeGnFyeqMrfAabVrXaLSuYhffw46vIwn4D4q3JJ_VZ0uzpYMKL0-hQ849-yQ00wAQsXODYDMvqE6ugxYcQucv5UAJMKEYDOud6hvYdK8jlhSC_diRpdt4O-Ch-5Q",
     alt: "Students debating on stage with microphones",
   },

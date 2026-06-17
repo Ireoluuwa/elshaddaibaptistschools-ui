@@ -1,6 +1,6 @@
 export const contactHeader = {
     title: "Contact Us",
-    description: "Have questions about admissions or school activities? Reach out to us directly or visit our campus in Lagos. We are here to help your child grow in faith and excellence."
+    description: "Have questions about admissions or school activities? Reach out to us directly or visit our campus in Ibadan. We are here to help your child grow in faith and excellence."
 };
 
 export const contactDetails = [

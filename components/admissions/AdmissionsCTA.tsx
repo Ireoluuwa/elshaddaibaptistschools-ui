@@ -25,7 +25,7 @@ const AdmissionsCTA = () => {
           </a>
         </div>
         <p className="text-green-300 text-sm mt-2">
-          Mon – Fri &nbsp;·&nbsp; 8:00 am – 4:00 pm &nbsp;·&nbsp; Victoria Island, Lagos
+          Mon – Fri &nbsp;·&nbsp; 8:00 am – 4:00 pm &nbsp;·&nbsp; 2, Adeoye Street, Agbowo, Ibadan
         </p>
       </div>
     </div>

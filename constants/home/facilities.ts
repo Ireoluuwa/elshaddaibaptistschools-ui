@@ -2,7 +2,7 @@ export const facilitiesSection = {
   label: "Campus Life",
   title: "State-of-The-Art Facilities",
   description:
-    "We invest in the best infrastructure to support your child's learning journey, providing a world-class environment right here in Lagos.",
+    "We invest in the best infrastructure to support your child's learning journey, providing a world-class environment right here in Ibadan.",
 };
 
 export const facilitiesData = [

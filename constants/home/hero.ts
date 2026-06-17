@@ -20,7 +20,7 @@ export const heroSlides = [
   {
     image: "/banner3.jpeg",
     title: "State-of-The-Art \n Learning Spaces",
-    subtitle: "We invest in the best infrastructure to support your child's learning journey, providing a world-class environment in Lagos.",
+    subtitle: "We invest in the best infrastructure to support your child's learning journey, providing a world-class environment in Ibadan.",
     ctaPrimary: "Gallery",
     ctaPrimaryHref: "/gallery",
     ctaSecondary: "Contact Us",

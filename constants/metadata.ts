@@ -2,26 +2,26 @@ import type { Metadata } from 'next';
 
 export const pagesMetadata = {
   home: {
-    title: 'El-Shaddai Baptist Schools | Lagos, Nigeria',
+    title: 'El-Shaddai Baptist Schools | Ibadan, Nigeria',
     description:
-      'Welcome to El-Shaddai Baptist Schools — a leading faith-based institution in Lagos offering quality education rooted in Christian values, academic excellence, and character development.',
+      'Welcome to El-Shaddai Baptist Schools — a leading faith-based institution in Ibadan offering quality education rooted in Christian values, academic excellence, and character development.',
     alternates: { canonical: '/' },
     openGraph: {
-      title: 'El-Shaddai Baptist Schools | Lagos, Nigeria',
+      title: 'El-Shaddai Baptist Schools | Ibadan, Nigeria',
       description:
-        'Welcome to El-Shaddai Baptist Schools — quality education rooted in Christian values in Lagos, Nigeria.',
+        'Welcome to El-Shaddai Baptist Schools — quality education rooted in Christian values in Ibadan, Nigeria.',
       url: '/',
     },
   },
   about: {
     title: 'About Us',
     description:
-      'Learn about El-Shaddai Baptist Schools — our history, guiding principles, leadership, and the vision that has driven academic and moral excellence in Lagos since 1998.',
+      'Learn about El-Shaddai Baptist Schools — our history, guiding principles, leadership, and the vision that has driven academic and moral excellence in Ibadan since 1998.',
     alternates: { canonical: '/about' },
     openGraph: {
       title: 'About Us | El-Shaddai Baptist Schools',
       description:
-        'Discover our history, values, and the leadership behind El-Shaddai Baptist Schools in Lagos, Nigeria.',
+        'Discover our history, values, and the leadership behind El-Shaddai Baptist Schools in Ibadan, Nigeria.',
       url: '/about',
     },
   },
@@ -40,24 +40,24 @@ export const pagesMetadata = {
   contact: {
     title: 'Contact Us',
     description:
-      'Get in touch with El-Shaddai Baptist Schools in Lagos. Reach us for admissions enquiries, general questions, or to schedule a campus visit. We\u2019re here to help.',
+      'Get in touch with El-Shaddai Baptist Schools in Ibadan. Reach us for admissions enquiries, general questions, or to schedule a campus visit. We\u2019re here to help.',
     alternates: { canonical: '/contact' },
     openGraph: {
       title: 'Contact Us | El-Shaddai Baptist Schools',
       description:
-        'Contact El-Shaddai Baptist Schools for admissions and enquiries. Visit us at Victoria Island, Lagos.',
+        'Contact El-Shaddai Baptist Schools for admissions and enquiries. Visit us at 2, Adeoye Street, Agbowo, Ibadan.',
       url: '/contact',
     },
   },
   gallery: {
     title: 'Gallery',
     description:
-      'Browse the El-Shaddai Baptist Schools photo gallery — school events, sports, graduation ceremonies, and everyday campus life in Lagos, Nigeria.',
+      'Browse the El-Shaddai Baptist Schools photo gallery — school events, sports, graduation ceremonies, and everyday campus life in Ibadan, Nigeria.',
     alternates: { canonical: '/gallery' },
     openGraph: {
       title: 'Gallery | El-Shaddai Baptist Schools',
       description:
-        'Photos from events, sports, and daily life at El-Shaddai Baptist Schools, Lagos.',
+        'Photos from events, sports, and daily life at El-Shaddai Baptist Schools, Ibadan.',
       url: '/gallery',
     },
   },
@@ -76,12 +76,12 @@ export const pagesMetadata = {
   news: {
     title: 'News & Events',
     description:
-      'Stay up to date with the latest news, announcements, and events from El-Shaddai Baptist Schools, Lagos. Competitions, results, and school happenings.',
+      'Stay up to date with the latest news, announcements, and events from El-Shaddai Baptist Schools, Ibadan. Competitions, results, and school happenings.',
     alternates: { canonical: '/news' },
     openGraph: {
       title: 'News & Events | El-Shaddai Baptist Schools',
       description:
-        'Latest news, announcements, and upcoming events from El-Shaddai Baptist Schools, Lagos.',
+        'Latest news, announcements, and upcoming events from El-Shaddai Baptist Schools, Ibadan.',
       url: '/news',
     },
   },
