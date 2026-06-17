@@ -74,12 +74,12 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="text-[#006442] shrink-0 mt-0.5" size={18} />
                 <span className="leading-relaxed">
-                  12 Education Road, Victoria Island,<br />Lagos, Nigeria.
+                  2, Adeoye Street, Agbowo,<br />Ibadan
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="text-[#006442] shrink-0" size={18} />
-                <span>+234 801 234 5678</span>
+                <span>08025896352, 08034490208</span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="text-[#006442] shrink-0 mt-0.5" size={18} />
