@@ -2,15 +2,32 @@
 
 import React from "react";
 import ResultStudentList from "@/components/teacher/results/ResultStudentList";
-import { currentSession } from "@/constants/teacher/results.constants";
+import { useResultsDashboardInit } from "@/hooks/result.hooks";
 
 export default function ResultsPage() {
+  const { data: init, isLoading } = useResultsDashboardInit();
+
+  const activeTerm = init?.periods
+    .flatMap((y) => y.terms)
+    .find((t) => t.id === init?.activePeriod?.termId);
+
+  const activeYear = init?.periods.find((y) =>
+    y.terms.some((t) => t.id === init?.activePeriod?.termId)
+  );
+
+  const sessionLabel =
+    activeYear && activeTerm
+      ? `${activeYear.name} • ${activeTerm.name}`
+      : isLoading
+        ? "Loading..."
+        : "No active term";
+
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-8">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-[#0e2e1d] text-2xl font-black tracking-tight uppercase">
+          <h1 className="text-secondary text-2xl font-black tracking-tight uppercase">
             Upload Results
           </h1>
           <p className="text-gray-400 text-sm mt-1">
@@ -24,9 +41,7 @@ export default function ResultsPage() {
             <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
               Current Session
             </span>
-            <span className="text-sm font-semibold">
-              {currentSession.year} • {currentSession.term}
-            </span>
+            <span className="text-sm font-semibold">{sessionLabel}</span>
           </div>
         </div>
       </div>
