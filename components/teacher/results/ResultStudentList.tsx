@@ -3,12 +3,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Search, ChevronRight } from "lucide-react";
-import { mockStudents } from "@/constants/teacher/reports.constants";
+import { useResultsDashboardInit } from "@/hooks/result.hooks";
 
 export default function ResultStudentList() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { data: init, isLoading, isError } = useResultsDashboardInit();
 
-  const filteredStudents = mockStudents.filter((student) =>
+  const students = init?.students ?? [];
+
+  const filteredStudents = students.filter((student) =>
     student.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -32,7 +35,15 @@ export default function ResultStudentList() {
 
       {/* Student List */}
       <div className="divide-y divide-gray-100">
-        {filteredStudents.length > 0 ? (
+        {isLoading ? (
+          <div className="px-6 py-10 text-center text-gray-400 text-sm">
+            Loading students...
+          </div>
+        ) : isError ? (
+          <div className="px-6 py-10 text-center text-red-400 text-sm">
+            Failed to load students. Please try again.
+          </div>
+        ) : filteredStudents.length > 0 ? (
           filteredStudents.map((student) => (
             <Link
               key={student.id}
@@ -48,11 +59,11 @@ export default function ResultStudentList() {
                   />
                 </div>
                 <div>
-                  <span className="font-bold text-[#0e2e1d] text-sm">
+                  <span className="font-bold text-secondary text-sm">
                     {student.name}
                   </span>
                   <span className="text-gray-400 text-xs ml-2 font-mono">
-                    {student.id}
+                    {student.studentId}
                   </span>
                 </div>
               </div>
