@@ -157,7 +157,9 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           </div>
           <div className="flex items-end gap-2">
             <span className="shrink-0">Class Teacher:</span>
-            <div className="border-b-2 border-black flex-1 border-dotted text-center pb-0.5 min-h-[1.5rem]" />
+            <div className="uppercase border-b-2 border-black flex-1 border-dotted text-center pb-0.5 min-h-[1.5rem]">
+              {student?.teacherName ?? ""}
+            </div>
           </div>
           <div className="flex items-end gap-2">
             <span className="shrink-0">Term:</span>
