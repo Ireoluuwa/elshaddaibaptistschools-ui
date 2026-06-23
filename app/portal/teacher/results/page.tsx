@@ -36,14 +36,23 @@ export default function ResultsPage() {
         </div>
 
         {/* Session Badge */}
-        <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100/50 self-start">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-              Current Session
-            </span>
-            <span className="text-sm font-semibold">{sessionLabel}</span>
+        {isLoading ? (
+          <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100/50 self-start">
+            <div className="flex flex-col gap-1.5">
+              <div className="h-2.5 w-20 bg-emerald-200 rounded animate-pulse" />
+              <div className="h-4 w-32 bg-emerald-100 rounded animate-pulse" />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100/50 self-start">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                Current Session
+              </span>
+              <span className="text-sm font-semibold">{sessionLabel}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Student List */}

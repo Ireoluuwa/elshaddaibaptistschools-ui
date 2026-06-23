@@ -47,8 +47,41 @@ export default function StudentResultPage({ params }: ResultPageProps) {
 
   if (initLoading) {
     return (
-      <div className="max-w-5xl mx-auto flex items-center justify-center h-64">
-        <p className="text-gray-400 text-sm">Loading...</p>
+      <div className="max-w-5xl mx-auto flex flex-col gap-6">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse shrink-0" />
+            <div className="flex flex-col gap-2">
+              <div className="h-6 w-48 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="h-3.5 w-32 bg-gray-100 rounded-md animate-pulse" />
+            </div>
+          </div>
+          <div className="h-10 w-40 bg-gray-100 rounded-xl animate-pulse" />
+        </div>
+        {/* Filter skeleton */}
+        <div className="flex gap-3">
+          <div className="h-10 w-56 bg-gray-100 rounded-lg animate-pulse" />
+          <div className="h-10 w-24 bg-gray-100 rounded-lg animate-pulse" />
+        </div>
+        {/* Form skeleton */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+            <div className="h-4 w-28 bg-gray-200 rounded-md animate-pulse" />
+          </div>
+          <div className="p-5 flex flex-col gap-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50/50">
+                <div className="flex-1 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-20 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-20 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-20 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-16 h-10 bg-gray-200 rounded-lg animate-pulse" />
+                <div className="w-14 h-10 bg-gray-200 rounded-lg animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -125,8 +158,22 @@ export default function StudentResultPage({ params }: ResultPageProps) {
 
       {/* Result Form */}
       {resultLoading ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-          <p className="text-gray-400 text-sm">Loading result...</p>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+            <div className="h-4 w-28 bg-gray-200 rounded-md animate-pulse" />
+          </div>
+          <div className="p-5 flex flex-col gap-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50/50">
+                <div className="flex-1 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-20 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-20 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-20 h-10 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-16 h-10 bg-gray-200 rounded-lg animate-pulse" />
+                <div className="w-14 h-10 bg-gray-200 rounded-lg animate-pulse" />
+              </div>
+            ))}
+          </div>
         </div>
       ) : !isCurrentTerm && !result ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">

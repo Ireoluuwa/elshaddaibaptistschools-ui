@@ -19,8 +19,42 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">Loading result...</p>
+      <div className="min-h-screen bg-gray-100 py-8 px-4">
+        <div className="max-w-[210mm] mx-auto flex items-center justify-between mb-6">
+          <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="w-32 h-10 bg-gray-200 rounded-lg animate-pulse" />
+        </div>
+        <div className="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-8 md:p-12">
+          {/* Header skeleton */}
+          <div className="flex gap-4 items-center mb-8">
+            <div className="w-24 h-24 rounded-full bg-gray-200 animate-pulse shrink-0" />
+            <div className="flex flex-col gap-3">
+              <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="h-5 w-36 bg-gray-100 rounded-lg animate-pulse" />
+            </div>
+          </div>
+          {/* Student info skeleton */}
+          <div className="grid grid-cols-2 gap-x-12 gap-y-4 mb-8">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-end gap-2">
+                <div className="h-4 w-28 bg-gray-100 rounded animate-pulse shrink-0" />
+                <div className="flex-1 h-4 bg-gray-100 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+          {/* Table skeleton */}
+          <div className="border-2 border-gray-200 rounded-sm overflow-hidden">
+            <div className="h-10 bg-gray-200 animate-pulse" />
+            {[...Array(10)].map((_, i) => (
+              <div key={i} className="flex border-t border-gray-100">
+                <div className="flex-1 h-8 bg-gray-50 animate-pulse border-r border-gray-100" />
+                {[...Array(5)].map((_, j) => (
+                  <div key={j} className="w-16 h-8 bg-gray-50 animate-pulse border-r border-gray-100 last:border-r-0" />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

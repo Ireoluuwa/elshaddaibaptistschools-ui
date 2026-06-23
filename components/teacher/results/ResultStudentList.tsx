@@ -36,9 +36,20 @@ export default function ResultStudentList() {
       {/* Student List */}
       <div className="divide-y divide-gray-100">
         {isLoading ? (
-          <div className="px-6 py-10 text-center text-gray-400 text-sm">
-            Loading students...
-          </div>
+          <>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
+                  <div className="flex flex-col gap-1.5">
+                    <div className="h-3.5 w-32 bg-gray-200 rounded-md animate-pulse" />
+                    <div className="h-3 w-16 bg-gray-100 rounded-md animate-pulse" />
+                  </div>
+                </div>
+                <div className="w-4 h-4 bg-gray-100 rounded animate-pulse" />
+              </div>
+            ))}
+          </>
         ) : isError ? (
           <div className="px-6 py-10 text-center text-red-400 text-sm">
             Failed to load students. Please try again.
