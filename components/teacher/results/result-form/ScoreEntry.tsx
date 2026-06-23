@@ -18,6 +18,7 @@ interface ScoreEntryProps {
 
 const ScoreEntry: React.FC<ScoreEntryProps> = ({
   score,
+  availableSubjects,
   onUpdate,
   onRemove,
   canRemove,
@@ -33,7 +34,7 @@ const ScoreEntry: React.FC<ScoreEntryProps> = ({
   const total = test1 + test2 + exam;
   const { grade, remark } = gradeMap(total);
 
-  const filteredSubjects = resultSubjects.filter((s) =>
+  const filteredSubjects = availableSubjects.filter((s) =>
     s.toLowerCase().includes(subjectSearch.toLowerCase())
   );
 
