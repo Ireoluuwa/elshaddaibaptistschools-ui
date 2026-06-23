@@ -73,7 +73,7 @@ export default function StudentResultPage({ params }: ResultPageProps) {
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h1 className="text-[#0e2e1d] text-2xl font-black tracking-tight flex items-center gap-3">
+            <h1 className="text-secondary text-2xl font-black tracking-tight flex items-center gap-3">
               {student?.name ?? "Loading..."}
               <span className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-bold font-mono">
                 {student?.studentId ?? "—"}
