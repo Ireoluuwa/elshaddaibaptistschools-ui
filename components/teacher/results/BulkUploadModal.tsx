@@ -4,23 +4,31 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, UploadCloud, AlertCircle, CheckCircle2 } from "lucide-react";
 import * as XLSX from "xlsx";
-import { useBulkUpsertResults, useResultsDashboardInit } from "@/hooks/result.hooks";
-import { BulkUploadError, UpsertResultPayload } from "@/types/result";
+import { useUpsertResult } from "@/hooks/result.hooks";
 
 interface BulkUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
+  studentId: string;
+  studentName: string;
   termId: string;
+  subjects: string[];
 }
 
-const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, termId }) => {
+const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
+  isOpen,
+  onClose,
+  studentId,
+  studentName,
+  termId,
+  subjects,
+}) => {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [validationErrors, setValidationErrors] = useState<BulkUploadError[]>([]);
-  const [successCount, setSuccessCount] = useState<number | null>(null);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
-  const { data: init } = useResultsDashboardInit();
-  const { mutate: bulkUpload, isPending } = useBulkUpsertResults();
+  const { mutate: upsertResult, isPending } = useUpsertResult();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -34,45 +42,45 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
     setDragActive(false);
     if (e.dataTransfer.files?.[0]) {
       setFile(e.dataTransfer.files[0]);
-      setValidationErrors([]);
-      setSuccessCount(null);
+      setParseError(null);
+      setSaved(false);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       setFile(e.target.files[0]);
-      setValidationErrors([]);
-      setSuccessCount(null);
+      setParseError(null);
+      setSaved(false);
     }
   };
 
+  // Template: one row per subject, subject column pre-filled (locked by convention)
+  // Columns: Subject | Test 1 (/15) | Test 2 (/15) | Exam (/70)
   const handleDownloadTemplate = () => {
-    const students = init?.students ?? [];
+    // Metadata rows at the top so the teacher knows whose sheet this is
+    const metaRows = [
+      ["Student:", studentName],
+      ["Student ID:", studentId],
+      ["Term ID:", termId],
+      [],
+      ["Subject", "Test 1 (/15)", "Test 2 (/15)", "Exam (/70)"],
+    ];
 
-    // Build rows: one per student (teacher fills in subjects manually or they load via API)
-    // Template columns: Student Name | Student ID | Subject | Test 1 | Test 2 | Exam
-    const rows = students.flatMap((s) => [
-      { "Student Name": s.name, "Student ID": s.id, Subject: "", "Test 1": "", "Test 2": "", Exam: "" },
-    ]);
+    const subjectRows = subjects.map((name) => [name, "", "", ""]);
 
-    const ws = XLSX.utils.json_to_sheet(rows);
+    const ws = XLSX.utils.aoa_to_sheet([...metaRows, ...subjectRows]);
 
-    // Lock the Student Name, Student ID columns (cols 0 and 1) by setting protection
-    // SheetJS CE doesn't support cell-level protection natively, but we can set column widths
-    // and add a note to the header row as a convention
     ws["!cols"] = [
-      { wch: 25 }, // Student Name
-      { wch: 15 }, // Student ID
-      { wch: 28 }, // Subject
-      { wch: 10 }, // Test 1
-      { wch: 10 }, // Test 2
-      { wch: 10 }, // Exam
+      { wch: 30 }, // Subject
+      { wch: 14 }, // Test 1
+      { wch: 14 }, // Test 2
+      { wch: 12 }, // Exam
     ];
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Results");
-    XLSX.writeFile(wb, "results-template.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Result");
+    XLSX.writeFile(wb, `result-${studentName.replace(/\s+/g, "-").toLowerCase()}.xlsx`);
   };
 
   const handleProcess = () => {
@@ -83,51 +91,50 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
       const data = new Uint8Array(e.target?.result as ArrayBuffer);
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows: any[] = XLSX.utils.sheet_to_json(sheet);
 
-      // Group rows by studentId
-      const grouped: Record<string, UpsertResultPayload> = {};
+      // Sheet has 4 metadata rows then a header row (row index 4), then subject rows
+      // We read from row 5 onwards (0-indexed: rows 0-3 = metadata, row 4 = header)
+      const allRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-      for (const row of rows) {
-        const studentId = String(row["Student ID"] ?? "").trim();
-        const subjectName = String(row["Subject"] ?? "").trim();
-        const test1 = Number(row["Test 1"]) || 0;
-        const test2 = Number(row["Test 2"]) || 0;
-        const exam = Number(row["Exam"]) || 0;
+      // Find the header row (the one that starts with "Subject")
+      const headerRowIndex = allRows.findIndex(
+        (row) => String(row[0] ?? "").trim().toLowerCase() === "subject"
+      );
 
-        if (!studentId || !subjectName) continue;
-
-        if (!grouped[studentId]) {
-          grouped[studentId] = {
-            studentId,
-            termId,
-            scores: [],
-            daysAttended: 0,
-            totalDays: 65,
-            status: "DRAFT",
-          };
-        }
-
-        grouped[studentId].scores.push({ subjectName, test1, test2, exam });
+      if (headerRowIndex === -1) {
+        setParseError("Could not find the Subject column header. Make sure you are using the downloaded template.");
+        return;
       }
 
-      const results = Object.values(grouped);
+      const dataRows = allRows.slice(headerRowIndex + 1);
 
-      if (results.length === 0) return;
+      const scores = dataRows
+        .filter((row) => row[0] && String(row[0]).trim())
+        .map((row) => ({
+          subjectName: String(row[0]).trim(),
+          test1: Number(row[1]) || 0,
+          test2: Number(row[2]) || 0,
+          exam: Number(row[3]) || 0,
+        }));
 
-      bulkUpload(
-        { results },
+      if (scores.length === 0) {
+        setParseError("No subject rows found in the file. Fill in at least one subject row.");
+        return;
+      }
+
+      upsertResult(
+        { studentId, termId, scores, daysAttended: 0, totalDays: 65, status: "DRAFT" },
         {
-          onSuccess: (res) => {
-            setSuccessCount(res.saved);
+          onSuccess: () => {
+            setSaved(true);
             setFile(null);
           },
           onError: (err: any) => {
-            const apiErrors: BulkUploadError[] =
-              err?.response?.data?.message?.errors ??
-              err?.response?.data?.errors ??
-              [];
-            setValidationErrors(apiErrors);
+            const msg =
+              err?.response?.data?.message?.message ||
+              err?.response?.data?.message ||
+              "Upload failed. Check that all subject names match the curriculum exactly.";
+            setParseError(typeof msg === "string" ? msg : JSON.stringify(msg));
           },
         }
       );
@@ -138,8 +145,8 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
 
   const handleClose = () => {
     setFile(null);
-    setValidationErrors([]);
-    setSuccessCount(null);
+    setParseError(null);
+    setSaved(false);
     onClose();
   };
 
@@ -170,16 +177,19 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
             >
               <X size={20} />
             </button>
-            <h2 className="text-xl font-bold text-gray-900">Bulk Upload Results</h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Bulk Upload Results</h2>
+              <p className="text-xs text-gray-400 font-medium mt-0.5">{studentName}</p>
+            </div>
           </div>
 
           <div className="p-4 sm:p-6 overflow-y-auto">
-            {/* Success State */}
-            {successCount !== null ? (
+            {saved ? (
               <div className="flex flex-col items-center gap-4 py-8 text-center">
                 <CheckCircle2 size={48} className="text-emerald-500" />
-                <p className="text-lg font-bold text-gray-900">
-                  {successCount} result{successCount !== 1 ? "s" : ""} saved successfully
+                <p className="text-lg font-bold text-gray-900">Result saved successfully</p>
+                <p className="text-sm text-gray-400">
+                  Scores for <span className="font-semibold text-gray-600">{studentName}</span> have been saved as a draft.
                 </p>
                 <button
                   onClick={handleClose}
@@ -197,20 +207,23 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
                       <Download size={20} />
                     </div>
                     <div className="w-full">
-                      <h3 className="text-sm font-bold text-gray-900 mb-1 flex items-center gap-2">
-                        <span className="sm:hidden text-emerald-600"><Download size={16} /></span>
-                        1. Download Template
-                      </h3>
+                      <h3 className="text-sm font-bold text-gray-900 mb-1">1. Download Template</h3>
                       <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                        Download the pre-filled template with your class students. Fill in subject names and scores, then upload.
+                        Download the pre-filled sheet for <span className="font-semibold">{studentName}</span>. Subject names are fixed — only fill in the score columns.
                       </p>
                       <button
                         onClick={handleDownloadTemplate}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-white text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200 hover:bg-emerald-50 transition-colors shadow-sm"
+                        disabled={subjects.length === 0}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-white text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                       >
                         <Download size={14} />
                         Download Excel Template
                       </button>
+                      {subjects.length === 0 && (
+                        <p className="text-[11px] text-orange-500 mt-2">
+                          No subjects found for this student&apos;s class. Set up curriculum mappings first.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -220,13 +233,13 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
                     <div className="w-full border-t border-gray-100" />
                   </div>
                   <span className="relative bg-white px-4 text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-                    And Then
+                    Then Upload
                   </span>
                 </div>
 
                 {/* Step 2: Upload */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-bold text-gray-900 mb-3">2. Upload Results</h3>
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">2. Upload Completed Sheet</h3>
                   <div
                     className={`relative border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-colors ${
                       dragActive
@@ -265,20 +278,11 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
                   </div>
                 </div>
 
-                {/* Validation Errors */}
-                {validationErrors.length > 0 && (
-                  <div className="mb-6 bg-red-50 border border-red-100 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <AlertCircle size={16} className="text-red-500 shrink-0" />
-                      <p className="text-sm font-bold text-red-700">Upload failed — fix these subject names:</p>
-                    </div>
-                    <div className="max-h-40 overflow-y-auto flex flex-col gap-1.5">
-                      {validationErrors.map((err, i) => (
-                        <div key={i} className="text-xs text-red-700 bg-red-100 rounded-lg px-3 py-1.5">
-                          <span className="font-bold">{err.studentName}</span>: &quot;{err.subjectName}&quot; → expected &quot;{err.expected}&quot;
-                        </div>
-                      ))}
-                    </div>
+                {/* Error */}
+                {parseError && (
+                  <div className="mb-6 flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-100 rounded-xl">
+                    <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-xs font-semibold text-red-700 leading-relaxed">{parseError}</p>
                   </div>
                 )}
 
@@ -286,7 +290,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
                 <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3">
                   <AlertCircle size={18} className="text-orange-500 shrink-0 mt-0.5" />
                   <p className="text-xs font-semibold text-orange-800 leading-relaxed">
-                    Uploading will overwrite existing entries for the students in the sheet.
+                    Uploading will overwrite any existing scores for this student in the selected term.
                   </p>
                 </div>
               </>
@@ -294,7 +298,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose, term
           </div>
 
           {/* Footer */}
-          {successCount === null && (
+          {!saved && (
             <div className="p-4 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 bg-gray-50/50 shrink-0">
               <button
                 onClick={handleClose}

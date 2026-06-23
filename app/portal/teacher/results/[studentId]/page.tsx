@@ -194,7 +194,14 @@ export default function StudentResultPage({ params }: ResultPageProps) {
         </div>
       )}
 
-      <BulkUploadModal isOpen={isBulkOpen} onClose={() => setIsBulkOpen(false)} termId={selectedTermId} />
+      <BulkUploadModal
+        isOpen={isBulkOpen}
+        onClose={() => setIsBulkOpen(false)}
+        studentId={studentId}
+        studentName={student?.name ?? ""}
+        termId={selectedTermId}
+        subjects={subjects}
+      />
     </div>
   );
 }
