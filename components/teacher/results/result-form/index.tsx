@@ -1,59 +1,114 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plus, CheckCircle2, CalendarDays } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Plus, CheckCircle2, CalendarDays, Send, AlertCircle } from "lucide-react";
 import { ResultScore } from "@/constants/teacher/results.constants";
+import { useUpsertResult } from "@/hooks/result.hooks";
+import { TerminalResultScore } from "@/types/result";
 import ScoreEntry from "./ScoreEntry";
 
 interface ResultFormProps {
+  studentId: string;
+  termId: string;
+  subjects: string[];
   isReadOnly: boolean;
-  initialScores?: ResultScore[];
-  initialDaysAttended?: string;
-  initialTotalDays?: string;
+  initialScores?: TerminalResultScore[];
+  initialDaysAttended?: number;
+  initialTotalDays?: number;
+  onSaved?: () => void;
+}
+
+function buildInitialScores(subjects: string[], initial?: TerminalResultScore[]): ResultScore[] {
+  if (initial && initial.length > 0) {
+    return initial.map((s, i) => ({
+      id: i + 1,
+      subject: s.subjectName,
+      test1: String(s.test1),
+      test2: String(s.test2),
+      exam: String(s.exam),
+    }));
+  }
+  if (subjects.length > 0) {
+    return subjects.map((name, i) => ({
+      id: i + 1,
+      subject: name,
+      test1: "",
+      test2: "",
+      exam: "",
+    }));
+  }
+  return [{ id: Date.now(), subject: "", test1: "", test2: "", exam: "" }];
 }
 
 export default function ResultForm({
+  studentId,
+  termId,
+  subjects,
   isReadOnly,
   initialScores,
   initialDaysAttended,
   initialTotalDays,
+  onSaved,
 }: ResultFormProps) {
-  const [scores, setScores] = useState<ResultScore[]>(
-    initialScores && initialScores.length > 0
-      ? initialScores
-      : [{ id: Date.now(), subject: "", test1: "", test2: "", exam: "" }]
+  const [scores, setScores] = useState<ResultScore[]>(() =>
+    buildInitialScores(subjects, initialScores)
   );
-  const [daysAttended, setDaysAttended] = useState(initialDaysAttended || "");
-  const [totalDays, setTotalDays] = useState(initialTotalDays || "65");
-  const [isSaved, setIsSaved] = useState(false);
+  const [daysAttended, setDaysAttended] = useState(
+    initialDaysAttended !== undefined ? String(initialDaysAttended) : ""
+  );
+  const [totalDays, setTotalDays] = useState(
+    initialTotalDays !== undefined ? String(initialTotalDays) : "65"
+  );
+
+  const { mutate: upsertResult, isPending, isError, error } = useUpsertResult();
+
+  // Re-sync when subjects or initial data changes (e.g. switching terms)
+  useEffect(() => {
+    setScores(buildInitialScores(subjects, initialScores));
+    setDaysAttended(initialDaysAttended !== undefined ? String(initialDaysAttended) : "");
+    setTotalDays(initialTotalDays !== undefined ? String(initialTotalDays) : "65");
+  }, [studentId, termId]);
 
   const addScore = () => {
-    setScores([
-      ...scores,
-      { id: Date.now(), subject: "", test1: "", test2: "", exam: "" },
-    ]);
+    setScores([...scores, { id: Date.now(), subject: "", test1: "", test2: "", exam: "" }]);
   };
 
   const removeScore = (id: number) => {
-    if (scores.length > 1) {
-      setScores(scores.filter((s) => s.id !== id));
-    }
+    if (scores.length > 1) setScores(scores.filter((s) => s.id !== id));
   };
 
   const updateScore = (id: number, field: string, value: string) => {
-    setScores(
-      scores.map((s) => (s.id === id ? { ...s, [field]: value } : s))
-    );
+    setScores(scores.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const buildPayload = (status: "DRAFT" | "PUBLISHED") => ({
+    studentId,
+    termId,
+    scores: scores.map((s) => ({
+      subjectName: s.subject,
+      test1: Number(s.test1) || 0,
+      test2: Number(s.test2) || 0,
+      exam: Number(s.exam) || 0,
+    })),
+    daysAttended: Number(daysAttended) || 0,
+    totalDays: Number(totalDays) || 65,
+    status,
+  });
+
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+    upsertResult(buildPayload("DRAFT"), { onSuccess: () => onSaved?.() });
   };
+
+  const handlePublish = () => {
+    upsertResult(buildPayload("PUBLISHED"), { onSuccess: () => onSaved?.() });
+  };
+
+  const errorMessage =
+    isError && error instanceof Error ? error.message : null;
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={handleSave} className="flex flex-col gap-6">
       {/* Scores Section */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-5 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
@@ -73,7 +128,7 @@ export default function ResultForm({
         </div>
 
         <div className="p-5 flex flex-col gap-3">
-          {/* Column Headers (desktop) */}
+          {/* Column Headers */}
           <div className="hidden sm:flex items-center gap-3 px-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">
             <div className="flex-1">Subject</div>
             <div className="flex items-center gap-2">
@@ -90,6 +145,7 @@ export default function ResultForm({
             <ScoreEntry
               key={score.id}
               score={score}
+              availableSubjects={subjects}
               onUpdate={updateScore}
               onRemove={removeScore}
               canRemove={scores.length > 1}
@@ -143,21 +199,39 @@ export default function ResultForm({
         </div>
       </div>
 
-      {/* Submit */}
+      {/* Error Banner */}
+      {errorMessage && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700 font-medium">
+          <AlertCircle size={16} className="shrink-0" />
+          {errorMessage}
+        </div>
+      )}
+
+      {/* Submit Buttons */}
       {!isReadOnly && (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-3">
           <button
             type="submit"
-            className="h-11 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95"
+            disabled={isPending}
+            className="h-11 px-8 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-60"
           >
-            {isSaved ? (
-              <>
-                <CheckCircle2 size={18} />
-                Result Saved!
-              </>
+            {isPending ? (
+              "Saving..."
             ) : (
-              "Save Result"
+              <>
+                <CheckCircle2 size={16} />
+                Save Draft
+              </>
             )}
+          </button>
+          <button
+            type="button"
+            onClick={handlePublish}
+            disabled={isPending}
+            className="h-11 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-60"
+          >
+            <Send size={16} />
+            Publish Result
           </button>
         </div>
       )}
