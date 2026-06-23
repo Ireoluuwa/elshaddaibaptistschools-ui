@@ -4,33 +4,46 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, FileCheck2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMyResult } from "@/hooks/result.hooks";
+
+interface Period {
+  id: string;
+  name: string;
+  terms: { id: string; name: string; isCurrent: boolean }[];
+}
 
 interface ResultCheckerModalProps {
   isOpen: boolean;
   onClose: () => void;
+  periods: Period[];
+  activeTermId: string | null;
+  isLoadingPeriods: boolean;
 }
 
-const ResultCheckerModal: React.FC<ResultCheckerModalProps> = ({ isOpen, onClose }) => {
+const ResultCheckerModal: React.FC<ResultCheckerModalProps> = ({
+  isOpen,
+  onClose,
+  periods,
+  activeTermId,
+  isLoadingPeriods,
+}) => {
   const router = useRouter();
-  const { data } = useMyResult();
   const [selectedTermId, setSelectedTermId] = useState("");
 
-  // Default to active term once data loads
+  // Default to active term once data arrives
   useEffect(() => {
-    if (data?.activeTermId && !selectedTermId) {
-      setSelectedTermId(data.activeTermId);
+    if (activeTermId && !selectedTermId) {
+      setSelectedTermId(activeTermId);
     }
-  }, [data]);
+  }, [activeTermId]);
 
   if (!isOpen) return null;
 
-  const allTerms = data?.periods.flatMap((year) =>
+  const allTerms = periods.flatMap((year) =>
     year.terms.map((term) => ({
       termId: term.id,
       label: `${year.name} — ${term.name}`,
     }))
-  ) ?? [];
+  );
 
   return (
     <AnimatePresence>
@@ -72,16 +85,20 @@ const ResultCheckerModal: React.FC<ResultCheckerModalProps> = ({ isOpen, onClose
               <select
                 value={selectedTermId}
                 onChange={(e) => setSelectedTermId(e.target.value)}
-                className="w-full h-11 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-colors cursor-pointer text-gray-700 font-medium shadow-sm hover:border-gray-300"
+                disabled={isLoadingPeriods}
+                className="w-full h-11 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-colors cursor-pointer text-gray-700 font-medium shadow-sm hover:border-gray-300 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {allTerms.length === 0 && (
+                {isLoadingPeriods ? (
                   <option value="">Loading periods...</option>
+                ) : allTerms.length === 0 ? (
+                  <option value="">No terms available</option>
+                ) : (
+                  allTerms.map((t) => (
+                    <option key={t.termId} value={t.termId}>
+                      {t.label}
+                    </option>
+                  ))
                 )}
-                {allTerms.map((t) => (
-                  <option key={t.termId} value={t.termId}>
-                    {t.label}
-                  </option>
-                ))}
               </select>
             </div>
 
