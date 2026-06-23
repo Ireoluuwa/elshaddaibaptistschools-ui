@@ -3,13 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Trash2, Search } from "lucide-react";
 import {
-  resultSubjects,
   gradeMap,
   ResultScore,
 } from "@/constants/teacher/results.constants";
 
 interface ScoreEntryProps {
   score: ResultScore;
+  availableSubjects: string[];
   onUpdate: (id: number, field: string, value: string) => void;
   onRemove: (id: number) => void;
   canRemove: boolean;
