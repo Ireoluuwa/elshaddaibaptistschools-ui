@@ -58,21 +58,22 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
   // Template: one row per subject, subject column pre-filled (locked by convention)
   // Columns: Subject | Test 1 (/15) | Test 2 (/15) | Exam (/70)
   const handleDownloadTemplate = () => {
-    // Metadata rows at the top so the teacher knows whose sheet this is
-    const metaRows = [
-      ["Student:", studentName],
-      ["Student ID:", studentId],
-      ["Term ID:", termId],
+    const rows = [
+      ["Student:",      studentName],
+      ["Student ID:",   studentId],
+      ["Term ID:",      termId],
+      [],
+      ["Days Present:", ""],
+      ["Total Days:",   65],
       [],
       ["Subject", "Test 1 (/15)", "Test 2 (/15)", "Exam (/70)"],
+      ...subjects.map((name) => [name, "", "", ""]),
     ];
 
-    const subjectRows = subjects.map((name) => [name, "", "", ""]);
-
-    const ws = XLSX.utils.aoa_to_sheet([...metaRows, ...subjectRows]);
+    const ws = XLSX.utils.aoa_to_sheet(rows);
 
     ws["!cols"] = [
-      { wch: 30 }, // Subject
+      { wch: 32 }, // Subject / label
       { wch: 14 }, // Test 1
       { wch: 14 }, // Test 2
       { wch: 12 }, // Exam
@@ -96,7 +97,17 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
       // We read from row 5 onwards (0-indexed: rows 0-3 = metadata, row 4 = header)
       const allRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-      // Find the header row (the one that starts with "Subject")
+      // Read attendance from metadata rows
+      const daysRow = allRows.find(
+        (row) => String(row[0] ?? "").trim().toLowerCase().startsWith("days present")
+      );
+      const totalRow = allRows.find(
+        (row) => String(row[0] ?? "").trim().toLowerCase().startsWith("total days")
+      );
+      const daysAttended = Number(daysRow?.[1]) || 0;
+      const totalDays = Number(totalRow?.[1]) || 65;
+
+      // Find the header row (starts with "Subject")
       const headerRowIndex = allRows.findIndex(
         (row) => String(row[0] ?? "").trim().toLowerCase() === "subject"
       );
@@ -123,7 +134,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
       }
 
       upsertResult(
-        { studentId, termId, scores, daysAttended: 0, totalDays: 65, status: "DRAFT" },
+        { studentId, termId, scores, daysAttended, totalDays, status: "DRAFT" },
         {
           onSuccess: () => {
             setSaved(true);

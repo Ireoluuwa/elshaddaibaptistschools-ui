@@ -5,6 +5,7 @@ import { Plus, CheckCircle2, CalendarDays, Send, AlertCircle } from "lucide-reac
 import { ResultScore } from "@/constants/teacher/results.constants";
 import { useUpsertResult } from "@/hooks/result.hooks";
 import { TerminalResultScore } from "@/types/result";
+import { toast } from "@/store/toast.store";
 import ScoreEntry from "./ScoreEntry";
 
 interface ResultFormProps {
@@ -97,11 +98,23 @@ export default function ResultForm({
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    upsertResult(buildPayload("DRAFT"), { onSuccess: () => onSaved?.() });
+    upsertResult(buildPayload("DRAFT"), {
+      onSuccess: () => {
+        toast.success("Draft saved", "Result has been saved as a draft.");
+        onSaved?.();
+      },
+      onError: () => toast.error("Save failed", "Could not save the result. Please try again."),
+    });
   };
 
   const handlePublish = () => {
-    upsertResult(buildPayload("PUBLISHED"), { onSuccess: () => onSaved?.() });
+    upsertResult(buildPayload("PUBLISHED"), {
+      onSuccess: () => {
+        toast.success("Result published", "The result is now visible to the student.");
+        onSaved?.();
+      },
+      onError: () => toast.error("Publish failed", "Could not publish the result. Please try again."),
+    });
   };
 
   const errorMessage =
