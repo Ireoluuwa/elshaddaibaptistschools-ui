@@ -2,7 +2,8 @@
 
 import React, { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Filter, Clock, FileEdit, UploadCloud } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Filter, Clock, FileEdit, UploadCloud, FileText, CheckCircle2 } from "lucide-react";
 import ResultForm from "@/components/teacher/results/result-form";
 import BulkUploadModal from "@/components/teacher/results/BulkUploadModal";
 import { useResultsDashboardInit, useStudentResult, useResultSubjects } from "@/hooks/result.hooks";
@@ -117,13 +118,24 @@ export default function StudentResultPage({ params }: ResultPageProps) {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setIsBulkOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:text-emerald-700 hover:border-emerald-200 transition-all shadow-sm"
-        >
-          <UploadCloud size={18} className="text-emerald-600" />
-          Bulk Upload Results
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          {result && (
+            <Link
+              href={`/report-sheet?studentId=${studentId}&termId=${selectedTermId}`}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#006442] text-white text-sm font-bold rounded-xl hover:bg-[#005236] transition-all shadow-sm"
+            >
+              <FileText size={18} />
+              View Report Sheet
+            </Link>
+          )}
+          <button
+            onClick={() => setIsBulkOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-xl hover:bg-gray-50 hover:text-emerald-700 hover:border-emerald-200 transition-all shadow-sm"
+          >
+            <UploadCloud size={18} className="text-emerald-600" />
+            Bulk Upload Results
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -153,6 +165,20 @@ export default function StudentResultPage({ params }: ResultPageProps) {
             <Clock size={12} />
             Read Only
           </span>
+        )}
+
+        {result && (
+          result.status === "PUBLISHED" ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-sky-700 bg-sky-50 rounded-lg border border-sky-100">
+              <CheckCircle2 size={12} />
+              Published — visible to parents
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-700 bg-amber-50 rounded-lg border border-amber-100">
+              <FileEdit size={12} />
+              Draft
+            </span>
+          )
         )}
       </div>
 

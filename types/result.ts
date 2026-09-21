@@ -62,6 +62,7 @@ export interface StudentResultData {
     studentId: string;
     classId: string | null;
     departmentId: string | null;
+    teacherName?: string | null;
   };
   result: TerminalResult | null;
 }

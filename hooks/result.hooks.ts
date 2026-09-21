@@ -32,10 +32,11 @@ export const useResultSubjects = (studentId: string) => {
   });
 };
 
-export const useMyResult = (termId?: string) => {
+export const useMyResult = (termId?: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: ['myResult', termId],
     queryFn: () => getMyResultService(termId),
+    enabled,
   });
 };
 

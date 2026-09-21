@@ -1,19 +1,27 @@
 "use client";
 
 import React, { use } from "react";
-import { Download, ChevronLeft } from "lucide-react";
+import { Download, ChevronLeft, FileEdit } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useMyResult } from "@/hooks/result.hooks";
+import { useMyResult, useStudentResult } from "@/hooks/result.hooks";
 import { gradeMap } from "@/constants/teacher/results.constants";
 
 interface ReportSheetPageProps {
-  searchParams: Promise<{ termId?: string }>;
+  searchParams: Promise<{ termId?: string; studentId?: string }>;
 }
 
 export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) {
-  const { termId } = use(searchParams);
-  const { data, isLoading, isError } = useMyResult(termId);
+  const { termId, studentId } = use(searchParams);
+
+  const isTeacherView = !!studentId;
+  const myResult = useMyResult(isTeacherView ? undefined : termId, !isTeacherView);
+  const studentResult = useStudentResult(studentId ?? "", termId ?? "");
+
+  const { data, isLoading, isError } = isTeacherView ? studentResult : myResult;
+  const backHref = isTeacherView
+    ? `/portal/teacher/results/${studentId}`
+    : "/portal/student/results";
 
   const handlePrint = () => window.print();
 
@@ -63,10 +71,14 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-4">
         <p className="text-gray-500 text-sm">
-          {isError ? "Failed to load result." : "No published result found for this term."}
+          {isError
+            ? "Failed to load result."
+            : isTeacherView
+              ? "No result has been entered for this term."
+              : "No published result found for this term."}
         </p>
         <Link
-          href="/portal/student/results"
+          href={backHref}
           className="text-[#006442] text-sm font-bold hover:underline"
         >
           Go back
@@ -93,12 +105,20 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
 
       {/* Top Action Bar */}
       <div className="max-w-[210mm] mx-auto flex items-center justify-between mb-6 print:hidden">
-        <Link
-          href="/portal/student/results"
-          className="flex items-center gap-2 px-2 py-2 bg-white text-gray-700 font-bold rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
-        >
-          <ChevronLeft size={18} />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href={backHref}
+            className="flex items-center gap-2 px-2 py-2 bg-white text-gray-700 font-bold rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            <ChevronLeft size={18} />
+          </Link>
+          {isTeacherView && result.status !== "PUBLISHED" && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-700 bg-amber-50 rounded-lg border border-amber-100">
+              <FileEdit size={12} />
+              Draft — not yet visible to parents
+            </span>
+          )}
+        </div>
         <button
           onClick={handlePrint}
           className="flex items-center gap-2 px-5 py-2 bg-[#006442] hover:bg-[#005236] text-white font-bold rounded-lg shadow-sm transition-colors"
