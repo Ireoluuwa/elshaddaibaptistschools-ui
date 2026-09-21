@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, MessageSquare, ListTodo, Star, Loader2, AlertCircle, Calendar } from "lucide-react";
+import { ChevronLeft, MessageSquare, ListTodo, Star, Loader2, AlertCircle, Calendar, Percent } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useReportDetail } from "@/hooks/report.hooks";
@@ -97,6 +97,30 @@ export default function WeeklyReportDetailPage() {
                 <p className="text-[9px] text-gray-400 font-medium mt-1 uppercase tracking-wider">Days Present</p>
               </section>
             </div>
+
+            {/* Weekly Percentage */}
+            {report.percentage != null && (
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <Percent size={16} className="text-[#006442]" />
+                  <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                    Weekly Percentage
+                  </h2>
+                </div>
+                <div className="flex items-end gap-3">
+                  <span className="text-4xl font-black text-[#006442] leading-none">
+                    {report.percentage}%
+                  </span>
+                  <div className="flex-1 h-2 mb-1 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#006442] rounded-full"
+                      style={{ width: `${Math.min(100, Math.max(0, report.percentage))}%` }}
+                    />
+                  </div>
+                </div>
+                <p className="text-[9px] text-gray-400 font-medium mt-2 uppercase tracking-wider">Overall Performance</p>
+              </section>
+            )}
 
             {/* Teacher Comments */}
             <section>

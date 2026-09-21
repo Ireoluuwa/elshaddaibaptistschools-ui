@@ -8,6 +8,7 @@ import { ReportHeader } from "./ReportHeader";
 import { RatingStars } from "./BehavioralRating";
 import { TeacherComments } from "./TeacherComments";
 import { TestScores } from "./TestScores";
+import { PercentageInput } from "./PercentageInput";
 import { useMappedSubjects } from "@/hooks/academics.hooks";
 import { useSubmitReport } from "@/hooks/report.hooks";
 import { toast } from "@/store/toast.store";
@@ -28,6 +29,9 @@ export default function ReportForm({
   const [rating, setRating] = useState<number>(initialData?.rating ?? 0);
   const [description, setDescription] = useState<string>(initialData?.description ?? "");
   const [attendance, setAttendance] = useState<number>(initialData?.attendance ?? 5);
+  const [percentage, setPercentage] = useState<string>(
+    initialData?.percentage != null ? String(initialData.percentage) : ""
+  );
   const [testScores, setTestScores] = useState<TestScore[]>(
     initialData?.testScores && initialData.testScores.length > 0
       ? initialData.testScores
@@ -40,6 +44,7 @@ export default function ReportForm({
       setRating(initialData.rating ?? 0);
       setDescription(initialData.description ?? "");
       setAttendance(initialData.attendance ?? 5);
+      setPercentage(initialData.percentage != null ? String(initialData.percentage) : "");
       setTestScores(initialData.testScores ?? []);
     }
   }, [initialData, student.id]);
@@ -49,6 +54,7 @@ export default function ReportForm({
   const onRatingChange = (val: number) => setRating(val);
   const onDescriptionChange = (val: string) => setDescription(val);
   const onAttendanceChange = (val: number) => setAttendance(val);
+  const onPercentageChange = (val: string) => setPercentage(val);
   const onScoresChange = (val: TestScore[]) => setTestScores(val);
 
   // Fetch mapped subjects for this class/department
@@ -58,6 +64,12 @@ export default function ReportForm({
   );
 
   const handlePublish = async () => {
+    const parsedPercentage = percentage.trim() === "" ? null : Number(percentage);
+    if (parsedPercentage !== null && (Number.isNaN(parsedPercentage) || parsedPercentage < 0 || parsedPercentage > 100)) {
+      toast.error("Percentage must be a number between 0 and 100.");
+      return;
+    }
+
     setIsPublishing(true);
     
     try {
@@ -67,6 +79,7 @@ export default function ReportForm({
         weekNumber,
         behavioralScore: rating,
         attendance: Number(attendance),
+        percentage: parsedPercentage,
         teacherRemark: description,
         status: 'PUBLISHED',
         scores: testScores
@@ -113,6 +126,12 @@ export default function ReportForm({
             isHistoryView={isHistoryView}
           />
         </div>
+
+        <PercentageInput
+          value={percentage}
+          setValue={onPercentageChange}
+          isHistoryView={isHistoryView}
+        />
 
         <TeacherComments
           student={student}

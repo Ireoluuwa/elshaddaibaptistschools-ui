@@ -11,6 +11,7 @@ export interface ReportPayload {
   scores: WeeklyScore[];
   behavioralScore: number;
   attendance: number;
+  percentage?: number | null;
   teacherRemark: string;
   status: 'DRAFT' | 'PUBLISHED';
 }
@@ -22,6 +23,7 @@ export interface WeeklyReport {
   scores: WeeklyScore[];
   behavioralScore: number;
   attendance: number;
+  percentage?: number | null;
   teacherRemark?: string;
 }
 
@@ -88,6 +90,7 @@ export interface ReportFormProps {
     rating: number;
     description: string;
     attendance: number;
+    percentage?: number | null;
     testScores: TestScore[];
   };
 }

@@ -58,6 +58,7 @@ export default function StudentReportPage({ params }: ReportPageProps) {
       rating: activeReport.behavioralScore || 0,
       description: activeReport.teacherRemark || "",
       attendance: activeReport.attendance || 5,
+      percentage: activeReport.percentage ?? null,
       testScores: activeReport.scores?.map((s, i) => ({
         id: i,
         subject: s.subjectName,
