@@ -49,7 +49,7 @@ const StudentSidebar = () => {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col fixed top-0 left-0 h-[100dvh] bg-[#0e2e1d] border-r border-white/5 z-40 transition-all duration-300 ${
+        className={`hidden lg:flex print:hidden flex-col fixed top-0 left-0 h-[100dvh] bg-[#0e2e1d] border-r border-white/5 z-40 transition-all duration-300 ${
           collapsed ? "w-[72px]" : "w-[260px]"
         }`}
       >
@@ -72,7 +72,7 @@ const StudentSidebar = () => {
       {/* Mobile Toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 right-4 z-[60] w-10 h-10 rounded-xl bg-[#0e2e1d] text-white flex items-center justify-center shadow-lg transition-transform active:scale-90"
+        className="lg:hidden print:hidden fixed top-4 right-4 z-[60] w-10 h-10 rounded-xl bg-[#0e2e1d] text-white flex items-center justify-center shadow-lg transition-transform active:scale-90"
       >
         {mobileOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
