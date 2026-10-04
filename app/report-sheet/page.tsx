@@ -6,19 +6,26 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMyResult, useStudentResult } from "@/hooks/result.hooks";
 import { gradeMap } from "@/constants/teacher/results.constants";
+import { previewResult } from "@/constants/result-preview.constants";
 
 interface ReportSheetPageProps {
-  searchParams: Promise<{ termId?: string; studentId?: string }>;
+  searchParams: Promise<{ termId?: string; studentId?: string; preview?: string }>;
 }
 
 export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) {
-  const { termId, studentId } = use(searchParams);
+  const { termId, studentId, preview } = use(searchParams);
 
+  // Local-only: render sample data without logging in or hitting the API.
+  const isPreview = preview === "1" && process.env.NODE_ENV === "development";
   const isTeacherView = !!studentId;
-  const myResult = useMyResult(isTeacherView ? undefined : termId, !isTeacherView);
+  const myResult = useMyResult(isTeacherView ? undefined : termId, !isTeacherView && !isPreview);
   const studentResult = useStudentResult(studentId ?? "", termId ?? "");
 
-  const { data, isLoading, isError } = isTeacherView ? studentResult : myResult;
+  const { data, isLoading, isError } = isPreview
+    ? { data: previewResult, isLoading: false, isError: false }
+    : isTeacherView
+      ? studentResult
+      : myResult;
   const backHref = isTeacherView
     ? `/portal/teacher/results/${studentId}`
     : "/portal/student/results";
