@@ -21,7 +21,7 @@ const AdminSidebar = () => {
     return pathname.startsWith(href);
   };
 
-  const SidebarContent = () => (
+  const renderContent = () => (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-5 pt-8 pb-6 shrink-0">
@@ -105,7 +105,7 @@ const AdminSidebar = () => {
           />
         </button>
 
-        <SidebarContent />
+        {renderContent()}
       </aside>
 
       {/* Mobile Toggle */}
@@ -134,7 +134,7 @@ const AdminSidebar = () => {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="lg:hidden fixed top-0 left-0 h-[100dvh] w-[260px] bg-[#0e2e1d] border-r border-white/5 z-50 shadow-2xl"
             >
-              <SidebarContent />
+              {renderContent()}
             </motion.aside>
           </>
         )}
