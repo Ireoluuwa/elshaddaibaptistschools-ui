@@ -1,17 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import { CalendarPlus, Plus } from "lucide-react";
+import { CalendarPlus, FileCheck2, FileSignature, Plus } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
 import ConfirmModal from "@/components/shared/ConfirmModal";
 import TermFormModal, {
   TermFormValues,
 } from "@/components/admin/sessions/TermFormModal";
+import ReportDetailsModal from "@/components/admin/sessions/ReportDetailsModal";
 import { primaryButton } from "@/components/admin/shared/AdminModal";
 import { mockSessions } from "@/constants/admin/mock.constants";
 import { toast } from "@/store/toast.store";
-import type { AdminSession, AdminTerm, TermStatus } from "@/types/admin.types";
+import type {
+  AdminSession,
+  AdminTerm,
+  TermReportDetails,
+  TermStatus,
+} from "@/types/admin.types";
 
 const termTone: Record<TermStatus, "green" | "gray" | "blue"> = {
   active: "green",
@@ -36,6 +42,22 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<AdminSession[]>(mockSessions);
   const [formFor, setFormFor] = useState<AdminSession | "new" | null>(null);
   const [pending, setPending] = useState<PendingAction | null>(null);
+  const [detailsFor, setDetailsFor] = useState<{ session: AdminSession; term: AdminTerm } | null>(null);
+
+  const handleSaveDetails = (reportDetails: TermReportDetails) => {
+    if (!detailsFor) return;
+    setSessions((prev) =>
+      prev.map((s) => ({
+        ...s,
+        terms: s.terms.map((t) => (t.id === detailsFor.term.id ? { ...t, reportDetails } : t)),
+      })),
+    );
+    toast.success(
+      "Report sheet details saved",
+      `${detailsFor.session.name} • ${detailsFor.term.name}`,
+    );
+    setDetailsFor(null);
+  };
 
   const handleCreate = (values: TermFormValues) => {
     const term: AdminTerm = {
@@ -154,6 +176,17 @@ export default function SessionsPage() {
                       {formatDate(term.startDate)} – {formatDate(term.endDate)}
                     </p>
                   </div>
+                  <button
+                    onClick={() => setDetailsFor({ session, term })}
+                    className={`h-8 px-3 inline-flex items-center gap-1.5 text-xs font-semibold rounded-lg ring-1 transition-all ${
+                      term.reportDetails
+                        ? "text-emerald-700 ring-emerald-100 hover:bg-emerald-50"
+                        : "text-amber-700 ring-amber-200 bg-amber-50 hover:bg-amber-100"
+                    }`}
+                  >
+                    {term.reportDetails ? <FileCheck2 size={14} /> : <FileSignature size={14} />}
+                    {term.reportDetails ? "Report sheet" : "Add signature & dates"}
+                  </button>
                   {term.status === "active" ? (
                     <button
                       onClick={() => setPending({ kind: "close", session, term })}
@@ -175,6 +208,16 @@ export default function SessionsPage() {
           </div>
         ))}
       </div>
+
+      {detailsFor && (
+        <ReportDetailsModal
+          key={detailsFor.term.id}
+          sessionName={detailsFor.session.name}
+          term={detailsFor.term}
+          onClose={() => setDetailsFor(null)}
+          onSave={handleSaveDetails}
+        />
+      )}
 
       {formFor && (
         <TermFormModal

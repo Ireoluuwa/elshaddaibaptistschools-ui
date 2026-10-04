@@ -8,6 +8,9 @@ import { useMyResult, useStudentResult } from "@/hooks/result.hooks";
 import { gradeMap } from "@/constants/teacher/results.constants";
 import { previewResult } from "@/constants/result-preview.constants";
 
+const formatDate = (d?: string) =>
+  d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }) : "";
+
 interface ReportSheetPageProps {
   searchParams: Promise<{ termId?: string; studentId?: string; preview?: string }>;
 }
@@ -106,6 +109,7 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
   const termName = result.term?.name ?? "";
   const yearName = result.term?.academicYear?.name ?? "";
   const daysAbsent = result.totalDays - result.daysAttended;
+  const reportDetails = result.term?.reportDetails;
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 font-sans text-black overflow-auto print:bg-white print:py-0 print:px-0">
@@ -284,11 +288,11 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
                 </tr>
                 <tr>
                   <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Vacation Date:</td>
-                  <td className="border border-black py-1.5 px-1" />
+                  <td className="border border-black py-1.5 px-1">{formatDate(reportDetails?.vacationDate)}</td>
                 </tr>
                 <tr>
                   <td className="border border-black py-1.5 px-2 text-left bg-[#f8cbab]/50 text-[#e08f51]">Sch. Resumes:</td>
-                  <td className="border border-black py-1.5 px-1" />
+                  <td className="border border-black py-1.5 px-1">{formatDate(reportDetails?.resumptionDate)}</td>
                 </tr>
               </tbody>
             </table>
@@ -307,12 +311,17 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
             {result.teacherRemark || ""}
           </div>
 
-          <div className="flex justify-between items-end mt-4">
-            <span>V.P&apos;s Remark:</span>
-            <div className="w-64 border-b-2 border-black flex flex-col items-center">
-              <span className="text-[10px] uppercase invisible">Signature</span>
+          <div className="flex justify-between items-end gap-4 mt-4">
+            <span className="shrink-0">V.P&apos;s Remark:</span>
+            <div className="flex-1 max-w-64 border-b-2 border-black text-center font-normal italic text-xs pb-0.5 min-h-5">
+              {result.vpRemark}
             </div>
-            <div className="w-48 border-b-2 border-black mt-10 text-right pr-2 text-[10px] block relative">
+            <div className="w-48 border-b-2 border-black mt-10 text-[10px] relative flex items-end justify-between gap-2 px-1 min-h-10">
+              <span className="font-normal text-xs pb-0.5">{formatDate(reportDetails?.signedDate)}</span>
+              {reportDetails?.signatureUrl && (
+                // eslint-disable-next-line @next/next/no-img-element -- may be a data URL
+                <img src={reportDetails.signatureUrl} alt="V.P's signature" className="h-10 max-w-24 object-contain" />
+              )}
               <span className="absolute -bottom-4 right-0">Date &amp; Signature</span>
             </div>
           </div>

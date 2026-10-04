@@ -1,6 +1,13 @@
 // Sample data for previewing the report sheet locally: /report-sheet?preview=1
 import type { StudentResultData } from "@/types/result";
 
+// A hand-drawn-looking squiggle so the preview shows where the signature sits.
+const sampleSignature =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><path d="M5 30 C15 5, 25 5, 22 28 S40 10, 48 24 S62 34, 70 14 S88 30, 96 18 L115 12" fill="none" stroke="#1a3a8a" stroke-width="2.2" stroke-linecap="round"/></svg>`,
+  );
+
 export const previewResult: StudentResultData = {
   student: {
     id: "preview",
@@ -18,10 +25,17 @@ export const previewResult: StudentResultData = {
     totalDays: 65,
     teacherRemark:
       "Feranmi is a diligent and well-behaved student. Keep up the good work.",
+    vpRemark: "A good result. Keep it up.",
     term: {
       id: "preview",
       name: "3rd Term",
       academicYear: { name: "2025/2026" },
+      reportDetails: {
+        signatureUrl: sampleSignature,
+        signedDate: "2026-07-31",
+        vacationDate: "2026-07-31",
+        resumptionDate: "2026-09-14",
+      },
     },
     scores: [
       { subjectName: "English Language", test1: 16, test2: 17, exam: 52 },

@@ -1,3 +1,5 @@
+import type { TermReportDetails } from "./admin.types";
+
 export interface TerminalResultScore {
   subjectName: string;
   test1: number;
@@ -25,11 +27,13 @@ export interface TerminalResult {
   daysAttended: number;
   totalDays: number;
   teacherRemark?: string;
+  vpRemark?: string;
   status: 'DRAFT' | 'PUBLISHED';
   term?: {
     id: string;
     name: string;
     academicYear: { name: string };
+    reportDetails?: TermReportDetails;
   };
 }
 

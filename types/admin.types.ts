@@ -1,11 +1,21 @@
 export type TermStatus = "upcoming" | "active" | "closed";
 
+// Filled in once per term by the admin; printed on every student's report sheet.
+// (The V.P's remark is per student — it lives on the result, not here.)
+export interface TermReportDetails {
+  signatureUrl: string;
+  signedDate: string;
+  vacationDate: string;
+  resumptionDate: string;
+}
+
 export interface AdminTerm {
   id: string;
   name: string;
   startDate: string;
   endDate: string;
   status: TermStatus;
+  reportDetails?: TermReportDetails;
 }
 
 export interface AdminSession {
