@@ -66,7 +66,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
         <div>
           <label className={labelClass}>Signature</label>
           {details.signatureUrl ? (
-            <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200">
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-line">
               <img
                 src={details.signatureUrl}
                 alt="Signature"
@@ -74,17 +74,17 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               />
               <button
                 onClick={() => set("signatureUrl", "")}
-                className="ml-auto p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                className="ml-auto p-2 rounded-lg text-muted hover:text-danger transition-colors"
                 title="Remove signature"
               >
                 <Trash2 size={16} />
               </button>
             </div>
           ) : (
-            <label className="flex flex-col items-center gap-1.5 p-5 rounded-xl border-2 border-dashed border-gray-200 hover:border-[#006442]/40 cursor-pointer text-center transition-all">
-              <ImageUp size={20} className="text-gray-400" />
+            <label className="flex flex-col items-center gap-1.5 p-5 rounded-lg border border-dashed border-muted/40 hover:border-brand hover:bg-tint cursor-pointer text-center transition-colors">
+              <ImageUp size={20} className="text-brand" />
               <span className="text-sm font-semibold text-secondary">Upload signature</span>
-              <span className="text-xs text-gray-400">PNG with a transparent background works best</span>
+              <span className="text-xs text-muted">PNG with a transparent background works best</span>
               <input
                 type="file"
                 accept="image/*"

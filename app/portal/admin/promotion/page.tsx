@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, RotateCcw, Wand2 } from "lucide-react";
+import { Check } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
-import ConfirmModal from "@/components/shared/ConfirmModal";
-import PromotionRow, { RowDecision } from "@/components/admin/promotion/PromotionRow";
-import { primaryButton } from "@/components/admin/shared/AdminModal";
+import AdminConfirm from "@/components/admin/shared/AdminConfirm";
+import ClassNav from "@/components/admin/shared/ClassNav";
+import PromotionRow, { RowDecision, rowGrid } from "@/components/admin/promotion/PromotionRow";
+import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import {
   mockSessions,
   mockStudents,
@@ -21,6 +22,9 @@ const suggest = (avg: number | null, passMark: number, isFinal: boolean): RowDec
   decision: avg !== null && avg < passMark ? "repeat" : isFinal ? "graduate" : "promote",
 });
 
+const activeCount = (className: string) =>
+  mockStudents.filter((s) => s.className === className && s.status === "active").length;
+
 export default function PromotionPage() {
   const session = mockSessions.find((s) => s.isCurrent);
   const [selectedClass, setSelectedClass] = useState(classOrder[0]);
@@ -34,20 +38,22 @@ export default function PromotionPage() {
   const needsDepartment = selectedClass === "JSS3";
   const isDone = completed.includes(selectedClass);
 
+  // Strongest students first; students with no result go last.
   const students = useMemo(
-    () => mockStudents.filter((s) => s.className === selectedClass && s.status === "active"),
+    () =>
+      mockStudents
+        .filter((s) => s.className === selectedClass && s.status === "active")
+        .sort((a, b) => (b.annualAverage ?? -1) - (a.annualAverage ?? -1)),
     [selectedClass],
   );
 
   const valueFor = (id: string, avg: number | null) =>
     decisions[id] ?? suggest(avg, passMark, isFinalClass);
 
-  const applyRule = () => {
+  const resetToPassMark = () => {
     setDecisions((prev) => {
       const next = { ...prev };
-      students.forEach((s) => {
-        next[s.id] = { ...prev[s.id], ...suggest(s.annualAverage, passMark, isFinalClass) };
-      });
+      students.forEach((s) => delete next[s.id]);
       return next;
     });
   };
@@ -59,6 +65,7 @@ export default function PromotionPage() {
     },
     { promote: 0, graduate: 0, repeat: 0, withdraw: 0 },
   );
+  const movingUp = isFinalClass ? counts.graduate : counts.promote;
 
   const missingDepartments = needsDepartment
     ? students.filter((s) => {
@@ -69,175 +76,183 @@ export default function PromotionPage() {
 
   const handleConfirm = () => {
     // TODO: POST /admin/promotions { classId, decisions }
-    setCompleted((c) => [...c, selectedClass]);
+    const nowCompleted = [...completed, selectedClass];
+    setCompleted(nowCompleted);
     setConfirmOpen(false);
     toast.success(
-      `${selectedClass} done`,
+      `${selectedClass} saved`,
       isFinalClass
-        ? `${counts.graduate} graduated, ${counts.repeat} repeating.`
-        : `${counts.promote} moved to ${target}, ${counts.repeat} repeating.`,
+        ? `${counts.graduate} graduating, ${counts.repeat} repeating.`
+        : `${counts.promote} moving to ${target}, ${counts.repeat} repeating.`,
     );
-    const nextPending = classOrder.find((c) => c !== selectedClass && !completed.includes(c));
+    const nextPending = classOrder.find((c) => !nowCompleted.includes(c));
     if (nextPending) setSelectedClass(nextPending);
   };
 
   const handleUndo = () => {
     setCompleted((c) => c.filter((x) => x !== selectedClass));
-    toast.info("Promotion undone", `${selectedClass} is editable again.`);
+    toast.info("Reopened", `${selectedClass} can be edited again.`);
   };
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-8">
+    <div className="max-w-6xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Promotion"
-        description={`Move students into their next class at the end of ${session?.name ?? "the session"}.`}
+        description={`Decide where each student goes after ${session?.name ?? "this session"}. Changes take effect when the new session starts.`}
         action={
-          <div className="inline-flex flex-col px-4 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100/50 self-start">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-              Progress
+          <div className="flex flex-col gap-1.5 sm:items-end">
+            <span className="text-sm text-muted">
+              <span className="font-semibold text-ink tabular-nums">{completed.length}</span> of{" "}
+              {classOrder.length} classes done
             </span>
-            <span className="text-sm font-semibold">
-              {completed.length} of {classOrder.length} classes done
-            </span>
+            <div className="flex gap-1">
+              {classOrder.map((c) => (
+                <span
+                  key={c}
+                  className={`h-1.5 w-6 rounded-full ${completed.includes(c) ? "bg-brand" : "bg-line"}`}
+                />
+              ))}
+            </div>
           </div>
         }
       />
 
-      {/* Class picker */}
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap gap-2">
-          {classOrder.map((c) => {
-            const done = completed.includes(c);
-            const active = c === selectedClass;
-            return (
-              <button
-                key={c}
-                onClick={() => setSelectedClass(c)}
-                className={`h-9 px-4 inline-flex items-center gap-1.5 rounded-full text-sm font-semibold border transition-all ${
-                  active
-                    ? "bg-secondary text-white border-secondary"
-                    : done
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                      : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                {done && <CheckCircle2 size={14} />}
-                {c}
-              </button>
-            );
-          })}
-        </div>
-        <p className="text-xs text-gray-400">
-          Start from SS3 and work down, so every class moves into one that&apos;s already been promoted.
-        </p>
-      </div>
+      <div className="grid lg:grid-cols-[220px_minmax(0,1fr)] gap-6 items-start">
+        <ClassNav
+          hint="Work from the top class down"
+          selected={selectedClass}
+          onSelect={setSelectedClass}
+          items={classOrder.map((c) => ({
+            key: c,
+            label: (
+              <>
+                {c} <span className="font-normal text-muted">→ {nextClass[c] ?? "Graduate"}</span>
+              </>
+            ),
+            detail: `${activeCount(c)} students`,
+            done: completed.includes(c),
+          }))}
+        />
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* Card header */}
-        <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-          <div className="flex items-center gap-3 text-secondary">
-            <span className="text-lg font-black">{selectedClass}</span>
-            <ArrowRight size={18} className="text-gray-300" />
-            <span className="text-lg font-black">{target ?? "Graduated"}</span>
-          </div>
-          {!isDone && (
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-gray-500">Pass mark</label>
-              <div className="relative">
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={passMark}
-                  onChange={(e) => setPassMark(Number(e.target.value))}
-                  className="w-20 h-9 pl-3 pr-6 rounded-lg border border-gray-200 focus:border-[#006442] outline-none bg-white"
-                />
-                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">%</span>
-              </div>
-              <button
-                onClick={applyRule}
-                className="h-9 px-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-all"
-              >
-                <Wand2 size={14} /> Apply
-              </button>
+        {/* Promotion sheet */}
+        <section className={`${panelClass} overflow-hidden`}>
+          <header className="flex flex-wrap items-end justify-between gap-4 px-5 py-4 border-b border-line">
+            <div>
+              <h2 className="text-xl font-bold text-ink">
+                {selectedClass} <span className="text-muted font-normal">→</span>{" "}
+                {target ?? "Graduated"}
+              </h2>
+              <p className="text-sm text-muted mt-0.5">
+                {students.length} students{needsDepartment && " · choose a department for each student promoted to SS1"}
+              </p>
             </div>
-          )}
-        </div>
-
-        {isDone && (
-          <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3 bg-emerald-50 border-b border-emerald-100 text-sm text-emerald-800">
-            <span className="inline-flex items-center gap-2 font-medium">
-              <CheckCircle2 size={16} /> This class has been promoted.
-            </span>
-            <button
-              onClick={handleUndo}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:text-emerald-900"
-            >
-              <RotateCcw size={14} /> Undo
-            </button>
-          </div>
-        )}
-
-        {/* Students */}
-        {students.length === 0 ? (
-          <p className="px-6 py-10 text-center text-sm text-gray-400">
-            No active students in {selectedClass}.
-          </p>
-        ) : (
-          <ul className="divide-y divide-gray-100">
-            {students.map((s) => (
-              <PromotionRow
-                key={s.id}
-                student={s}
-                value={valueFor(s.id, s.annualAverage)}
-                onChange={(v) => setDecisions((d) => ({ ...d, [s.id]: v }))}
-                passMark={passMark}
-                isFinalClass={isFinalClass}
-                needsDepartment={needsDepartment}
-                locked={isDone}
-              />
-            ))}
-          </ul>
-        )}
-
-        {/* Summary footer */}
-        {!isDone && students.length > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-              <span className="text-emerald-700 font-semibold">
-                {isFinalClass ? `${counts.graduate} graduate` : `${counts.promote} promote`}
-              </span>
-              <span className="text-amber-600 font-semibold">{counts.repeat} repeat</span>
-              <span className="text-gray-500 font-semibold">{counts.withdraw} withdraw</span>
-              {missingDepartments > 0 && (
-                <span className="text-amber-600">
-                  • {missingDepartments} need a department
+            {isDone ? (
+              <div className="flex items-center gap-3 text-sm">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-brand">
+                  <Check size={16} /> Saved
                 </span>
-              )}
-            </div>
-            <button
-              onClick={() => setConfirmOpen(true)}
-              disabled={missingDepartments > 0}
-              className={primaryButton}
-            >
-              Confirm {selectedClass}
-            </button>
-          </div>
-        )}
+                <button onClick={handleUndo} className="text-muted hover:text-ink underline underline-offset-2">
+                  Edit again
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-sm">
+                <label htmlFor="pass-mark" className="text-muted">
+                  Pass mark
+                </label>
+                <div className="relative">
+                  <input
+                    id="pass-mark"
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={passMark}
+                    onChange={(e) => setPassMark(Number(e.target.value))}
+                    className="w-16 h-9 pl-3 pr-6 rounded-lg border border-line focus:border-brand outline-none bg-white tabular-nums text-ink"
+                  />
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted">%</span>
+                </div>
+                <button
+                  onClick={resetToPassMark}
+                  className="h-9 px-3 text-sm font-medium text-brand hover:bg-tint rounded-lg transition-colors"
+                >
+                  Reset choices
+                </button>
+              </div>
+            )}
+          </header>
+
+          {students.length === 0 ? (
+            <p className="px-5 py-12 text-center text-sm text-muted">
+              No active students in {selectedClass}.
+            </p>
+          ) : (
+            <>
+              <div className={`${rowGrid} hidden sm:grid px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted`}>
+                <span>Student</span>
+                <span>Average</span>
+                <span className="text-right">Next session</span>
+              </div>
+              <ul className="divide-y divide-line">
+                {students.map((s) => (
+                  <PromotionRow
+                    key={s.id}
+                    student={s}
+                    value={valueFor(s.id, s.annualAverage)}
+                    onChange={(v) => setDecisions((d) => ({ ...d, [s.id]: v }))}
+                    passMark={passMark}
+                    isFinalClass={isFinalClass}
+                    needsDepartment={needsDepartment}
+                    locked={isDone}
+                  />
+                ))}
+              </ul>
+            </>
+          )}
+
+          {!isDone && students.length > 0 && (
+            <footer className="sticky bottom-0 flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-t border-line bg-white">
+              <p className="text-sm text-muted">
+                <span className="font-semibold text-brand tabular-nums">{movingUp}</span>{" "}
+                {isFinalClass ? "graduating" : `to ${target}`}
+                <span className="mx-2 text-line">|</span>
+                <span className="font-semibold text-clay tabular-nums">{counts.repeat}</span> repeating
+                <span className="mx-2 text-line">|</span>
+                <span className="font-semibold text-ink tabular-nums">{counts.withdraw}</span> withdrawn
+                {missingDepartments > 0 && (
+                  <span className="block sm:inline sm:ml-3 text-clay">
+                    {missingDepartments} still need a department
+                  </span>
+                )}
+              </p>
+              <button
+                onClick={() => setConfirmOpen(true)}
+                disabled={missingDepartments > 0}
+                className={primaryButton}
+              >
+                Save {selectedClass}
+              </button>
+            </footer>
+          )}
+        </section>
       </div>
 
-      <ConfirmModal
+      <AdminConfirm
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirm}
-        variant="warning"
-        title={`Confirm ${selectedClass} promotion?`}
+        title={`Save ${selectedClass} promotion?`}
+        confirmText="Save"
         message={
-          isFinalClass
-            ? `${counts.graduate} students will graduate, ${counts.repeat} will repeat ${selectedClass} and ${counts.withdraw} will be withdrawn.`
-            : `${counts.promote} students will move to ${target}, ${counts.repeat} will repeat ${selectedClass} and ${counts.withdraw} will be withdrawn.`
+          <>
+            {isFinalClass
+              ? `${counts.graduate} students will graduate`
+              : `${counts.promote} students will move to ${target}`}
+            , {counts.repeat} will repeat {selectedClass} and {counts.withdraw} will be withdrawn.
+            <br />
+            Nothing changes for teachers or students until the new session starts.
+          </>
         }
-        confirmText="Confirm"
       />
     </div>
   );

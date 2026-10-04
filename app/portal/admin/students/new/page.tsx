@@ -14,7 +14,7 @@ export default function AdminAddStudentPage() {
     <div className="max-w-4xl mx-auto flex flex-col gap-8">
       <Link
         href="/portal/admin/students"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-400 hover:text-secondary self-start"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink self-start"
       >
         <ArrowLeft size={16} /> Back to students
       </Link>

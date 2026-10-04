@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Wand2 } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
-import { primaryButton } from "@/components/admin/shared/AdminModal";
+import ClassNav from "@/components/admin/shared/ClassNav";
+import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import {
   mockSessions,
   mockStudents,
@@ -13,7 +13,7 @@ import {
 import { toast } from "@/store/toast.store";
 
 const terms = mockSessions.flatMap((s) =>
-  s.terms.map((t) => ({ id: t.id, label: `${s.name} • ${t.name}` })),
+  s.terms.map((t) => ({ id: t.id, label: `${s.name} · ${t.name}` })),
 );
 // Default to the most recent term of the current session.
 const defaultTermId =
@@ -25,34 +25,23 @@ const suggestRemark = (score: number) =>
 // Keyed by term + student so switching terms keeps each term's remarks separate.
 const keyOf = (termId: string, studentId: string) => `${termId}:${studentId}`;
 
+const studentsIn = (className: string) =>
+  mockStudents.filter((s) => s.className === className && s.status === "active");
+
 export default function RemarksPage() {
   const [termId, setTermId] = useState(defaultTermId);
   const [selectedClass, setSelectedClass] = useState(promotionClasses[0]);
   const [remarks, setRemarks] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState<Record<string, string>>({});
 
-  const students = useMemo(
-    () =>
-      mockStudents.filter(
-        (s) => s.className === selectedClass && s.status === "active",
-      ),
-    [selectedClass],
-  );
+  const students = useMemo(() => studentsIn(selectedClass), [selectedClass]);
 
   const remarkFor = (id: string) => remarks[keyOf(termId, id)] ?? "";
   const setRemark = (id: string, value: string) =>
     setRemarks((r) => ({ ...r, [keyOf(termId, id)]: value }));
 
-  const doneInClass = (className: string) =>
-    mockStudents.filter(
-      (s) =>
-        s.className === className &&
-        s.status === "active" &&
-        saved[keyOf(termId, s.id)]?.trim(),
-    ).length;
-
-  const classTotal = (className: string) =>
-    mockStudents.filter((s) => s.className === className && s.status === "active").length;
+  const savedCount = (className: string) =>
+    studentsIn(className).filter((s) => saved[keyOf(termId, s.id)]?.trim()).length;
 
   const unsaved = students.some(
     (s) => (remarks[keyOf(termId, s.id)] ?? "") !== (saved[keyOf(termId, s.id)] ?? ""),
@@ -70,7 +59,6 @@ export default function RemarksPage() {
       });
       return next;
     });
-    toast.info("Remarks suggested", "Check them before saving.");
   };
 
   const handleSave = () => {
@@ -87,15 +75,16 @@ export default function RemarksPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-8">
+    <div className="max-w-6xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="V.P's Remarks"
-        description="Write the V.P's remark for each student's report sheet."
+        description="The remark printed on each student's report sheet."
         action={
           <select
             value={termId}
             onChange={(e) => setTermId(e.target.value)}
-            className="h-10 px-3 rounded-lg border border-gray-200 focus:border-[#006442] outline-none text-sm bg-white self-start"
+            aria-label="Term"
+            className="h-10 px-3 rounded-lg border border-line focus:border-brand outline-none text-sm text-ink bg-white self-start"
           >
             {terms.map((t) => (
               <option key={t.id} value={t.id}>
@@ -106,120 +95,101 @@ export default function RemarksPage() {
         }
       />
 
-      {/* Class picker */}
-      <div className="flex flex-wrap gap-2">
-        {promotionClasses.map((c) => {
-          const active = c === selectedClass;
-          const done = doneInClass(c);
-          const total = classTotal(c);
-          return (
+      <div className="grid lg:grid-cols-[220px_minmax(0,1fr)] gap-6 items-start">
+        <ClassNav
+          selected={selectedClass}
+          onSelect={setSelectedClass}
+          items={promotionClasses.map((c) => {
+            const total = studentsIn(c).length;
+            const done = savedCount(c);
+            return {
+              key: c,
+              label: c,
+              detail: `${done} of ${total} remarked`,
+              done: total > 0 && done === total,
+            };
+          })}
+        />
+
+        <section className={`${panelClass} overflow-hidden`}>
+          <header className="flex flex-wrap items-end justify-between gap-3 px-5 py-4 border-b border-line">
+            <div>
+              <h2 className="text-xl font-bold text-ink">{selectedClass}</h2>
+              <p className="text-sm text-muted mt-0.5">
+                {filled} of {students.length} students have a remark
+              </p>
+            </div>
             <button
-              key={c}
-              onClick={() => setSelectedClass(c)}
-              className={`h-9 px-4 inline-flex items-center gap-2 rounded-full text-sm font-semibold border transition-all ${
-                active
-                  ? "bg-secondary text-white border-secondary"
-                  : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
-              }`}
+              onClick={fillEmpty}
+              className="h-9 px-3 text-sm font-medium text-brand hover:bg-tint rounded-lg transition-colors"
             >
-              {c}
-              <span
-                className={`text-[11px] font-medium ${
-                  active ? "text-white/60" : done === total ? "text-emerald-600" : "text-gray-400"
-                }`}
-              >
-                {done}/{total}
-              </span>
+              Fill blanks from scores
             </button>
-          );
-        })}
-      </div>
+          </header>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* Card header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-          <div>
-            <p className="text-secondary font-bold">{selectedClass}</p>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {filled} of {students.length} students have a remark
+          {/* Shared suggestions for every remark input */}
+          <datalist id="vp-remark-options">
+            {remarkBands.map((b) => (
+              <option key={b.remark} value={b.remark} />
+            ))}
+          </datalist>
+
+          {students.length === 0 ? (
+            <p className="px-5 py-12 text-center text-sm text-muted">
+              No active students in {selectedClass}.
             </p>
-          </div>
-          <button
-            onClick={fillEmpty}
-            className="h-9 px-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-all"
-          >
-            <Wand2 size={14} /> Suggest for empty ones
-          </button>
-        </div>
-
-        {/* Shared suggestions for every remark input */}
-        <datalist id="vp-remark-options">
-          {remarkBands.map((b) => (
-            <option key={b.remark} value={b.remark} />
-          ))}
-        </datalist>
-
-        {students.length === 0 ? (
-          <p className="px-6 py-10 text-center text-sm text-gray-400">
-            No active students in {selectedClass}.
-          </p>
-        ) : (
-          <ul className="divide-y divide-gray-100">
-            {students.map((s) => {
-              const score = s.annualAverage;
-              return (
-                <li key={s.id} className="px-6 py-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-5">
-                  <div className="flex items-center gap-3 md:w-64 shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-emerald-50 text-primary flex items-center justify-center text-xs font-bold shrink-0">
-                      {s.firstName[0]}
-                      {s.lastName[0]}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-secondary truncate">
-                        {s.lastName} {s.firstName}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {score === null ? (
-                          <span className="text-amber-600">No result yet</span>
-                        ) : (
-                          <>
-                            Overall{" "}
-                            <span
-                              className={`font-bold ${score < 40 ? "text-red-500" : "text-secondary"}`}
-                            >
-                              {score.toFixed(1)}%
-                            </span>
-                          </>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  <input
-                    list="vp-remark-options"
-                    value={remarkFor(s.id)}
-                    onChange={(e) => setRemark(s.id, e.target.value)}
-                    disabled={score === null}
-                    placeholder={score === null ? "Waiting for result" : "Type a remark or pick one…"}
-                    className="flex-1 h-10 px-3 rounded-lg border border-gray-200 focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  />
-                </li>
-              );
-            })}
-          </ul>
-        )}
-
-        {/* Footer */}
-        {students.length > 0 && (
-          <div className="flex items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-            <span className="text-xs text-gray-400">
-              {unsaved ? "You have unsaved changes" : "All changes saved"}
-            </span>
-            <button onClick={handleSave} disabled={!unsaved} className={primaryButton}>
-              Save {selectedClass}
-            </button>
-          </div>
-        )}
+          ) : (
+            <>
+              <div className="hidden md:grid grid-cols-[220px_70px_minmax(0,1fr)] gap-4 px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted">
+                <span>Student</span>
+                <span>Score</span>
+                <span>Remark</span>
+              </div>
+              <ul className="divide-y divide-line">
+                {students.map((s) => {
+                  const score = s.annualAverage;
+                  return (
+                    <li
+                      key={s.id}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[220px_70px_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-5 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-ink truncate">
+                          {s.lastName} {s.firstName}
+                        </p>
+                        <p className="text-xs text-muted tabular-nums">{s.username}</p>
+                      </div>
+                      <span
+                        className={`text-sm font-semibold tabular-nums text-right md:text-left ${
+                          score === null ? "text-muted font-normal" : score < 40 ? "text-clay" : "text-ink"
+                        }`}
+                      >
+                        {score === null ? "—" : score.toFixed(1)}
+                      </span>
+                      <input
+                        list="vp-remark-options"
+                        value={remarkFor(s.id)}
+                        onChange={(e) => setRemark(s.id, e.target.value)}
+                        disabled={score === null}
+                        aria-label={`Remark for ${s.firstName} ${s.lastName}`}
+                        placeholder={score === null ? "No result yet" : "Type or pick a remark"}
+                        className="col-span-2 md:col-span-1 w-full h-9 px-3 rounded-lg border border-line focus:border-brand focus:ring-2 focus:ring-brand/15 outline-none text-sm text-ink bg-white placeholder:text-muted/60 disabled:bg-canvas disabled:cursor-not-allowed"
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+              <footer className="sticky bottom-0 flex items-center justify-between gap-4 px-5 py-4 border-t border-line bg-white">
+                <span className="text-sm text-muted">
+                  {unsaved ? "Unsaved changes" : "All changes saved"}
+                </span>
+                <button onClick={handleSave} disabled={!unsaved} className={primaryButton}>
+                  Save {selectedClass}
+                </button>
+              </footer>
+            </>
+          )}
+        </section>
       </div>
     </div>
   );

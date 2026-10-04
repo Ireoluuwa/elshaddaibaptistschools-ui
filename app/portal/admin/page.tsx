@@ -2,176 +2,147 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  AlertTriangle,
-  ArrowRight,
-  ArrowUpCircle,
-  CalendarPlus,
-  CheckCircle2,
-  Circle,
-  GraduationCap,
-  Layers,
-  UserPlus,
-  Users,
-} from "lucide-react";
-import PageHeader from "@/components/admin/shared/PageHeader";
+import { ArrowRight, Check } from "lucide-react";
+import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import {
   mockSessions,
   mockStudents,
   mockTeachers,
   promotionClasses,
 } from "@/constants/admin/mock.constants";
+import type { TermStatus } from "@/types/admin.types";
+
+const formatDate = (d: string) =>
+  new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+const termBar: Record<TermStatus, string> = {
+  closed: "bg-ink/15",
+  active: "bg-brand",
+  upcoming: "border border-dashed border-muted/40",
+};
 
 export default function AdminDashboard() {
   const currentSession = mockSessions.find((s) => s.isCurrent);
   const activeTerm = currentSession?.terms.find((t) => t.status === "active");
-  const lastTerm = currentSession?.terms.at(-1);
-  const sessionEnded = !activeTerm && lastTerm?.status === "closed";
+  const sessionEnded =
+    !activeTerm && currentSession?.terms.at(-1)?.status === "closed";
 
-  const stats = [
-    { label: "Students", value: mockStudents.filter((s) => s.status === "active").length, icon: GraduationCap },
-    { label: "Teachers", value: mockTeachers.filter((t) => t.isActive).length, icon: Users },
-    { label: "Classes", value: promotionClasses.length, icon: Layers },
-  ];
+  const activeStudents = mockStudents.filter((s) => s.status === "active").length;
+  const activeTeachers = mockTeachers.filter((t) => t.isActive);
+  const classesWithoutTeacher = promotionClasses.filter(
+    (c) => !activeTeachers.some((t) => t.className === c),
+  ).length;
 
   // TODO: drive from the backend once promotion progress is stored.
-  const checklist = [
-    { label: "Close the 3rd term", done: lastTerm?.status === "closed", href: "/portal/admin/sessions" },
-    { label: "Promote students to their next class", done: false, href: "/portal/admin/promotion" },
-    { label: "Start the next session and 1st term", done: false, href: "/portal/admin/sessions" },
-    { label: "Assign class teachers for the new session", done: false, href: "/portal/admin/teachers" },
+  const steps = [
+    { label: "Close the 3rd term", hint: "Locks results so they can't be edited", done: sessionEnded, href: "/portal/admin/sessions" },
+    { label: "Write V.P's remarks", hint: "One remark per student, per class", done: false, href: "/portal/admin/remarks" },
+    { label: "Promote students", hint: "Class by class, from SS3 down", done: false, href: "/portal/admin/promotion" },
+    { label: "Start the new session", hint: "Students move to their new classes", done: false, href: "/portal/admin/sessions" },
+    { label: "Assign class teachers", hint: `${classesWithoutTeacher} class${classesWithoutTeacher === 1 ? "" : "es"} without a teacher`, done: false, href: "/portal/admin/teachers" },
   ];
 
-  const quickActions = [
-    { name: "New Session", description: "Open a session & term", href: "/portal/admin/sessions", icon: CalendarPlus },
-    { name: "Promote", description: "Move classes up", href: "/portal/admin/promotion", icon: ArrowUpCircle },
-    { name: "Add Student", description: "Enroll new students", href: "/portal/admin/students/new", icon: UserPlus },
-    { name: "Teachers", description: "Assign classes", href: "/portal/admin/teachers", icon: Users },
+  const facts = [
+    { label: "Active students", value: activeStudents, href: "/portal/admin/students" },
+    { label: "Teachers", value: activeTeachers.length, href: "/portal/admin/teachers" },
+    { label: "Classes", value: promotionClasses.length, href: "/portal/admin/promotion" },
   ];
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-8">
-      <PageHeader
-        title="Dashboard"
-        description="Run the school calendar, promotions and accounts."
-        action={
-          <div className="inline-flex flex-col px-4 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100/50 self-start">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-              Current Session
-            </span>
-            <span className="text-sm font-semibold">
-              {currentSession?.name ?? "None"} •{" "}
-              {activeTerm?.name ?? "No active term"}
-            </span>
-          </div>
-        }
-      />
-
-      {sessionEnded && (
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 rounded-2xl bg-amber-50 border border-amber-100">
-          <div className="p-2.5 rounded-xl bg-amber-100 text-amber-700 self-start">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-amber-900">
-              {currentSession?.name} has ended
-            </p>
-            <p className="text-sm text-amber-800/70 mt-0.5">
-              There&apos;s no active term. Promote students, then start the
-              next session.
+    <div className="max-w-5xl mx-auto flex flex-col gap-6">
+      {/* Session overview */}
+      <section className={`${panelClass} p-6`}>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <p className="text-sm text-muted">Current session</p>
+            <h1 className="text-3xl font-bold text-ink tracking-tight mt-0.5">
+              {currentSession?.name ?? "None"}
+            </h1>
+            <p className="text-sm mt-1">
+              {activeTerm ? (
+                <span className="text-brand font-medium">{activeTerm.name} is in progress</span>
+              ) : sessionEnded ? (
+                <span className="text-clay font-medium">
+                  All terms are closed. The session has ended.
+                </span>
+              ) : (
+                <span className="text-muted">No active term</span>
+              )}
             </p>
           </div>
-          <Link
-            href="/portal/admin/promotion"
-            className="h-10 px-5 inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-xl transition-all shrink-0"
-          >
-            Start promotion <ArrowRight size={16} />
-          </Link>
+          {sessionEnded && (
+            <Link href="/portal/admin/promotion" className={`${primaryButton} self-start`}>
+              Start promotion <ArrowRight size={16} />
+            </Link>
+          )}
         </div>
-      )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        {stats.map(({ label, value, icon: Icon }) => (
-          <div
-            key={label}
-            className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5"
-          >
-            <div className="flex items-center gap-2 text-gray-400">
-              <Icon size={16} />
-              <span className="text-xs font-semibold uppercase tracking-wider">
-                {label}
-              </span>
+        {/* Term timeline */}
+        <div className="grid grid-cols-3 gap-2 mt-6">
+          {currentSession?.terms.map((t) => (
+            <div key={t.id}>
+              <div className={`h-2 rounded-full ${termBar[t.status]}`} />
+              <p className="text-sm font-medium text-ink mt-2">{t.name}</p>
+              <p className="text-xs text-muted tabular-nums">
+                {formatDate(t.startDate)} – {formatDate(t.endDate)}
+              </p>
             </div>
-            <p className="text-secondary text-2xl sm:text-3xl font-black mt-2">
-              {value}
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
 
-      <div className="grid lg:grid-cols-5 gap-6">
-        {/* Checklist */}
-        <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-secondary font-bold">End-of-session checklist</h2>
-            <p className="text-gray-400 text-xs mt-0.5">
-              Work through these in order to roll over to the new session.
-            </p>
-          </div>
-          <ol className="divide-y divide-gray-100">
-            {checklist.map((item, i) => (
-              <li key={item.label}>
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_260px] gap-6 items-start">
+        {/* Steps */}
+        <section className={panelClass}>
+          <header className="px-6 py-4 border-b border-line">
+            <h2 className="font-semibold text-ink">Before the new session</h2>
+          </header>
+          <ol>
+            {steps.map((step, i) => (
+              <li key={step.label} className="border-b border-line last:border-0">
                 <Link
-                  href={item.href}
-                  className="flex items-center gap-3 px-6 py-4 hover:bg-gray-50/60 transition-colors group"
+                  href={step.href}
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-canvas transition-colors group"
                 >
-                  {item.done ? (
-                    <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
-                  ) : (
-                    <Circle size={20} className="text-gray-300 shrink-0" />
-                  )}
                   <span
-                    className={`flex-1 text-sm ${
-                      item.done ? "text-gray-400 line-through" : "text-secondary font-medium"
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${
+                      step.done ? "bg-brand text-white" : "bg-tint text-brand"
                     }`}
                   >
-                    <span className="text-gray-300 mr-2">{i + 1}.</span>
-                    {item.label}
+                    {step.done ? <Check size={14} strokeWidth={3} /> : i + 1}
                   </span>
-                  <ArrowRight
-                    size={16}
-                    className="text-gray-300 group-hover:text-primary transition-colors"
-                  />
+                  <span className="flex-1 min-w-0">
+                    <span className={`block text-sm font-medium ${step.done ? "text-muted line-through" : "text-ink"}`}>
+                      {step.label}
+                    </span>
+                    <span className="block text-xs text-muted mt-0.5">{step.hint}</span>
+                  </span>
+                  <ArrowRight size={16} className="text-muted/40 group-hover:text-brand transition-colors" />
                 </Link>
               </li>
             ))}
           </ol>
-        </div>
+        </section>
 
-        {/* Quick actions */}
-        <div className="lg:col-span-2 grid grid-cols-2 gap-3 content-start">
-          {quickActions.map(({ name, description, href, icon: Icon }) => (
-            <Link
-              key={name}
-              href={href}
-              className="flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-gray-100 hover:border-[#006442]/30 hover:shadow-md transition-all group"
-            >
-              <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Icon size={20} className="text-primary" />
-              </div>
-              <div className="text-center">
-                <p className="text-secondary text-sm font-semibold">{name}</p>
-                <p className="text-gray-400 text-xs mt-0.5">{description}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {/* At a glance */}
+        <section className={panelClass}>
+          <header className="px-5 py-4 border-b border-line">
+            <h2 className="font-semibold text-ink">At a glance</h2>
+          </header>
+          <dl>
+            {facts.map((f) => (
+              <Link
+                key={f.label}
+                href={f.href}
+                className="flex items-baseline justify-between px-5 py-3.5 border-b border-line last:border-0 hover:bg-canvas transition-colors"
+              >
+                <dt className="text-sm text-muted">{f.label}</dt>
+                <dd className="text-xl font-bold text-ink tabular-nums">{f.value}</dd>
+              </Link>
+            ))}
+          </dl>
+        </section>
       </div>
-
-      <footer className="text-center text-gray-400 text-[11px] py-8 font-medium uppercase tracking-[0.15em]">
-        &copy; {new Date().getFullYear()} El-Shaddai Schools. Admin Portal.
-      </footer>
     </div>
   );
 }

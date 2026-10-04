@@ -93,19 +93,19 @@ const StudentDetailModal: React.FC<StudentDetailModalProps> = ({
         {/* History */}
         <div>
           <p className={labelClass}>Class history</p>
-          <ul className="rounded-xl border border-gray-100 divide-y divide-gray-100">
+          <ul className="rounded-lg border border-line divide-y divide-line">
             {student.enrollments.map((e) => (
               <li key={e.session} className="flex items-center justify-between px-4 py-3 text-sm">
-                <span className="text-gray-500">{e.session}</span>
-                <span className="font-semibold text-secondary">
+                <span className="text-muted tabular-nums">{e.session}</span>
+                <span className="font-medium text-ink">
                   {e.className} {e.department ?? ""}
                 </span>
                 {e.outcome ? (
-                  <StatusBadge tone={e.outcome === "repeated" ? "amber" : "green"}>
+                  <StatusBadge tone={e.outcome === "repeated" ? "clay" : e.outcome === "withdrawn" ? "muted" : "brand"}>
                     {e.outcome}
                   </StatusBadge>
                 ) : (
-                  <StatusBadge tone="blue">in progress</StatusBadge>
+                  <StatusBadge tone="muted">in progress</StatusBadge>
                 )}
               </li>
             ))}
@@ -113,17 +113,17 @@ const StudentDetailModal: React.FC<StudentDetailModalProps> = ({
         </div>
 
         {/* Account actions */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-5 pt-1 border-t border-line">
           <button
             onClick={() => onResetPassword(student)}
-            className="h-9 px-3 inline-flex items-center gap-2 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
+            className="pt-4 inline-flex items-center gap-2 text-sm font-medium text-ink hover:text-brand transition-colors"
           >
             <KeyRound size={14} /> Reset password
           </button>
           {student.status === "active" && (
             <button
               onClick={() => onWithdraw(student)}
-              className="h-9 px-3 inline-flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-all"
+              className="pt-4 inline-flex items-center gap-2 text-sm font-medium text-danger hover:underline underline-offset-2"
             >
               <UserX size={14} /> Withdraw student
             </button>

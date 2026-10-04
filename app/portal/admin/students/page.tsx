@@ -2,24 +2,27 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Search, UserPlus } from "lucide-react";
+import { ChevronRight, Plus, Search } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import StudentDetailModal from "@/components/admin/students/StudentDetailModal";
-import { primaryButton } from "@/components/admin/shared/AdminModal";
+import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import { mockStudents, promotionClasses } from "@/constants/admin/mock.constants";
 import { toast } from "@/store/toast.store";
 import type { AdminStudent, StudentStatus } from "@/types/admin.types";
 
-const statusTone: Record<StudentStatus, "green" | "gray" | "blue"> = {
-  active: "green",
-  graduated: "blue",
-  withdrawn: "gray",
+const statusTone: Record<StudentStatus, "brand" | "muted" | "clay"> = {
+  active: "brand",
+  graduated: "muted",
+  withdrawn: "clay",
 };
 
 const filterClass =
-  "h-10 px-3 rounded-lg border border-gray-200 focus:border-[#006442] outline-none text-sm bg-white";
+  "h-10 px-3 rounded-lg border border-line focus:border-brand outline-none text-sm text-ink bg-white";
+
+const rowGrid =
+  "grid grid-cols-[minmax(0,1fr)_auto_16px] sm:grid-cols-[minmax(0,1fr)_140px_100px_16px] items-center gap-4";
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<AdminStudent[]>(mockStudents);
@@ -41,31 +44,32 @@ export default function AdminStudentsPage() {
     setStudents((prev) => prev.map((s) => (s.id === next.id ? next : s)));
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-8">
+    <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Students"
-        description="Find a student, change their class or manage their account."
+        description="Find a student to change their class or manage their account."
         action={
           <Link href="/portal/admin/students/new" className={`${primaryButton} self-start`}>
-            <UserPlus size={16} /> Add student
+            <Plus size={16} /> Add student
           </Link>
         }
       />
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <section className={`${panelClass} overflow-hidden`}>
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-3 p-5 border-b border-gray-100 bg-gray-50/50">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 px-5 py-4 border-b border-line">
           <div className="relative flex-1 md:max-w-xs">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name or username..."
-              className="w-full pl-10 pr-4 h-10 rounded-lg border border-gray-200 focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm bg-white"
+              placeholder="Search name or username"
+              aria-label="Search students"
+              className={`${filterClass} w-full pl-9`}
             />
           </div>
           <div className="flex gap-3">
-            <select value={classFilter} onChange={(e) => setClassFilter(e.target.value)} className={`${filterClass} flex-1`}>
+            <select value={classFilter} onChange={(e) => setClassFilter(e.target.value)} aria-label="Class" className={`${filterClass} flex-1`}>
               <option value="all">All classes</option>
               {promotionClasses.map((c) => (
                 <option key={c}>{c}</option>
@@ -74,51 +78,57 @@ export default function AdminStudentsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StudentStatus | "all")}
+              aria-label="Status"
               className={`${filterClass} flex-1`}
             >
               <option value="active">Active</option>
               <option value="graduated">Graduated</option>
               <option value="withdrawn">Withdrawn</option>
-              <option value="all">All statuses</option>
+              <option value="all">Any status</option>
             </select>
           </div>
-          <span className="md:ml-auto self-center text-xs text-gray-400">
+          <span className="md:ml-auto text-sm text-muted tabular-nums">
             {filtered.length} student{filtered.length === 1 ? "" : "s"}
           </span>
         </div>
 
-        {/* List */}
-        <ul className="divide-y divide-gray-100">
+        <div className={`${rowGrid} hidden sm:grid px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted`}>
+          <span>Student</span>
+          <span>Class</span>
+          <span>Status</span>
+          <span />
+        </div>
+
+        <ul className="divide-y divide-line">
           {filtered.length === 0 ? (
-            <li className="px-6 py-10 text-center text-gray-400 text-sm">No students found.</li>
+            <li className="px-5 py-12 text-center text-muted text-sm">No students match.</li>
           ) : (
             filtered.map((s) => (
               <li key={s.id}>
                 <button
                   onClick={() => setSelected(s)}
-                  className="w-full flex items-center gap-3 px-6 py-4 hover:bg-gray-50/50 transition-colors group text-left"
+                  className={`${rowGrid} w-full px-5 py-3 text-left hover:bg-canvas transition-colors group`}
                 >
-                  <div className="w-9 h-9 rounded-full bg-emerald-50 text-primary flex items-center justify-center text-xs font-bold shrink-0">
-                    {s.firstName[0]}
-                    {s.lastName[0]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-secondary truncate">
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-ink truncate">
                       {s.lastName} {s.firstName}
-                    </p>
-                    <p className="text-xs text-gray-400 font-mono">{s.username}</p>
-                  </div>
-                  <span className="hidden sm:block text-sm text-gray-500 w-32">
-                    {s.className} {s.department ?? ""}
+                    </span>
+                    <span className="block text-xs text-muted tabular-nums">
+                      {s.username}
+                      <span className="sm:hidden"> · {s.className}</span>
+                    </span>
+                  </span>
+                  <span className="hidden sm:block text-sm text-ink">
+                    {s.className} {s.department && <span className="text-muted">{s.department}</span>}
                   </span>
                   <StatusBadge tone={statusTone[s.status]}>{s.status}</StatusBadge>
-                  <ChevronRight size={16} className="text-gray-300 group-hover:text-[#006442] transition-colors" />
+                  <ChevronRight size={16} className="text-muted/40 group-hover:text-brand transition-colors" />
                 </button>
               </li>
             ))
           )}
         </ul>
-      </div>
+      </section>
 
       {selected && (
         <StudentDetailModal
@@ -140,8 +150,9 @@ export default function AdminStudentsPage() {
         />
       )}
 
-      <ConfirmModal
+      <AdminConfirm
         isOpen={!!withdrawing}
+        danger
         onClose={() => setWithdrawing(null)}
         onConfirm={() => {
           if (withdrawing) update({ ...withdrawing, status: "withdrawn" });

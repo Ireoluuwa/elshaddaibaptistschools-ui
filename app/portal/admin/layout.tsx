@@ -9,7 +9,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const content = (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas">
       <AdminSidebar />
       <main className="lg:pl-[260px] transition-all duration-300">
         <div className="p-6 lg:p-8">{children}</div>

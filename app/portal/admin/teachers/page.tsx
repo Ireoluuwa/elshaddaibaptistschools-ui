@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { AlertTriangle, KeyRound, Power, UserPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
 import AdminModal, {
   inputClass,
   labelClass,
+  panelClass,
   primaryButton,
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
@@ -15,6 +16,11 @@ import { toast } from "@/store/toast.store";
 import type { AdminTeacher } from "@/types/admin.types";
 
 const emptyForm = { firstName: "", lastName: "", username: "", email: "" };
+
+const rowGrid =
+  "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_150px_auto] items-center gap-x-4 gap-y-2";
+
+const linkButton = "text-sm font-medium underline-offset-2 hover:underline";
 
 export default function AdminTeachersPage() {
   const [teachers, setTeachers] = useState<AdminTeacher[]>(mockTeachers);
@@ -65,88 +71,78 @@ export default function AdminTeachersPage() {
   const canAdd = form.firstName.trim() && form.lastName.trim() && form.username.trim();
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-8">
+    <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Teachers"
-        description="Create teacher accounts and assign class teachers."
+        description="Create teacher accounts and choose each class's class teacher."
         action={
           <button onClick={() => setAddOpen(true)} className={`${primaryButton} self-start`}>
-            <UserPlus size={16} /> Add teacher
+            <Plus size={16} /> Add teacher
           </button>
         }
       />
 
       {unassigned.length > 0 && (
-        <div className="flex items-center gap-3 px-5 py-3 rounded-xl bg-amber-50 border border-amber-100 text-sm text-amber-800">
-          <AlertTriangle size={16} className="shrink-0" />
-          <span>
-            <span className="font-semibold">No class teacher:</span> {unassigned.join(", ")}
-          </span>
-        </div>
+        <p className="text-sm text-ink px-4 py-3 rounded-lg bg-clay-soft border-l-4 border-clay">
+          <span className="font-semibold">No class teacher yet:</span> {unassigned.join(", ")}
+        </p>
       )}
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <ul className="divide-y divide-gray-100">
+      <section className={`${panelClass} overflow-hidden`}>
+        <div className={`${rowGrid} hidden sm:grid px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted`}>
+          <span>Teacher</span>
+          <span>Class teacher of</span>
+          <span />
+        </div>
+        <ul className="divide-y divide-line">
           {teachers.map((t) => (
-            <li
-              key={t.id}
-              className={`flex flex-wrap items-center gap-x-4 gap-y-3 px-6 py-4 ${t.isActive ? "" : "opacity-60"}`}
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-[200px]">
-                <div className="w-9 h-9 rounded-full bg-emerald-50 text-primary flex items-center justify-center text-xs font-bold shrink-0">
-                  {t.firstName[0]}
-                  {t.lastName[0]}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-secondary truncate">
-                    {t.firstName} {t.lastName}
-                  </p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {t.username}
-                    {t.email && ` • ${t.email}`}
-                  </p>
-                </div>
+            <li key={t.id} className={`${rowGrid} px-5 py-3.5`}>
+              <div className="min-w-0">
+                <p className={`text-sm font-medium truncate ${t.isActive ? "text-ink" : "text-muted"}`}>
+                  {t.firstName} {t.lastName}
+                </p>
+                <p className="text-xs text-muted truncate">
+                  {t.username}
+                  {t.email && ` · ${t.email}`}
+                </p>
               </div>
 
-              {t.isActive ? (
-                <select
-                  value={t.className ?? ""}
-                  onChange={(e) => assignClass(t.id, e.target.value)}
-                  className="h-9 px-2 w-36 rounded-lg border border-gray-200 focus:border-[#006442] outline-none text-sm bg-white"
-                >
-                  <option value="">No class</option>
-                  {promotionClasses.map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
-              ) : (
-                <StatusBadge tone="gray">Disabled</StatusBadge>
-              )}
+              <div className="row-start-2 sm:row-start-auto">
+                {t.isActive ? (
+                  <select
+                    value={t.className ?? ""}
+                    onChange={(e) => assignClass(t.id, e.target.value)}
+                    aria-label={`Class for ${t.firstName} ${t.lastName}`}
+                    className="h-9 px-2 w-36 rounded-lg border border-line focus:border-brand outline-none text-sm text-ink bg-white"
+                  >
+                    <option value="">None</option>
+                    {promotionClasses.map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <StatusBadge tone="muted">Disabled</StatusBadge>
+                )}
+              </div>
 
-              <div className="flex items-center gap-1">
+              <div className="row-span-2 sm:row-span-1 flex items-center gap-4 justify-self-end">
                 <button
-                  title="Reset password"
                   onClick={() => toast.success("Password reset", `${t.username}'s password was reset.`)}
-                  className="p-2 rounded-lg text-gray-400 hover:text-secondary hover:bg-gray-100 transition-all"
+                  className={`${linkButton} text-muted hover:text-ink`}
                 >
-                  <KeyRound size={16} />
+                  Reset password
                 </button>
                 <button
-                  title={t.isActive ? "Disable account" : "Enable account"}
                   onClick={() => toggleActive(t)}
-                  className={`p-2 rounded-lg transition-all ${
-                    t.isActive
-                      ? "text-gray-400 hover:text-red-600 hover:bg-red-50"
-                      : "text-emerald-600 hover:bg-emerald-50"
-                  }`}
+                  className={`${linkButton} ${t.isActive ? "text-danger" : "text-brand"}`}
                 >
-                  <Power size={16} />
+                  {t.isActive ? "Disable" : "Enable"}
                 </button>
               </div>
             </li>
           ))}
         </ul>
-      </div>
+      </section>
 
       <AdminModal
         isOpen={addOpen}
@@ -180,7 +176,9 @@ export default function AdminTeachersPage() {
             <input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="e.g. mrs.okafor" className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Email (optional)</label>
+            <label className={labelClass}>
+              Email <span className="font-normal text-muted">(optional)</span>
+            </label>
             <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputClass} />
           </div>
         </div>

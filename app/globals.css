@@ -17,6 +17,18 @@
   --color-bg-accent-subtle: #e8f5e9;
   --color-background-light: #ffffff;
   --color-background-dark: #131a1f;
+
+  /* School palette (used by the portals; mirrors the public site) */
+  --color-ink: #0e2e1d;
+  --color-brand: #006442;
+  --color-brand-dark: #005236;
+  --color-tint: #f0f7f4;
+  --color-canvas: #f6f8f8;
+  --color-line: #e3ebe8;
+  --color-muted: #64748b;
+  --color-clay: #c46f33;
+  --color-clay-soft: #fbefe4;
+  --color-danger: #991b1b;
 }
 
 body {

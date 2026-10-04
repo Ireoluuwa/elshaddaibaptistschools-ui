@@ -120,20 +120,20 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
           </div>
         </div>
         {values.startDate && values.endDate && !datesValid && (
-          <p className="text-xs text-red-500 -mt-2">
+          <p className="text-xs text-danger -mt-2">
             End date must be after the start date.
           </p>
         )}
-        <label className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100 cursor-pointer">
+        <label className="flex items-start gap-3 p-3 rounded-lg bg-tint cursor-pointer">
           <input
             type="checkbox"
             checked={values.makeCurrent}
             onChange={(e) => set("makeCurrent", e.target.checked)}
-            className="mt-0.5 accent-[#1d5d3b] w-4 h-4"
+            className="mt-0.5 accent-brand w-4 h-4"
           />
           <span className="text-sm">
-            <span className="font-semibold text-secondary">Make this the active term</span>
-            <span className="block text-gray-400 text-xs mt-0.5">
+            <span className="font-medium text-ink">Make this the active term</span>
+            <span className="block text-muted text-xs mt-0.5">
               Teachers will upload reports and results into this term.
             </span>
           </span>

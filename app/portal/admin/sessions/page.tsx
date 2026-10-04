@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { CalendarPlus, FileCheck2, FileSignature, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import ConfirmModal from "@/components/shared/ConfirmModal";
+import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import TermFormModal, {
   TermFormValues,
 } from "@/components/admin/sessions/TermFormModal";
 import ReportDetailsModal from "@/components/admin/sessions/ReportDetailsModal";
-import { primaryButton } from "@/components/admin/shared/AdminModal";
+import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import { mockSessions } from "@/constants/admin/mock.constants";
 import { toast } from "@/store/toast.store";
 import type {
@@ -19,16 +19,19 @@ import type {
   TermStatus,
 } from "@/types/admin.types";
 
-const termTone: Record<TermStatus, "green" | "gray" | "blue"> = {
-  active: "green",
-  closed: "gray",
-  upcoming: "blue",
+const termTone: Record<TermStatus, "brand" | "muted" | "clay"> = {
+  active: "brand",
+  closed: "muted",
+  upcoming: "clay",
 };
 
 const termOrder = ["1st Term", "2nd Term", "3rd Term"];
 
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+const termGrid =
+  "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_110px] items-center gap-x-4 gap-y-1";
 
 // "2025/2026" -> "2026/2027"
 const nextSessionName = (name?: string) => {
@@ -127,87 +130,92 @@ export default function SessionsPage() {
     termOrder.find((n) => !session.terms.some((t) => t.name === n)) ?? "1st Term";
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-8">
+    <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Sessions & Terms"
-        description="Open new sessions, switch the active term and close finished ones."
+        description="Open a new session, choose the active term, and add the signature and dates printed on report sheets."
         action={
           <button onClick={() => setFormFor("new")} className={`${primaryButton} self-start`}>
-            <CalendarPlus size={16} /> New session
+            <Plus size={16} /> New session
           </button>
         }
       />
 
-      <div className="flex flex-col gap-5">
-        {sessions.map((session) => (
-          <div
-            key={session.id}
-            className={`bg-white rounded-2xl border overflow-hidden ${
-              session.isCurrent ? "border-emerald-200 shadow-sm" : "border-gray-100"
-            }`}
-          >
-            <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-              <div className="flex items-center gap-3">
-                <h2 className="text-secondary font-bold">{session.name}</h2>
-                {session.isCurrent && <StatusBadge tone="green">Current</StatusBadge>}
-              </div>
-              {session.terms.length < 3 && (
-                <button
-                  onClick={() => setFormFor(session)}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-secondary"
-                >
-                  <Plus size={16} /> Add term
-                </button>
+      {sessions.map((session) => (
+        <section key={session.id} className={`${panelClass} overflow-hidden`}>
+          <header className="flex items-center justify-between gap-3 px-5 py-4 border-b border-line">
+            <div className="flex items-baseline gap-3">
+              <h2 className="text-lg font-bold text-ink tabular-nums">{session.name}</h2>
+              {session.isCurrent && (
+                <span className="text-xs font-semibold text-brand">Current session</span>
               )}
             </div>
+            {session.terms.length < 3 && (
+              <button
+                onClick={() => setFormFor(session)}
+                className="inline-flex items-center gap-1 text-sm font-medium text-brand hover:text-brand-dark"
+              >
+                <Plus size={15} /> Add term
+              </button>
+            )}
+          </header>
 
-            <ul className="divide-y divide-gray-100">
-              {session.terms.map((term) => (
-                <li
-                  key={term.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 px-6 py-4"
-                >
-                  <div className="flex-1 min-w-[180px]">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-secondary">{term.name}</span>
-                      <StatusBadge tone={termTone[term.status]}>{term.status}</StatusBadge>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {formatDate(term.startDate)} – {formatDate(term.endDate)}
-                    </p>
-                  </div>
+          <div className={`${termGrid} hidden sm:grid px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted`}>
+            <span>Term</span>
+            <span>Status</span>
+            <span>Report sheet</span>
+            <span />
+          </div>
+
+          <ul className="divide-y divide-line">
+            {session.terms.map((term) => (
+              <li key={term.id} className={`${termGrid} px-5 py-3.5`}>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ink">{term.name}</p>
+                  <p className="text-xs text-muted tabular-nums">
+                    {formatDate(term.startDate)} – {formatDate(term.endDate)}
+                  </p>
+                </div>
+
+                <div className="row-start-2 sm:row-start-auto">
+                  <StatusBadge tone={termTone[term.status]}>{term.status}</StatusBadge>
+                </div>
+
+                <div className="row-start-3 sm:row-start-auto">
                   <button
                     onClick={() => setDetailsFor({ session, term })}
-                    className={`h-8 px-3 inline-flex items-center gap-1.5 text-xs font-semibold rounded-lg ring-1 transition-all ${
-                      term.reportDetails
-                        ? "text-emerald-700 ring-emerald-100 hover:bg-emerald-50"
-                        : "text-amber-700 ring-amber-200 bg-amber-50 hover:bg-amber-100"
+                    className={`text-sm text-left underline-offset-2 hover:underline ${
+                      term.reportDetails ? "text-ink" : "text-clay font-medium"
                     }`}
                   >
-                    {term.reportDetails ? <FileCheck2 size={14} /> : <FileSignature size={14} />}
-                    {term.reportDetails ? "Report sheet" : "Add signature & dates"}
+                    {term.reportDetails
+                      ? `Signed ${formatDate(term.reportDetails.signedDate)}`
+                      : "Add signature & dates"}
                   </button>
+                </div>
+
+                <div className="row-span-3 sm:row-span-1 col-start-2 sm:col-start-auto row-start-1 sm:row-start-auto justify-self-end">
                   {term.status === "active" ? (
                     <button
                       onClick={() => setPending({ kind: "close", session, term })}
-                      className="h-8 px-3 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
+                      className="h-8 px-3 text-sm font-medium text-ink border border-line hover:border-ink/30 rounded-lg transition-colors"
                     >
                       Close term
                     </button>
                   ) : (
                     <button
                       onClick={() => setPending({ kind: "activate", session, term })}
-                      className="h-8 px-3 text-xs font-semibold text-primary bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-all"
+                      className="h-8 px-3 text-sm font-medium text-brand hover:bg-tint rounded-lg transition-colors"
                     >
-                      {term.status === "closed" ? "Reopen" : "Activate"}
+                      {term.status === "closed" ? "Reopen" : "Make active"}
                     </button>
                   )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
 
       {detailsFor && (
         <ReportDetailsModal
@@ -230,18 +238,17 @@ export default function SessionsPage() {
         />
       )}
 
-      <ConfirmModal
+      <AdminConfirm
         isOpen={!!pending}
         onClose={() => setPending(null)}
         onConfirm={handleConfirm}
-        variant="warning"
         title={pending?.kind === "close" ? "Close this term?" : "Make this the active term?"}
         message={
           pending?.kind === "close"
             ? `${pending.session.name} ${pending.term.name} will be locked. Teachers won't be able to edit its reports or results.`
             : `${pending?.session.name} ${pending?.term.name} will become the active term. Any other active term will be closed.`
         }
-        confirmText={pending?.kind === "close" ? "Close term" : "Activate"}
+        confirmText={pending?.kind === "close" ? "Close term" : "Make active"}
       />
     </div>
   );

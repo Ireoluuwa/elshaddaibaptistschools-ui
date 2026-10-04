@@ -35,7 +35,7 @@ const AdminSidebar = () => {
             <span className="text-white text-sm font-black tracking-tight truncate">
               EL-SHADDAI
             </span>
-            <span className="text-emerald-300/70 text-[10px] font-medium uppercase tracking-widest">
+            <span className="text-white/50 text-[10px] font-medium uppercase tracking-widest">
               Admin Portal
             </span>
           </div>
@@ -60,7 +60,7 @@ const AdminSidebar = () => {
       <div className="mt-auto px-3 pb-6 shrink-0">
         <div className="mx-2 h-px bg-white/10 mb-4" />
         <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-white/5">
-          <div className="w-9 h-9 rounded-full bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center shrink-0 text-emerald-300 text-sm font-bold uppercase">
+          <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white text-sm font-bold uppercase">
             {profile?.username?.[0] ?? "A"}
           </div>
           {!collapsed && (
@@ -75,7 +75,7 @@ const AdminSidebar = () => {
             <button
               onClick={handleLogout}
               title="Sign out"
-              className="p-1.5 rounded-md text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all"
+              className="p-1.5 rounded-md text-white/40 hover:text-white hover:bg-white/10 transition-all"
             >
               <LogOut size={16} />
             </button>
@@ -89,13 +89,13 @@ const AdminSidebar = () => {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col fixed top-0 left-0 h-[100dvh] bg-[#0e2e1d] border-r border-white/5 z-40 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col fixed top-0 left-0 h-[100dvh] bg-ink border-r border-white/5 z-40 transition-all duration-300 ${
           collapsed ? "w-[72px]" : "w-[260px]"
         }`}
       >
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-[#0e2e1d] border border-white/15 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-all z-50 shadow-md"
+          className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-ink border border-white/15 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-all z-50 shadow-md"
         >
           <ChevronLeft
             size={14}
@@ -111,7 +111,7 @@ const AdminSidebar = () => {
       {/* Mobile Toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 right-4 z-[60] w-10 h-10 rounded-xl bg-[#0e2e1d] text-white flex items-center justify-center shadow-lg transition-transform active:scale-90"
+        className="lg:hidden fixed top-4 right-4 z-[60] w-10 h-10 rounded-xl bg-ink text-white flex items-center justify-center shadow-lg transition-transform active:scale-90"
       >
         {mobileOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
@@ -132,7 +132,7 @@ const AdminSidebar = () => {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="lg:hidden fixed top-0 left-0 h-[100dvh] w-[260px] bg-[#0e2e1d] border-r border-white/5 z-50 shadow-2xl"
+              className="lg:hidden fixed top-0 left-0 h-[100dvh] w-[260px] bg-ink border-r border-white/5 z-50 shadow-2xl"
             >
               {renderContent()}
             </motion.aside>
