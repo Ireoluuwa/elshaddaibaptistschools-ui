@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Menu, X, LogOut } from "lucide-react";
@@ -59,18 +60,29 @@ const AdminSidebar = () => {
       {/* Profile */}
       <div className="mt-auto px-3 pb-6 shrink-0">
         <div className="mx-2 h-px bg-white/10 mb-4" />
-        <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-white/5">
-          <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white text-sm font-bold uppercase">
-            {profile?.username?.[0] ?? "A"}
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-semibold truncate">
-                {profile?.username ?? "Administrator"}
-              </p>
-              <p className="text-white/40 text-[11px]">Administrator</p>
+        <div
+          className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
+            pathname === "/portal/admin/profile" ? "bg-white/15" : "bg-white/5"
+          }`}
+        >
+          <Link
+            href="/portal/admin/profile"
+            onClick={() => setMobileOpen(false)}
+            title="Profile"
+            className="flex items-center gap-3 flex-1 min-w-0 group"
+          >
+            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white text-sm font-bold uppercase">
+              {profile?.username?.[0] ?? "A"}
             </div>
-          )}
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm font-semibold truncate group-hover:underline underline-offset-2">
+                  {profile?.username ?? "Administrator"}
+                </p>
+                <p className="text-white/40 text-[11px]">View profile</p>
+              </div>
+            )}
+          </Link>
           {!collapsed && (
             <button
               onClick={handleLogout}
