@@ -9,6 +9,7 @@ import { gradeMap } from "@/constants/teacher/results.constants";
 import { previewOwingResult, previewResult } from "@/constants/result-preview.constants";
 import ResultOnHold from "@/components/student/results/ResultOnHold";
 import { downloadElementAsPdf } from "@/lib/pdf";
+import FitToWidth from "@/components/shared/FitToWidth";
 import { toast } from "@/store/toast.store";
 
 const formatDate = (d?: string) =>
@@ -43,6 +44,9 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  // On narrow screens the sheet is shrunk to fit; readers can switch to full size.
+  const [fitToScreen, setFitToScreen] = useState(true);
+  const [fitScale, setFitScale] = useState(1);
 
   const handleDownload = async () => {
     if (!sheetRef.current || !data?.result) return;
@@ -153,11 +157,11 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
   const reportDetails = result.term?.reportDetails;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 font-sans text-black overflow-auto print:bg-white print:py-0 print:px-0">
+    <div className="min-h-screen bg-gray-100 py-4 sm:py-8 px-3 sm:px-4 font-sans text-black print:bg-white print:py-0 print:px-0">
 
       {/* Top Action Bar */}
-      <div className="max-w-[210mm] mx-auto flex items-center justify-between mb-6 print:hidden">
-        <div className="flex items-center gap-3">
+      <div className="max-w-[210mm] mx-auto flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-6 print:hidden">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link
             href={backHref}
             className="flex items-center gap-2 px-2 py-2 bg-white text-gray-700 font-bold rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
@@ -171,23 +175,43 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
             </span>
           )}
         </div>
+        <div className="flex items-center gap-2">
+        {fitScale < 1 && (
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-xs font-bold shadow-sm">
+            <button
+              onClick={() => setFitToScreen(true)}
+              className={`h-8 px-3 rounded-md transition-colors ${fitToScreen ? "bg-[#0e2e1d] text-white" : "text-gray-600"}`}
+            >
+              Fit
+            </button>
+            <button
+              onClick={() => setFitToScreen(false)}
+              className={`h-8 px-3 rounded-md transition-colors ${!fitToScreen ? "bg-[#0e2e1d] text-white" : "text-gray-600"}`}
+            >
+              100%
+            </button>
+          </div>
+        )}
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="flex items-center gap-2 px-5 py-2 bg-[#006442] hover:bg-[#005236] text-white font-bold rounded-lg shadow-sm transition-colors disabled:opacity-70 disabled:cursor-wait"
+          className="flex items-center gap-2 px-4 sm:px-5 py-2 text-sm sm:text-base bg-[#006442] hover:bg-[#005236] text-white font-bold rounded-lg shadow-sm transition-colors disabled:opacity-70 disabled:cursor-wait"
         >
           {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-          {isDownloading ? "Preparing PDF…" : "Download PDF"}
+          {isDownloading ? "Preparing…" : "Download PDF"}
         </button>
+        </div>
       </div>
 
-      {/* A4 Document — this element is what the PDF captures */}
-      <div ref={sheetRef} className="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-8 md:p-12 print:shadow-none print:w-full print:max-w-none print:p-0 print:m-0 border border-transparent print:border-none">
+      {/* A4 Document — always laid out at full A4 width; shrunk on small screens.
+          The inner element is what the PDF captures. */}
+      <FitToWidth fit={fitToScreen} onScaleChange={setFitScale}>
+      <div ref={sheetRef} className="w-[210mm] bg-white shadow-xl min-h-[297mm] p-12 print:shadow-none print:w-full print:p-0 print:m-0 border border-transparent print:border-none">
 
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div className="flex gap-4 items-center">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0">
+            <div className="w-28 h-28 shrink-0">
               <Image
                 src="/logo.png"
                 alt="El-Shaddai Baptist College Logo"
@@ -197,10 +221,10 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
               />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-black" style={{ fontFamily: "serif" }}>
+              <h1 className="text-5xl font-black tracking-tight text-black" style={{ fontFamily: "serif" }}>
                 EL-SHADDAI
               </h1>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-widest text-[#006442]" style={{ fontFamily: "serif" }}>
+              <h1 className="text-3xl font-bold tracking-widest text-[#006442]" style={{ fontFamily: "serif" }}>
                 BAPTIST COLLEGE
               </h1>
             </div>
@@ -208,14 +232,14 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
         </div>
 
         {/* Student Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 mb-6 font-bold text-sm">
+        <div className="grid grid-cols-2 gap-x-12 gap-y-4 mb-6 font-bold text-sm">
           <div className="flex items-end gap-2">
             <span className="shrink-0">Name of Student:</span>
             <div className="uppercase border-b-2 border-black flex-1 border-dotted text-center pb-0.5 min-h-[1.5rem]">
               {student?.name}
             </div>
           </div>
-          <div className="hidden md:flex" />
+          <div className="flex" />
           <div className="flex items-end gap-2">
             <span className="shrink-0">Year and Session:</span>
             <div className="uppercase border-b-2 border-black flex-1 border-dotted text-center pb-0.5 min-h-[1.5rem]">
@@ -242,7 +266,7 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex flex-row gap-6 items-start">
           {/* Main Table */}
           <div className="flex-1 w-full border-2 border-black">
             <table className="w-full text-center text-xs font-bold border-collapse">
@@ -283,7 +307,7 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           </div>
 
           {/* Right Column */}
-          <div className="w-full md:w-56 flex flex-col gap-6 shrink-0">
+          <div className="w-56 flex flex-col gap-6 shrink-0">
             {/* Grading System */}
             <table className="w-full text-center text-xs font-bold border-collapse border-2 border-black">
               <thead>
@@ -354,12 +378,12 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           </div>
 
           {/* V.P's remark, date & signature */}
-          <div className="grid grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[auto_minmax(0,1fr)_14rem] items-end gap-x-4 gap-y-6 mt-4">
+          <div className="grid grid-cols-[auto_minmax(0,1fr)_14rem] items-end gap-x-4 mt-4">
             <span className="text-sm font-semibold whitespace-nowrap pb-1">V.P&apos;s Remark:</span>
             <div className="border-b border-black pb-1 text-sm font-medium min-h-7 flex items-end justify-center text-center">
               {result.vpRemark}
             </div>
-            <div className="col-span-2 sm:col-span-1">
+            <div>
               <div className="border-b border-black pb-1 h-12 flex items-end justify-between gap-2">
                 <span className="text-sm font-medium tabular-nums">{formatDate(reportDetails?.signedDate)}</span>
                 {reportDetails?.signatureUrl && (
@@ -394,6 +418,7 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           </table>
         </div>
       </div>
+      </FitToWidth>
     </div>
   );
 }
