@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Check } from "lucide-react";
+import { ArrowRight, Check, GraduationCap } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import ClassNav from "@/components/admin/shared/ClassNav";
@@ -124,11 +124,8 @@ export default function PromotionPage() {
           onSelect={setSelectedClass}
           items={classOrder.map((c) => ({
             key: c,
-            label: (
-              <>
-                {c} <span className="font-normal text-muted">→ {nextClass[c] ?? "Graduate"}</span>
-              </>
-            ),
+            label: c,
+            to: nextClass[c],
             detail: `${activeCount(c)} students`,
             done: completed.includes(c),
           }))}
@@ -138,9 +135,14 @@ export default function PromotionPage() {
         <section className={`${panelClass} overflow-hidden`}>
           <header className="flex flex-wrap items-end justify-between gap-4 px-5 py-4 border-b border-line">
             <div>
-              <h2 className="text-xl font-bold text-ink">
-                {selectedClass} <span className="text-muted font-normal">→</span>{" "}
-                {target ?? "Graduated"}
+              <h2 className="flex items-center gap-2.5 text-xl font-bold text-ink">
+                {selectedClass}
+                <ArrowRight size={20} className="text-muted/70" />
+                {target ?? (
+                  <span className="inline-flex items-center gap-1.5 text-brand">
+                    <GraduationCap size={22} /> Graduated
+                  </span>
+                )}
               </h2>
               <p className="text-sm text-muted mt-0.5">
                 {students.length} students{needsDepartment && " · choose a department for each student promoted to SS1"}
