@@ -1,10 +1,12 @@
 "use client";
 
-import React, { use } from "react";
+import React, { use, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Mail, Phone } from "lucide-react";
+import { ArrowLeft, KeyRound, Mail, Phone } from "lucide-react";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
 import { panelClass } from "@/components/admin/shared/AdminModal";
+import SetPasswordModal from "@/components/admin/students/SetPasswordModal";
+import CredentialsModal from "@/components/admin/shared/CredentialsModal";
 import { useAdminStudent } from "@/hooks/admin-students.hooks";
 import type { EnrollmentOutcome, StudentStatus } from "@/types/admin-students.types";
 
@@ -51,6 +53,8 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
 export default function AdminStudentPage({ params }: StudentPageProps) {
   const { id } = use(params);
   const { data: student, isLoading, isError, refetch } = useAdminStudent(id);
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [credentials, setCredentials] = useState<{ username: string; password: string } | null>(null);
 
   const back = (
     <Link
@@ -194,6 +198,45 @@ export default function AdminStudentPage({ params }: StudentPageProps) {
           </ul>
         )}
       </section>
+
+      {/* Account */}
+      <section className={`${panelClass} px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3`}>
+        <div className="flex-1">
+          <h2 className="font-semibold text-ink">Account</h2>
+          <p className="text-sm text-muted mt-0.5">
+            Signs in as <span className="font-medium text-ink tabular-nums">{student.username}</span>. Forgotten
+            their password? Set a new one.
+          </p>
+        </div>
+        <button
+          onClick={() => setPasswordOpen(true)}
+          className="h-10 px-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-ink bg-white border border-line hover:border-ink/30 rounded-lg transition-colors self-start sm:self-auto"
+        >
+          <KeyRound size={16} /> Change password
+        </button>
+      </section>
+
+      {passwordOpen && (
+        <SetPasswordModal
+          studentId={student.id}
+          studentName={`${student.firstName} ${student.lastName}`}
+          onClose={() => setPasswordOpen(false)}
+          onChanged={(c) => {
+            setPasswordOpen(false);
+            setCredentials(c);
+          }}
+        />
+      )}
+
+      {credentials && (
+        <CredentialsModal
+          title="Password changed"
+          name={`${student.firstName} ${student.lastName}`}
+          username={credentials.username}
+          password={credentials.password}
+          onClose={() => setCredentials(null)}
+        />
+      )}
     </div>
   );
 }

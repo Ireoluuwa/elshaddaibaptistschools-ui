@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { adminStudentsService } from '@/services/admin-students.service';
 
 export const useAdminStudents = () =>
@@ -12,4 +12,10 @@ export const useAdminStudent = (id?: string | null) =>
     queryKey: ['adminStudent', id],
     queryFn: () => adminStudentsService.getOne(id!),
     enabled: !!id,
+  });
+
+export const useSetStudentPassword = () =>
+  useMutation({
+    mutationFn: ({ id, newPassword }: { id: string; newPassword: string }) =>
+      adminStudentsService.setPassword(id, newPassword),
   });

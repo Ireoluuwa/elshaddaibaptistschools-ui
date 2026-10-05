@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Check, Copy } from "lucide-react";
-import AdminModal, { primaryButton } from "@/components/admin/shared/AdminModal";
+import AdminModal, { primaryButton } from "./AdminModal";
 
 interface CredentialsModalProps {
   title: string;
@@ -17,7 +17,7 @@ const CredentialsModal: React.FC<CredentialsModalProps> = ({ title, name, userna
   const [copied, setCopied] = useState(false);
 
   const message =
-    `Hello ${name}, here are your El-Shaddai Bursary sign-in details.\n` +
+    `Here are the El-Shaddai portal sign-in details for ${name}.\n` +
     `Username: ${username}\nPassword: ${password}\n` +
     `Sign in at ${typeof window !== "undefined" ? window.location.origin : ""}/auth/login`;
 
@@ -32,7 +32,7 @@ const CredentialsModal: React.FC<CredentialsModalProps> = ({ title, name, userna
       isOpen
       onClose={onClose}
       title={title}
-      description={`Share these with ${name} privately. The password won't be shown again.`}
+      description="Share these privately. The password won't be shown again."
       footer={
         <button onClick={onClose} className={primaryButton}>
           Done

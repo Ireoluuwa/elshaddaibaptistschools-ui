@@ -6,7 +6,8 @@ import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
 import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import InviteBursarModal, { InviteValues } from "@/components/admin/bursars/InviteBursarModal";
-import CredentialsModal from "@/components/admin/bursars/CredentialsModal";
+import CredentialsModal from "@/components/admin/shared/CredentialsModal";
+import { generatePassword } from "@/lib/password";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import { mockBursars, mockTeachers } from "@/constants/admin/mock.constants";
 import { toast } from "@/store/toast.store";
@@ -20,13 +21,6 @@ const statusTone: Record<BursarStatus, "brand" | "clay" | "muted"> = {
 
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-
-// Readable temporary password: no 0/O or 1/l/I to avoid mix-ups when shared by text.
-const tempPassword = () => {
-  const chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  const bytes = crypto.getRandomValues(new Uint32Array(10));
-  return Array.from(bytes, (b) => chars[b % chars.length]).join("");
-};
 
 const rowGrid =
   "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_110px_150px_auto] items-center gap-x-4 gap-y-2";
@@ -50,7 +44,7 @@ export default function AdminBursarsPage() {
 
   const handleInvite = (values: InviteValues) => {
     // TODO: POST /admin/bursars — the server should generate and hash the password.
-    const password = tempPassword();
+    const password = generatePassword();
     const username = values.username.trim().toLowerCase();
     setBursars((prev) => [
       ...prev,
@@ -75,7 +69,7 @@ export default function AdminBursarsPage() {
       title: "Password reset",
       name: b.firstName,
       username: b.username,
-      password: tempPassword(),
+      password: generatePassword(),
     });
   };
 
