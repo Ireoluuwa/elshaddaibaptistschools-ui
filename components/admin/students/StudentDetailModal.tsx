@@ -1,37 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
-import { KeyRound, UserX } from "lucide-react";
-import AdminModal, {
-  inputClass,
-  labelClass,
-  primaryButton,
-  secondaryButton,
-} from "@/components/admin/shared/AdminModal";
+import React from "react";
+import AdminModal, { labelClass, secondaryButton } from "@/components/admin/shared/AdminModal";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import { departments, promotionClasses } from "@/constants/admin/mock.constants";
-import type { AdminStudent } from "@/types/admin.types";
+import { useAdminStudent } from "@/hooks/admin-students.hooks";
+import type { EnrollmentOutcome, StudentListItem } from "@/types/admin-students.types";
 
 interface StudentDetailModalProps {
-  student: AdminStudent;
+  student: StudentListItem;
   onClose: () => void;
-  onSave: (student: AdminStudent) => void;
-  onWithdraw: (student: AdminStudent) => void;
-  onResetPassword: (student: AdminStudent) => void;
 }
 
-const StudentDetailModal: React.FC<StudentDetailModalProps> = ({
-  student,
-  onClose,
-  onSave,
-  onWithdraw,
-  onResetPassword,
-}) => {
-  const [className, setClassName] = useState(student.className);
-  const [department, setDepartment] = useState(student.department ?? "");
-  const isSenior = className.startsWith("SS");
-  const changed =
-    className !== student.className || (isSenior && department !== (student.department ?? ""));
+const outcomeTone: Record<EnrollmentOutcome, "brand" | "clay" | "muted"> = {
+  promoted: "brand",
+  graduated: "brand",
+  repeated: "clay",
+  withdrawn: "muted",
+};
+
+const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student, onClose }) => {
+  const { data: detail, isLoading, isError } = useAdminStudent(student.id);
 
   return (
     <AdminModal
@@ -40,93 +28,55 @@ const StudentDetailModal: React.FC<StudentDetailModalProps> = ({
       title={`${student.lastName} ${student.firstName}`}
       description={student.username}
       footer={
-        <>
-          <button onClick={onClose} className={secondaryButton}>
-            Close
-          </button>
-          <button
-            disabled={!changed || (isSenior && !department)}
-            onClick={() =>
-              onSave({ ...student, className, department: isSenior ? department : undefined })
-            }
-            className={primaryButton}
-          >
-            Save changes
-          </button>
-        </>
+        <button onClick={onClose} className={secondaryButton}>
+          Close
+        </button>
       }
     >
       <div className="flex flex-col gap-6">
-        {/* Class */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClass}>Class</label>
-            <select
-              value={className}
-              onChange={(e) => setClassName(e.target.value)}
-              className={inputClass}
-            >
-              {promotionClasses.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
+        <dl className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg bg-canvas px-4 py-3">
+            <dt className="text-xs text-muted">Current class</dt>
+            <dd className="text-sm font-semibold text-ink mt-0.5">
+              {student.className ?? "—"} {student.department && <span className="font-normal text-muted">{student.department}</span>}
+            </dd>
           </div>
-          {isSenior && (
-            <div>
-              <label className={labelClass}>Department</label>
-              <select
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                className={inputClass}
-              >
-                <option value="" disabled>
-                  Select…
-                </option>
-                {departments.map((d) => (
-                  <option key={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
+          <div className="rounded-lg bg-canvas px-4 py-3">
+            <dt className="text-xs text-muted">Status</dt>
+            <dd className="mt-1">
+              <StatusBadge tone={student.status === "active" ? "brand" : "muted"}>{student.status}</StatusBadge>
+            </dd>
+          </div>
+        </dl>
 
-        {/* History */}
         <div>
           <p className={labelClass}>Class history</p>
-          <ul className="rounded-lg border border-line divide-y divide-line">
-            {student.enrollments.map((e) => (
-              <li key={e.session} className="flex items-center justify-between px-4 py-3 text-sm">
-                <span className="text-muted tabular-nums">{e.session}</span>
-                <span className="font-medium text-ink">
-                  {e.className} {e.department ?? ""}
-                </span>
-                {e.outcome ? (
-                  <StatusBadge tone={e.outcome === "repeated" ? "clay" : e.outcome === "withdrawn" ? "muted" : "brand"}>
-                    {e.outcome}
-                  </StatusBadge>
-                ) : (
-                  <StatusBadge tone="muted">in progress</StatusBadge>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Account actions */}
-        <div className="flex flex-wrap gap-5 pt-1 border-t border-line">
-          <button
-            onClick={() => onResetPassword(student)}
-            className="pt-4 inline-flex items-center gap-2 text-sm font-medium text-ink hover:text-brand transition-colors"
-          >
-            <KeyRound size={14} /> Reset password
-          </button>
-          {student.status === "active" && (
-            <button
-              onClick={() => onWithdraw(student)}
-              className="pt-4 inline-flex items-center gap-2 text-sm font-medium text-danger hover:underline underline-offset-2"
-            >
-              <UserX size={14} /> Withdraw student
-            </button>
+          {isLoading ? (
+            <div className="flex flex-col gap-2">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="h-11 rounded-lg bg-canvas animate-pulse" />
+              ))}
+            </div>
+          ) : isError ? (
+            <p className="text-sm text-danger">Couldn&apos;t load class history.</p>
+          ) : !detail?.enrollments.length ? (
+            <p className="text-sm text-muted">No class history yet.</p>
+          ) : (
+            <ul className="rounded-lg border border-line divide-y divide-line">
+              {detail.enrollments.map((e) => (
+                <li key={e.session} className="grid grid-cols-[90px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-sm">
+                  <span className="text-muted tabular-nums">{e.session}</span>
+                  <span className="font-medium text-ink truncate">
+                    {e.className} {e.department && <span className="font-normal text-muted">{e.department}</span>}
+                  </span>
+                  {e.outcome ? (
+                    <StatusBadge tone={outcomeTone[e.outcome]}>{e.outcome}</StatusBadge>
+                  ) : (
+                    <StatusBadge tone="muted">{e.isCurrentSession ? "current" : "no outcome"}</StatusBadge>
+                  )}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>
