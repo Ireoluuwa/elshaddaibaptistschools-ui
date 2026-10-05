@@ -8,7 +8,6 @@ import AdminModal, {
   primaryButton,
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
-import { useSetStudentPassword } from "@/hooks/admin-students.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
 import { generatePassword } from "@/lib/password";
 import { toast } from "@/store/toast.store";
@@ -16,26 +15,31 @@ import { toast } from "@/store/toast.store";
 const MIN_LENGTH = 6;
 
 interface SetPasswordModalProps {
-  studentId: string;
-  studentName: string;
+  personName: string;
+  // Saves the password and resolves with the account's username.
+  onSubmit: (newPassword: string) => Promise<{ username: string }>;
   onClose: () => void;
   onChanged: (credentials: { username: string; password: string }) => void;
 }
 
-const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ studentId, studentName, onClose, onChanged }) => {
+// Used for students, teachers and bursars.
+const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ personName, onSubmit, onClose, onChanged }) => {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
-  const { mutateAsync, isPending } = useSetStudentPassword();
+  const [isPending, setIsPending] = useState(false);
 
   const tooShort = password.length > 0 && password.length < MIN_LENGTH;
   const canSave = password.length >= MIN_LENGTH && !isPending;
 
   const handleSave = async () => {
+    setIsPending(true);
     try {
-      const { username } = await mutateAsync({ id: studentId, newPassword: password });
+      const { username } = await onSubmit(password);
       onChanged({ username, password });
     } catch (err) {
       toast.error("Couldn't change password", apiErrorMessage(err));
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -44,7 +48,7 @@ const SetPasswordModal: React.FC<SetPasswordModalProps> = ({ studentId, studentN
       isOpen
       onClose={isPending ? () => {} : onClose}
       title="Change password"
-      description={`Set a new password for ${studentName}. Their old password stops working.`}
+      description={`Set a new password for ${personName}. Their old password stops working.`}
       footer={
         <>
           <button onClick={onClose} disabled={isPending} className={secondaryButton}>

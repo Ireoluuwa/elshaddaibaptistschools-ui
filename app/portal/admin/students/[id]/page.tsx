@@ -8,13 +8,14 @@ import StatusBadge from "@/components/admin/shared/StatusBadge";
 import { panelClass } from "@/components/admin/shared/AdminModal";
 import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import ChangeClassModal from "@/components/admin/students/ChangeClassModal";
-import SetPasswordModal from "@/components/admin/students/SetPasswordModal";
+import SetPasswordModal from "@/components/admin/shared/SetPasswordModal";
 import CredentialsModal from "@/components/admin/shared/CredentialsModal";
 import {
   useAdminStudent,
   useDeleteStudent,
   useRemoveStudent,
   useRestoreStudent,
+  useSetStudentPassword,
 } from "@/hooks/admin-students.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
@@ -71,6 +72,7 @@ export default function AdminStudentPage({ params }: StudentPageProps) {
   const removeStudent = useRemoveStudent();
   const restoreStudent = useRestoreStudent();
   const deleteStudent = useDeleteStudent();
+  const setStudentPassword = useSetStudentPassword();
 
   const back = (
     <Link
@@ -341,8 +343,8 @@ export default function AdminStudentPage({ params }: StudentPageProps) {
 
       {passwordOpen && (
         <SetPasswordModal
-          studentId={student.id}
-          studentName={`${student.firstName} ${student.lastName}`}
+          personName={`${student.firstName} ${student.lastName}`}
+          onSubmit={(newPassword) => setStudentPassword.mutateAsync({ id: student.id, newPassword })}
           onClose={() => setPasswordOpen(false)}
           onChanged={(c) => {
             setPasswordOpen(false);
