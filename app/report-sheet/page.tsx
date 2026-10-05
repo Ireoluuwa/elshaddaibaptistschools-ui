@@ -12,8 +12,8 @@ import ResultOnHold from "@/components/student/results/ResultOnHold";
 const formatDate = (d?: string) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }) : "";
 
-// Fee amounts on the sheet: blank when unknown, "0" when nothing is owed.
-const feeText = (n?: number) => (n === undefined ? "" : n.toLocaleString());
+// Fee amounts on the sheet: blank when unknown, "₦0" when nothing is owed.
+const feeText = (n?: number) => (n === undefined ? "" : `₦${n.toLocaleString()}`);
 
 interface ReportSheetPageProps {
   searchParams: Promise<{ termId?: string; studentId?: string; preview?: string }>;
@@ -331,41 +331,45 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
             {result.teacherRemark || ""}
           </div>
 
-          <div className="flex justify-between items-end gap-4 mt-4">
-            <span className="shrink-0">V.P&apos;s Remark:</span>
-            <div className="flex-1 max-w-64 border-b-2 border-black text-center font-normal italic text-xs pb-0.5 min-h-5">
+          {/* V.P's remark, date & signature */}
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[auto_minmax(0,1fr)_14rem] items-end gap-x-4 gap-y-6 mt-4">
+            <span className="text-sm font-semibold whitespace-nowrap pb-1">V.P&apos;s Remark:</span>
+            <div className="border-b border-black pb-1 text-sm font-medium min-h-7 flex items-end justify-center text-center">
               {result.vpRemark}
             </div>
-            <div className="w-48 border-b-2 border-black mt-10 text-[10px] relative flex items-end justify-between gap-2 px-1 min-h-10">
-              <span className="font-normal text-xs pb-0.5">{formatDate(reportDetails?.signedDate)}</span>
-              {reportDetails?.signatureUrl && (
-                // eslint-disable-next-line @next/next/no-img-element -- may be a data URL
-                <img src={reportDetails.signatureUrl} alt="V.P's signature" className="h-10 max-w-24 object-contain" />
-              )}
-              <span className="absolute -bottom-4 right-0">Date &amp; Signature</span>
+            <div className="col-span-2 sm:col-span-1">
+              <div className="border-b border-black pb-1 h-12 flex items-end justify-between gap-2">
+                <span className="text-sm font-medium tabular-nums">{formatDate(reportDetails?.signedDate)}</span>
+                {reportDetails?.signatureUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element -- may be a data URL
+                  <img src={reportDetails.signatureUrl} alt="V.P's signature" className="h-11 max-w-28 object-contain" />
+                )}
+              </div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-right mt-1">Date &amp; Signature</p>
             </div>
           </div>
 
-          <div className="text-xs flex flex-col sm:flex-row items-center justify-center gap-2 mt-6">
-            <div className="flex items-center gap-2">
-              <span>Outstanding: ₦</span>
-              <span className="w-24 border-b border-black inline-block h-4 text-center font-normal">{feeText(fees?.outstanding)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>, Next Term Tuition: ₦</span>
-              <span className="w-24 border-b border-black inline-block h-4 text-center font-normal">{feeText(fees?.nextTermTuition)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>, I.C.T: </span>
-              <span className="w-24 border-b border-black inline-block h-4 text-center font-normal">{feeText(fees?.ict)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>Total: </span>
-              <span className="w-24 border-b border-black inline-block h-4 text-center">
-                {fees ? feeText(fees.outstanding + fees.nextTermTuition + fees.ict) : ""}
-              </span>
-            </div>
-          </div>
+          {/* Fees */}
+          <table className="w-full mt-4 border-collapse border border-black text-center">
+            <thead>
+              <tr className="text-[10px] font-semibold uppercase tracking-wider">
+                <th className="border border-black px-2 py-1.5 font-semibold">Outstanding</th>
+                <th className="border border-black px-2 py-1.5 font-semibold">Next Term Tuition</th>
+                <th className="border border-black px-2 py-1.5 font-semibold">I.C.T</th>
+                <th className="border border-black px-2 py-1.5 font-semibold">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="text-sm font-medium tabular-nums">
+                <td className="border border-black px-2 py-2 h-9">{feeText(fees?.outstanding)}</td>
+                <td className="border border-black px-2 py-2">{feeText(fees?.nextTermTuition)}</td>
+                <td className="border border-black px-2 py-2">{feeText(fees?.ict)}</td>
+                <td className="border border-black px-2 py-2 font-bold">
+                  {fees ? feeText(fees.outstanding + fees.nextTermTuition + fees.ict) : ""}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
