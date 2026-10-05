@@ -4,13 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
-import { promotionClasses } from "@/constants/admin/mock.constants";
 import { useAdminStudents } from "@/hooks/admin-students.hooks";
 import { useAdminTeachers } from "@/hooks/admin-staff.hooks";
 import { useClasses } from "@/hooks/curriculum.hooks";
 import type { TermStatus } from "@/types/session.types";
 import { useSessions } from "@/hooks/sessions.hooks";
-import { usePromotionStore } from "@/store/promotion.store";
+import { usePromotionSummary } from "@/hooks/promotions.hooks";
 
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -22,7 +21,9 @@ const termBar: Record<TermStatus, string> = {
 };
 
 export default function AdminDashboard() {
-  const promotedCount = usePromotionStore((s) => s.promotedClasses.length);
+  const { data: promotion } = usePromotionSummary();
+  const promotable = (promotion?.classes ?? []).filter((c) => c.students > 0);
+  const promotedCount = promotable.filter((c) => c.done).length;
   const { data: sessions = [] } = useSessions();
   const currentSession = sessions.find((s) => s.isCurrent);
   const activeTerm = currentSession?.terms.find((t) => t.status === "active");
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
   const steps = [
     { label: "Close the 3rd term", hint: "Locks results so they can't be edited", done: sessionEnded, href: "/portal/admin/sessions" },
     { label: "Write V.P's remarks", hint: "One remark per student, per class", done: false, href: "/portal/admin/remarks" },
-    { label: "Promote students", hint: `${promotedCount} of ${promotionClasses.length} classes done`, done: promotedCount === promotionClasses.length, href: "/portal/admin/promotion" },
+    { label: "Promote students", hint: `${promotedCount} of ${promotable.length} classes done`, done: promotable.length > 0 && promotedCount === promotable.length, href: "/portal/admin/promotion" },
     { label: "Start the new session", hint: "Students move to their new classes", done: false, href: "/portal/admin/sessions" },
     { label: "Assign class teachers", hint: classesWithoutTeacher ? `${classesWithoutTeacher} class${classesWithoutTeacher === 1 ? "" : "es"} without a teacher` : "Every class has a teacher", done: classes.length > 0 && classesWithoutTeacher === 0, href: "/portal/admin/teachers" },
   ];

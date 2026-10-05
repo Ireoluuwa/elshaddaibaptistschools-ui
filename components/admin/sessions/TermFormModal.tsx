@@ -9,8 +9,7 @@ import AdminModal, {
   primaryButton,
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
-import { promotionClasses } from "@/constants/admin/mock.constants";
-import { usePromotionStore } from "@/store/promotion.store";
+import { usePromotionSummary } from "@/hooks/promotions.hooks";
 import type { TermName } from "@/types/session.types";
 
 export interface TermFormValues {
@@ -55,9 +54,10 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
 
   // Starting a session moves students into their new classes, so warn about
   // any class whose promotion hasn't been done yet.
-  const promotedClasses = usePromotionStore((s) => s.promotedClasses);
+  const { data: summary } = usePromotionSummary();
+  const classesWithStudents = (summary?.classes ?? []).filter((c) => c.students > 0);
   const notPromoted = isNewSession
-    ? promotionClasses.filter((c) => !promotedClasses.includes(c))
+    ? classesWithStudents.filter((c) => !c.done).map((c) => c.className)
     : [];
   const [acknowledged, setAcknowledged] = useState(false);
 
@@ -101,7 +101,7 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
           <div className="rounded-lg bg-clay-soft border-l-4 border-clay px-4 py-3">
             <p className="flex items-center gap-2 text-sm font-semibold text-ink">
               <AlertTriangle size={16} className="text-clay shrink-0" />
-              {notPromoted.length === promotionClasses.length
+              {notPromoted.length === classesWithStudents.length
                 ? "No classes have been promoted yet"
                 : `${notPromoted.length} ${notPromoted.length === 1 ? "class hasn't" : "classes haven't"} been promoted`}
             </p>
