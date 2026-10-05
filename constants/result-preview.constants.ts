@@ -1,5 +1,5 @@
 // Sample data for previewing the report sheet locally: /report-sheet?preview=1
-import type { StudentResultData } from "@/types/result";
+import type { MyResultData, StudentResultData } from "@/types/result";
 
 // A hand-drawn-looking squiggle so the preview shows where the signature sits.
 const sampleSignature =
@@ -55,11 +55,12 @@ export const previewResult: StudentResultData = {
   },
 };
 
-// Same student, but owing fees: /report-sheet?preview=owing
-export const previewOwingResult: StudentResultData = {
-  ...previewResult,
-  result: previewResult.result && {
-    ...previewResult.result,
-    fees: { outstanding: 45000, nextTermTuition: 125000, ict: 12000 },
-  },
+// Same student, but owing fees: the server withholds the result. /report-sheet?preview=owing
+export const previewOwingResult: MyResultData = {
+  periods: [{ id: "preview-year", name: "2025/2026", terms: [{ id: "preview", name: "3rd Term", isCurrent: true }] }],
+  activeTermId: "preview",
+  selectedTermId: "preview",
+  student: { name: "Adejumo Feranmi", class: "JSS 2", studentId: "ESBS/1001", teacherName: "Mrs. Ngozi Okafor" },
+  result: null,
+  feesHold: { outstanding: 45000 },
 };

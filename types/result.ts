@@ -89,6 +89,8 @@ export interface MyResultData {
     teacherName: string | null;
   } | null;
   result: TerminalResult | null;
+  // Set when the student owes fees for the term; the result is withheld.
+  feesHold?: { outstanding: number } | null;
 }
 
 export interface SubjectOption {

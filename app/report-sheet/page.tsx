@@ -105,6 +105,22 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
     );
   }
 
+  // Owing fees: the server withholds the result and sends only the amount owed.
+  const feesHold = data && "feesHold" in data ? data.feesHold : null;
+  if (!isTeacherView && feesHold) {
+    const myData = data as { periods?: { name: string; terms: { id: string; name: string }[] }[]; selectedTermId?: string | null };
+    const session = myData.periods?.find((p) => p.terms.some((t) => t.id === myData.selectedTermId));
+    const term = session?.terms.find((t) => t.id === myData.selectedTermId);
+    return (
+      <ResultOnHold
+        outstanding={feesHold.outstanding}
+        termLabel={[term?.name, session?.name].filter(Boolean).join(", ")}
+        studentName={data?.student?.name}
+        backHref={backHref}
+      />
+    );
+  }
+
   if (isError || !data?.result) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-4">
@@ -128,19 +144,6 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
   const { result, student } = data;
   const scores = result.scores ?? [];
   const fees = result.fees;
-
-  // Students who owe fees see a hold screen instead. Teachers can still view the result.
-  // TODO: the backend must also refuse to send the result, or this is only cosmetic.
-  if (!isTeacherView && fees && fees.outstanding > 0) {
-    return (
-      <ResultOnHold
-        outstanding={fees.outstanding}
-        termLabel={[result.term?.name, result.term?.academicYear?.name].filter(Boolean).join(", ")}
-        studentName={student?.name}
-        backHref={backHref}
-      />
-    );
-  }
 
   const totalObtainable = scores.length * 100;
   const totalObtained = scores.reduce((sum, s) => sum + s.test1 + s.test2 + s.exam, 0);
