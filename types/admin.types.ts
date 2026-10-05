@@ -1,13 +1,6 @@
-export type TermStatus = "upcoming" | "active" | "closed";
+import type { TermReportDetails, TermStatus } from "./session.types";
 
-// Filled in once per term by the admin; printed on every student's report sheet.
-// (The V.P's remark is per student — it lives on the result, not here.)
-export interface TermReportDetails {
-  signatureUrl: string;
-  signedDate: string;
-  vacationDate: string;
-  resumptionDate: string;
-}
+export type { TermReportDetails, TermStatus };
 
 export interface AdminTerm {
   id: string;
@@ -15,7 +8,7 @@ export interface AdminTerm {
   startDate: string;
   endDate: string;
   status: TermStatus;
-  reportDetails?: TermReportDetails;
+  reportDetails?: TermReportDetails | null;
 }
 
 export interface AdminSession {

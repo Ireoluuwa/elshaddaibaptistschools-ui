@@ -49,4 +49,21 @@ export const storageService = {
     // Append cache-busting timestamp so the browser doesn't show stale image
     return `${publicUrl}?t=${Date.now()}`;
   },
+
+  // Report-sheet signatures share the public profile_image bucket for now.
+  uploadSignature: async (file: File, termId: string): Promise<string> => {
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'png';
+    const filePath = `signatures/${termId}-${Date.now()}.${fileExt}`;
+
+    const { error } = await supabase.storage
+      .from('profile_image')
+      .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+    if (error) {
+      console.error('Supabase signature upload error:', error);
+      throw new Error(error.message);
+    }
+
+    return supabase.storage.from('profile_image').getPublicUrl(filePath).data.publicUrl;
+  },
 };
