@@ -2,6 +2,6 @@
 
 import StaffProfileView from "@/components/admin/profile/StaffProfileView";
 
-export default function AdminProfilePage() {
-  return <StaffProfileView role="admin" />;
+export default function BursarProfilePage() {
+  return <StaffProfileView role="bursar" />;
 }
