@@ -16,7 +16,7 @@ interface AdminSidebarProps {
   links?: SidebarLink[];
   portalLabel?: string;
   homeHref?: string;
-  // Omit to show the account card without a profile link.
+  // Pass "" to show the account card without a profile link.
   profileHref?: string;
   roleLabel?: string;
 }

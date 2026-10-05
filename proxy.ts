@@ -5,11 +5,12 @@ export function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
 
-  // TEMPORARY: allow previewing the admin UI in local dev without an admin account.
-  const isAdminPreview =
-    process.env.NODE_ENV === 'development' && pathname.startsWith('/portal/admin');
+  // TEMPORARY: allow previewing the admin and bursar UIs in local dev without those accounts.
+  const isStaffPreview =
+    process.env.NODE_ENV === 'development' &&
+    (pathname.startsWith('/portal/admin') || pathname.startsWith('/portal/bursar'));
 
-  if (pathname.startsWith('/portal') && !isAdminPreview) {
+  if (pathname.startsWith('/portal') && !isStaffPreview) {
     if (!token) {
       const loginUrl = new URL('/auth/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
