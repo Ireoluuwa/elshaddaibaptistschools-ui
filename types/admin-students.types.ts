@@ -19,6 +19,14 @@ export interface StudentEnrollment {
   outcome: EnrollmentOutcome | null;
 }
 
+// Missing details come back as null.
 export interface StudentDetail extends StudentListItem {
+  dateOfBirth: string | null;
+  yearJoined: number | null;
+  homeAddress: string | null;
+  guardianName: string | null;
+  guardianPhone: string | null;
+  guardianEmail: string | null;
+  avatarUrl: string | null;
   enrollments: StudentEnrollment[];
 }
