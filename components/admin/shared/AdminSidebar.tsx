@@ -8,27 +8,31 @@ import { ChevronLeft, Menu, X, LogOut } from "lucide-react";
 
 import SidebarItem from "@/components/teacher/shared/sidebar/SidebarItem";
 import { adminSidebarLinks } from "@/constants/admin/sidebar.constants";
+import { bursarSidebarLinks } from "@/constants/bursar/sidebar.constants";
 import { useLogout, useProfileQuery } from "@/hooks/auth.hooks";
 
-type SidebarLink = (typeof adminSidebarLinks)[number];
-
-interface AdminSidebarProps {
-  links?: SidebarLink[];
-  portalLabel?: string;
-  homeHref?: string;
-  // Pass "" to show the account card without a profile link.
-  profileHref?: string;
-  roleLabel?: string;
-}
+// Config lives here (not in props) because the layouts are server components
+// and can't pass icon components across to this client component.
+const portals = {
+  admin: {
+    links: adminSidebarLinks,
+    portalLabel: "Admin Portal",
+    homeHref: "/portal/admin",
+    profileHref: "/portal/admin/profile",
+    roleLabel: "Administrator",
+  },
+  bursar: {
+    links: bursarSidebarLinks,
+    portalLabel: "Bursary",
+    homeHref: "/portal/bursar",
+    profileHref: "",
+    roleLabel: "Bursar",
+  },
+};
 
 // Shared by the admin and bursar portals.
-const AdminSidebar = ({
-  links = adminSidebarLinks,
-  portalLabel = "Admin Portal",
-  homeHref = "/portal/admin",
-  profileHref = "/portal/admin/profile",
-  roleLabel = "Administrator",
-}: AdminSidebarProps) => {
+const AdminSidebar = ({ portal = "admin" }: { portal?: keyof typeof portals }) => {
+  const { links, portalLabel, homeHref, profileHref, roleLabel } = portals[portal];
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
