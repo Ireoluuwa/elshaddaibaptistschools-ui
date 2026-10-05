@@ -4,11 +4,10 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
-import {
-  mockStudents,
-  mockTeachers,
-  promotionClasses,
-} from "@/constants/admin/mock.constants";
+import { promotionClasses } from "@/constants/admin/mock.constants";
+import { useAdminStudents } from "@/hooks/admin-students.hooks";
+import { useAdminTeachers } from "@/hooks/admin-staff.hooks";
+import { useClasses } from "@/hooks/curriculum.hooks";
 import type { TermStatus } from "@/types/session.types";
 import { useSessions } from "@/hooks/sessions.hooks";
 import { usePromotionStore } from "@/store/promotion.store";
@@ -30,10 +29,13 @@ export default function AdminDashboard() {
   const sessionEnded =
     !!currentSession && !activeTerm && currentSession.terms.at(-1)?.status === "closed";
 
-  const activeStudents = mockStudents.filter((s) => s.status === "active").length;
-  const activeTeachers = mockTeachers.filter((t) => t.isActive);
-  const classesWithoutTeacher = promotionClasses.filter(
-    (c) => !activeTeachers.some((t) => t.className === c),
+  const { data: students = [] } = useAdminStudents();
+  const { data: teachers = [] } = useAdminTeachers();
+  const { data: classes = [] } = useClasses();
+  const activeStudents = students.filter((s) => s.status === "active").length;
+  const activeTeachers = teachers.filter((t) => t.isActive);
+  const classesWithoutTeacher = classes.filter(
+    (c) => !activeTeachers.some((t) => t.classId === c.id),
   ).length;
 
   // TODO: drive from the backend once promotion progress is stored.
@@ -42,13 +44,13 @@ export default function AdminDashboard() {
     { label: "Write V.P's remarks", hint: "One remark per student, per class", done: false, href: "/portal/admin/remarks" },
     { label: "Promote students", hint: `${promotedCount} of ${promotionClasses.length} classes done`, done: promotedCount === promotionClasses.length, href: "/portal/admin/promotion" },
     { label: "Start the new session", hint: "Students move to their new classes", done: false, href: "/portal/admin/sessions" },
-    { label: "Assign class teachers", hint: `${classesWithoutTeacher} class${classesWithoutTeacher === 1 ? "" : "es"} without a teacher`, done: false, href: "/portal/admin/teachers" },
+    { label: "Assign class teachers", hint: classesWithoutTeacher ? `${classesWithoutTeacher} class${classesWithoutTeacher === 1 ? "" : "es"} without a teacher` : "Every class has a teacher", done: classes.length > 0 && classesWithoutTeacher === 0, href: "/portal/admin/teachers" },
   ];
 
   const facts = [
     { label: "Active students", value: activeStudents, href: "/portal/admin/students" },
     { label: "Teachers", value: activeTeachers.length, href: "/portal/admin/teachers" },
-    { label: "Classes", value: promotionClasses.length, href: "/portal/admin/promotion" },
+    { label: "Classes", value: classes.length, href: "/portal/admin/classes" },
   ];
 
   return (

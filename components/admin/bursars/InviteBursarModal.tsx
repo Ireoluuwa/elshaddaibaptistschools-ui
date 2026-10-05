@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { Loader2 } from "lucide-react";
 import AdminModal, {
   inputClass,
   labelClass,
@@ -20,12 +21,13 @@ interface InviteBursarModalProps {
   takenUsernames: string[];
   onClose: () => void;
   onInvite: (values: InviteValues) => void;
+  isSubmitting?: boolean;
 }
 
 const suggestUsername = (lastName: string) =>
   lastName.trim() ? `bursar.${lastName.trim().toLowerCase().replace(/[^a-z]/g, "")}` : "";
 
-const InviteBursarModal: React.FC<InviteBursarModalProps> = ({ takenUsernames, onClose, onInvite }) => {
+const InviteBursarModal: React.FC<InviteBursarModalProps> = ({ takenUsernames, onClose, onInvite, isSubmitting = false }) => {
   const [values, setValues] = useState<InviteValues>({
     firstName: "",
     lastName: "",
@@ -58,7 +60,8 @@ const InviteBursarModal: React.FC<InviteBursarModalProps> = ({ takenUsernames, o
           <button onClick={onClose} className={secondaryButton}>
             Cancel
           </button>
-          <button onClick={() => onInvite(values)} disabled={!canInvite} className={primaryButton}>
+          <button onClick={() => onInvite(values)} disabled={!canInvite || isSubmitting} className={primaryButton}>
+            {isSubmitting && <Loader2 size={16} className="animate-spin" />}
             Create account
           </button>
         </>
