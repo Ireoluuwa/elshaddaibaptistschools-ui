@@ -5,6 +5,7 @@ import {
   GraduationCap,
   Users,
   MessageSquareText,
+  Landmark,
 } from "lucide-react";
 
 export const adminSidebarLinks = [
@@ -14,4 +15,5 @@ export const adminSidebarLinks = [
   { name: "Promotion", href: "/portal/admin/promotion", icon: ArrowUpCircle },
   { name: "Students", href: "/portal/admin/students", icon: GraduationCap },
   { name: "Teachers", href: "/portal/admin/teachers", icon: Users },
+  { name: "Bursars", href: "/portal/admin/bursars", icon: Landmark },
 ];
