@@ -18,6 +18,10 @@ export const curriculumService = {
     return data.data;
   },
 
+  setNextClass: async (id: string, nextClassId: string | null): Promise<void> => {
+    await api.patch(`/academics/classes/${id}/next-class`, { nextClassId });
+  },
+
   getDepartments: async (): Promise<Department[]> => {
     const { data } = await api.get<ApiResponse<Department[]>>('/academics/departments');
     return data.data;

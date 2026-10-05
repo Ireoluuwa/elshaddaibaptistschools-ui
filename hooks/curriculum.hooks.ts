@@ -36,6 +36,18 @@ export const useAddClass = () => {
   });
 };
 
+export const useSetNextClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, nextClassId }: { id: string; nextClassId: string | null }) =>
+      curriculumService.setNextClass(id, nextClassId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: keys.classes });
+      queryClient.invalidateQueries({ queryKey: ['promotions'] });
+    },
+  });
+};
+
 // Department changes alter every senior class's tabs.
 const useInvalidateDepartments = () => {
   const queryClient = useQueryClient();

@@ -2,6 +2,8 @@ export interface SchoolClass {
   id: string;
   name: string;
   isSenior: boolean;
+  // Where promoted students go; null = students graduate from this class.
+  nextClassId: string | null;
 }
 
 export interface Department {

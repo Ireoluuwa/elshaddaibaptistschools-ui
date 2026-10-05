@@ -1,29 +1,37 @@
 "use client";
 
 import React from "react";
-import { departments } from "@/constants/admin/mock.constants";
-import type { AdminStudent, PromotionDecision } from "@/types/admin.types";
+import type { Department } from "@/types/curriculum.types";
+import type { PromotionOutcome, PromotionStudent } from "@/types/promotions.types";
 
 export interface RowDecision {
-  decision: PromotionDecision;
-  department?: string;
+  outcome: PromotionOutcome;
+  departmentId?: string;
 }
 
 interface PromotionRowProps {
-  student: AdminStudent;
+  student: PromotionStudent;
   value: RowDecision;
   onChange: (value: RowDecision) => void;
   passMark: number;
   isFinalClass: boolean;
   needsDepartment: boolean;
+  departments: Department[];
   locked: boolean;
 }
 
-const selectedStyle: Record<PromotionDecision, string> = {
-  promote: "bg-brand text-white",
-  graduate: "bg-brand text-white",
-  repeat: "bg-clay text-white",
-  withdraw: "bg-ink text-white",
+const optionLabel: Record<PromotionOutcome, string> = {
+  promoted: "Promote",
+  graduated: "Graduate",
+  repeated: "Repeat",
+  withdrawn: "Withdraw",
+};
+
+const selectedStyle: Record<PromotionOutcome, string> = {
+  promoted: "bg-brand text-white",
+  graduated: "bg-brand text-white",
+  repeated: "bg-clay text-white",
+  withdrawn: "bg-ink text-white",
 };
 
 export const rowGrid =
@@ -36,12 +44,13 @@ const PromotionRow: React.FC<PromotionRowProps> = ({
   passMark,
   isFinalClass,
   needsDepartment,
+  departments,
   locked,
 }) => {
-  const avg = student.annualAverage;
+  const avg = student.average;
   const belowPass = avg !== null && avg < passMark;
-  const options: PromotionDecision[] = [isFinalClass ? "graduate" : "promote", "repeat", "withdraw"];
-  const showDepartment = needsDepartment && value.decision === "promote";
+  const options: PromotionOutcome[] = [isFinalClass ? "graduated" : "promoted", "repeated", "withdrawn"];
+  const showDepartment = needsDepartment && value.outcome === "promoted";
 
   return (
     <li className={`${rowGrid} px-5 py-3.5`}>
@@ -50,22 +59,28 @@ const PromotionRow: React.FC<PromotionRowProps> = ({
         <p className="text-sm font-medium text-ink truncate">
           {student.lastName} {student.firstName}
         </p>
-        <p className="text-xs text-muted tabular-nums">{student.username}</p>
+        <p className="text-xs text-muted tabular-nums">
+          {student.username}
+          {student.department && ` · ${student.department}`}
+        </p>
       </div>
 
       {/* Average */}
       <div className="text-right sm:text-left">
         {avg === null ? (
-          <span className="text-xs text-clay">No result</span>
+          <span className="text-xs text-clay">No results</span>
         ) : (
           <div className="flex flex-col sm:gap-1">
             <span className={`text-sm font-semibold tabular-nums ${belowPass ? "text-clay" : "text-ink"}`}>
               {avg.toFixed(1)}
+              <span className="text-[10px] font-normal text-muted ml-1">
+                {student.termsCounted} term{student.termsCounted === 1 ? "" : "s"}
+              </span>
             </span>
             <span className="hidden sm:block h-1 w-20 rounded-full bg-tint overflow-hidden">
               <span
                 className={`block h-full rounded-full ${belowPass ? "bg-clay" : "bg-brand"}`}
-                style={{ width: `${avg}%` }}
+                style={{ width: `${Math.min(avg, 100)}%` }}
               />
             </span>
           </div>
@@ -79,12 +94,12 @@ const PromotionRow: React.FC<PromotionRowProps> = ({
             <button
               key={opt}
               disabled={locked}
-              onClick={() => onChange({ ...value, decision: opt })}
-              className={`h-7 px-2.5 rounded-md text-xs font-semibold capitalize transition-colors disabled:cursor-default ${
-                value.decision === opt ? selectedStyle[opt] : "text-muted hover:text-ink"
+              onClick={() => onChange({ ...value, outcome: opt })}
+              className={`h-7 px-2.5 rounded-md text-xs font-semibold transition-colors disabled:cursor-default ${
+                value.outcome === opt ? selectedStyle[opt] : "text-muted hover:text-ink"
               }`}
             >
-              {opt}
+              {optionLabel[opt]}
             </button>
           ))}
         </div>
@@ -92,17 +107,20 @@ const PromotionRow: React.FC<PromotionRowProps> = ({
         {showDepartment && (
           <select
             disabled={locked}
-            value={value.department ?? ""}
-            onChange={(e) => onChange({ ...value, department: e.target.value })}
+            value={value.departmentId ?? ""}
+            onChange={(e) => onChange({ ...value, departmentId: e.target.value })}
+            aria-label={`Department for ${student.firstName}`}
             className={`h-8 px-2 rounded-lg border text-xs outline-none bg-white ${
-              value.department ? "border-line text-ink" : "border-clay text-clay"
+              value.departmentId ? "border-line text-ink" : "border-clay text-clay"
             }`}
           >
             <option value="" disabled>
               Department
             </option>
             {departments.map((d) => (
-              <option key={d}>{d}</option>
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
             ))}
           </select>
         )}
