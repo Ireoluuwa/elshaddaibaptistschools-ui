@@ -88,8 +88,8 @@ const BatchUpload = () => {
           <>
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 rounded-lg bg-clay-soft border-l-4 border-clay">
               <p className="flex-1 text-sm text-ink">
-                <span className="font-semibold">{created.length} students added.</span> Save their sign-in details
-                now. The passwords won&apos;t be shown again.
+                <span className="font-semibold">{created.length} students added.</span> Each one signs in with their
+                username and the password <span className="font-semibold">1234</span>.
               </p>
               <button onClick={downloadCredentials} className={`${primaryButton} self-start sm:self-auto`}>
                 <Download size={16} /> Download sign-in details

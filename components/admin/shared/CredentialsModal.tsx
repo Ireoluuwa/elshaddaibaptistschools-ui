@@ -10,10 +10,18 @@ interface CredentialsModalProps {
   username: string;
   password: string;
   onClose: () => void;
+  description?: string;
 }
 
 // Shows a new temporary password once, with a one-click copy of the full message.
-const CredentialsModal: React.FC<CredentialsModalProps> = ({ title, name, username, password, onClose }) => {
+const CredentialsModal: React.FC<CredentialsModalProps> = ({
+  title,
+  name,
+  username,
+  password,
+  onClose,
+  description = "Share these privately. The password won't be shown again.",
+}) => {
   const [copied, setCopied] = useState(false);
 
   const message =
@@ -32,7 +40,7 @@ const CredentialsModal: React.FC<CredentialsModalProps> = ({ title, name, userna
       isOpen
       onClose={onClose}
       title={title}
-      description="Share these privately. The password won't be shown again."
+      description={description}
       footer={
         <button onClick={onClose} className={primaryButton}>
           Done

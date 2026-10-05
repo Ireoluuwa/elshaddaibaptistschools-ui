@@ -108,8 +108,8 @@ const ManualEntry = () => {
 
         <p className="flex items-start gap-2 text-sm text-muted px-3 py-2.5 rounded-lg bg-tint">
           <Info size={16} className="text-brand shrink-0 mt-0.5" />
-          The username (e.g. EBS/STU/031) and a temporary password are created automatically and shown after
-          you add the student.
+          The username (e.g. EBS/STU/031) is created automatically. Every new student&apos;s password is{" "}
+          <span className="font-semibold text-ink">1234</span> until they change it.
         </p>
 
         <div className="flex justify-end">
@@ -127,6 +127,7 @@ const ManualEntry = () => {
           username={created.username}
           password={created.password}
           onClose={() => setCreated(null)}
+          description="Share these with the student. They should change the password after signing in."
         />
       )}
     </section>
