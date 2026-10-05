@@ -3,15 +3,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, KeyRound, Mail, Pencil, Phone, RotateCcw, UserX } from "lucide-react";
+import { ArrowLeft, KeyRound, Mail, Pencil, Phone, RotateCcw, School, UserX } from "lucide-react";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
 import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import CredentialsModal from "@/components/admin/shared/CredentialsModal";
 import SetPasswordModal from "@/components/admin/shared/SetPasswordModal";
 import EditStaffModal, { EditableStaff } from "@/components/admin/staff/EditStaffModal";
 import { panelClass } from "@/components/admin/shared/AdminModal";
-import { useAssignTeacherClass, useStaffAccountActions } from "@/hooks/admin-staff.hooks";
-import { useClasses } from "@/hooks/curriculum.hooks";
+import { useStaffAccountActions } from "@/hooks/admin-staff.hooks";
+import AssignClassModal from "@/components/admin/staff/AssignClassModal";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
 
@@ -55,10 +55,9 @@ export default function StaffDetailView({ role, account, isLoading, isError, onR
   const listHref = role === "teacher" ? "/portal/admin/teachers" : "/portal/admin/bursars";
   const roleLabel = role === "teacher" ? "Teacher" : "Bursar";
   const actions = useStaffAccountActions(role);
-  const assignClass = useAssignTeacherClass();
-  const { data: classes = [] } = useClasses();
 
   const [editOpen, setEditOpen] = useState(false);
+  const [classOpen, setClassOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [credentials, setCredentials] = useState<{ username: string; password: string } | null>(null);
   const [confirming, setConfirming] = useState<"remove" | "delete" | null>(null);
@@ -100,9 +99,6 @@ export default function StaffDetailView({ role, account, isLoading, isError, onR
       return false;
     }
   };
-
-  const handleAssign = (classId: string) =>
-    run(() => assignClass.mutateAsync({ id: account.id, classId: classId || null }), "Class updated", "Couldn't update class");
 
   const handleConfirm = async () => {
     if (confirming === "remove") {
@@ -224,20 +220,12 @@ export default function StaffDetailView({ role, account, isLoading, isError, onR
                 <p className="text-sm font-medium text-ink">Class teacher of</p>
                 <p className="text-xs text-muted">The class whose results and reports they manage.</p>
               </div>
-              <select
-                value={account.classId ?? ""}
-                onChange={(e) => handleAssign(e.target.value)}
-                disabled={assignClass.isPending}
-                aria-label="Class"
-                className="h-9 px-2 w-32 rounded-lg border border-line focus:border-brand outline-none text-sm text-ink bg-white"
-              >
-                <option value="">None</option>
-                {classes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <span className={`text-sm ${account.className ? "font-semibold text-ink" : "text-clay"}`}>
+                {account.className ?? "None"}
+              </span>
+              <button onClick={() => setClassOpen(true)} className={`${actionButton} text-ink border border-line hover:border-ink/30`}>
+                <School size={15} /> Change class
+              </button>
             </li>
           )}
           <li className="flex items-center gap-4 px-5 py-3.5">
@@ -272,6 +260,15 @@ export default function StaffDetailView({ role, account, isLoading, isError, onR
             Delete permanently
           </button>
         </div>
+      )}
+
+      {classOpen && (
+        <AssignClassModal
+          teacherId={account.id}
+          teacherName={fullName}
+          currentClassId={account.classId ?? null}
+          onClose={() => setClassOpen(false)}
+        />
       )}
 
       {editOpen && <EditStaffModal role={role} account={account} onClose={() => setEditOpen(false)} />}

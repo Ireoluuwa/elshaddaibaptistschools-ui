@@ -14,11 +14,7 @@ import AdminModal, {
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
 import { useClasses } from "@/hooks/curriculum.hooks";
-import {
-  useAdminTeachers,
-  useAssignTeacherClass,
-  useCreateTeacher,
-} from "@/hooks/admin-staff.hooks";
+import { useAdminTeachers, useCreateTeacher } from "@/hooks/admin-staff.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
 import type { TeacherAccount } from "@/types/admin-staff.types";
@@ -26,7 +22,7 @@ import type { TeacherAccount } from "@/types/admin-staff.types";
 const emptyForm = { firstName: "", lastName: "", username: "", email: "", phoneNumber: "" };
 
 const rowGrid =
-  "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_150px_auto] items-center gap-x-4 gap-y-2";
+  "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_140px_16px] items-center gap-x-4";
 
 type Credentials = { title: string; name: string; username: string; password: string };
 
@@ -36,7 +32,6 @@ export default function AdminTeachersPage() {
   const { data: teachers = [], isLoading, isError, refetch } = useAdminTeachers();
   const { data: classes = [] } = useClasses();
   const createTeacher = useCreateTeacher();
-  const assignClass = useAssignTeacherClass();
 
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -46,15 +41,6 @@ export default function AdminTeachersPage() {
     () => classes.filter((c) => !teachers.some((t) => t.isActive && t.classId === c.id)).map((c) => c.name),
     [classes, teachers],
   );
-
-  const handleAssign = async (teacher: TeacherAccount, classId: string) => {
-    try {
-      const updated = await assignClass.mutateAsync({ id: teacher.id, classId: classId || null });
-      toast.success("Class updated", updated.className ? `${nameOf(teacher)} now teaches ${updated.className}.` : `${nameOf(teacher)} has no class.`);
-    } catch (err) {
-      toast.error("Couldn't update class", apiErrorMessage(err));
-    }
-  };
 
   const handleAdd = async () => {
     try {
@@ -117,42 +103,32 @@ export default function AdminTeachersPage() {
             <li className="px-5 py-12 text-center text-sm text-muted">No teachers yet.</li>
           ) : (
             teachers.map((t) => (
-              <li key={t.id} className={`${rowGrid} px-5 py-3.5`}>
-                <Link href={`/portal/admin/teachers/${t.id}`} className="min-w-0 group">
-                  <p className={`text-sm font-medium truncate group-hover:underline underline-offset-2 ${t.isActive ? "text-ink" : "text-muted"}`}>{nameOf(t)}</p>
-                  <p className="text-xs text-muted truncate">
-                    {t.username}
-                    {(t.email || t.phoneNumber) && ` · ${t.email ?? t.phoneNumber}`}
-                  </p>
-                </Link>
-
-                <div className="row-start-2 sm:row-start-auto">
-                  {t.isActive ? (
-                    <select
-                      value={t.classId ?? ""}
-                      onChange={(e) => handleAssign(t, e.target.value)}
-                      disabled={assignClass.isPending}
-                      aria-label={`Class for ${nameOf(t)}`}
-                      className="h-9 px-2 w-36 rounded-lg border border-line focus:border-brand outline-none text-sm text-ink bg-white"
-                    >
-                      <option value="">None</option>
-                      {classes.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <StatusBadge tone="clay">Removed</StatusBadge>
-                  )}
-                </div>
-
+              <li key={t.id}>
                 <Link
                   href={`/portal/admin/teachers/${t.id}`}
-                  aria-label={`Manage ${nameOf(t)}`}
-                  className="row-span-2 sm:row-span-1 justify-self-end p-1.5 text-muted/50 hover:text-brand transition-colors"
+                  className={`${rowGrid} px-5 py-3.5 hover:bg-canvas transition-colors group`}
                 >
-                  <ChevronRight size={18} />
+                  <span className="min-w-0">
+                    <span className={`block text-sm font-medium truncate ${t.isActive ? "text-ink" : "text-muted"}`}>
+                      {nameOf(t)}
+                    </span>
+                    <span className="block text-xs text-muted truncate">
+                      {t.username}
+                      {(t.email || t.phoneNumber) && ` · ${t.email ?? t.phoneNumber}`}
+                    </span>
+                  </span>
+
+                  <span className="col-start-2 row-start-1 sm:col-start-auto sm:row-start-auto justify-self-end sm:justify-self-start text-sm">
+                    {!t.isActive ? (
+                      <StatusBadge tone="muted">Removed</StatusBadge>
+                    ) : t.className ? (
+                      <span className="font-semibold text-ink">{t.className}</span>
+                    ) : (
+                      <span className="text-clay">No class</span>
+                    )}
+                  </span>
+
+                  <ChevronRight size={16} className="hidden sm:block text-muted/40 group-hover:text-brand transition-colors" />
                 </Link>
               </li>
             ))
