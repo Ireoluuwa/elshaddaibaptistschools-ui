@@ -5,10 +5,9 @@ import Link from "next/link";
 import { ChevronRight, Plus, Search } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import StudentDetailModal from "@/components/admin/students/StudentDetailModal";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import { useAdminStudents } from "@/hooks/admin-students.hooks";
-import type { StudentListItem, StudentStatus } from "@/types/admin-students.types";
+import type { StudentStatus } from "@/types/admin-students.types";
 
 const statusTone: Record<StudentStatus, "brand" | "muted" | "clay"> = {
   active: "brand",
@@ -31,7 +30,6 @@ export default function AdminStudentsPage() {
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<StudentStatus | "all">("active");
-  const [selected, setSelected] = useState<StudentListItem | null>(null);
 
   const classes = useMemo(
     () => [...new Set(students.map((s) => s.className).filter((c): c is string => !!c))].sort(classOrder),
@@ -121,8 +119,8 @@ export default function AdminStudentsPage() {
           ) : (
             filtered.map((s) => (
               <li key={s.id}>
-                <button
-                  onClick={() => setSelected(s)}
+                <Link
+                  href={`/portal/admin/students/${s.id}`}
                   className={`${rowGrid} w-full px-5 py-3 text-left hover:bg-canvas transition-colors group`}
                 >
                   <span className="min-w-0">
@@ -139,16 +137,13 @@ export default function AdminStudentsPage() {
                   </span>
                   <StatusBadge tone={statusTone[s.status]}>{s.status}</StatusBadge>
                   <ChevronRight size={16} className="text-muted/40 group-hover:text-brand transition-colors" />
-                </button>
+                </Link>
               </li>
             ))
           )}
         </ul>
       </section>
 
-      {selected && (
-        <StudentDetailModal key={selected.id} student={selected} onClose={() => setSelected(null)} />
-      )}
     </div>
   );
 }
