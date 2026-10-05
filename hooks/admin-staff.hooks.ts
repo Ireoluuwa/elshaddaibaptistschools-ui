@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminBursarsService, adminTeachersService } from '@/services/admin-staff.service';
+import type { UpdateStaffPayload } from '@/types/admin-staff.types';
 
 const TEACHERS = ['adminTeachers'];
 const BURSARS = ['adminBursars'];
@@ -9,6 +10,7 @@ const useRefresh = (key: string[]) => {
   const queryClient = useQueryClient();
   return () => {
     queryClient.invalidateQueries({ queryKey: key });
+    queryClient.invalidateQueries({ queryKey: [`${key[0]}Detail`] });
     if (key === TEACHERS) {
       queryClient.invalidateQueries({ queryKey: ['resultsDashboardInit'] });
       queryClient.invalidateQueries({ queryKey: ['teacherDashboardInit'] });
@@ -28,6 +30,12 @@ export const useAssignTeacherClass = () =>
     onSuccess: useRefresh(TEACHERS),
   });
 
+export const useAdminTeacher = (id: string) =>
+  useQuery({ queryKey: ['adminTeachersDetail', id], queryFn: () => adminTeachersService.getOne(id) });
+
+export const useAdminBursar = (id: string) =>
+  useQuery({ queryKey: ['adminBursarsDetail', id], queryFn: () => adminBursarsService.getOne(id) });
+
 export const useAdminBursars = () => useQuery({ queryKey: BURSARS, queryFn: adminBursarsService.getAll });
 
 export const useInviteBursar = () =>
@@ -38,6 +46,11 @@ export const useStaffAccountActions = (role: 'teacher' | 'bursar') => {
   const service = role === 'teacher' ? adminTeachersService : adminBursarsService;
   const refresh = useRefresh(role === 'teacher' ? TEACHERS : BURSARS);
   return {
+    update: useMutation({
+      mutationFn: ({ id, payload }: { id: string; payload: UpdateStaffPayload }): Promise<unknown> =>
+        service.update(id, payload),
+      onSuccess: refresh,
+    }),
     setPassword: useMutation({
       mutationFn: ({ id, newPassword }: { id: string; newPassword: string }) => service.setPassword(id, newPassword),
     }),

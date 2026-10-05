@@ -5,6 +5,8 @@ export interface TeacherAccount {
   lastName: string;
   email: string | null;
   phoneNumber: string | null;
+  address: string | null;
+  avatarUrl: string | null;
   classId: string | null;
   className: string | null;
   isActive: boolean;
@@ -31,4 +33,14 @@ export interface CreateStaffPayload {
   username: string;
   email?: string;
   phoneNumber?: string;
+}
+
+// Only changed fields are sent; null clears an optional one.
+export interface UpdateStaffPayload {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  email?: string | null;
+  phoneNumber?: string | null;
+  address?: string | null;
 }

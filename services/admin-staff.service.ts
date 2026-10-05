@@ -1,11 +1,24 @@
 import api from '@/lib/axios';
 import { ApiResponse } from '@/types';
-import type { BursarAccount, CreateStaffPayload, TeacherAccount } from '@/types/admin-staff.types';
+import type {
+  BursarAccount,
+  CreateStaffPayload,
+  TeacherAccount,
+  UpdateStaffPayload,
+} from '@/types/admin-staff.types';
 
 type Username = { username: string };
 
 // Teachers and bursars share the same account actions under their own path.
 const accountActions = <T>(base: string) => ({
+  getOne: async (id: string): Promise<T> => {
+    const { data } = await api.get<ApiResponse<T>>(`${base}/${id}`);
+    return data.data;
+  },
+  update: async (id: string, payload: UpdateStaffPayload): Promise<T> => {
+    const { data } = await api.patch<ApiResponse<T>>(`${base}/${id}`, payload);
+    return data.data;
+  },
   setPassword: async (id: string, newPassword: string): Promise<Username> => {
     const { data } = await api.post<ApiResponse<Username>>(`${base}/${id}/password`, { newPassword });
     return data.data;
