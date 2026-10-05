@@ -14,6 +14,7 @@ import {
   promotionClasses,
 } from "@/constants/admin/mock.constants";
 import { toast } from "@/store/toast.store";
+import { usePromotionStore } from "@/store/promotion.store";
 
 // Promote from the top class down so each class moves into an already-emptied one.
 const classOrder = [...promotionClasses].reverse();
@@ -30,7 +31,9 @@ export default function PromotionPage() {
   const [selectedClass, setSelectedClass] = useState(classOrder[0]);
   const [passMark, setPassMark] = useState(40);
   const [decisions, setDecisions] = useState<Record<string, RowDecision>>({});
-  const [completed, setCompleted] = useState<string[]>([]);
+  const completed = usePromotionStore((s) => s.promotedClasses);
+  const markPromoted = usePromotionStore((s) => s.markPromoted);
+  const undoPromotion = usePromotionStore((s) => s.undoPromotion);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const target = nextClass[selectedClass];
@@ -77,7 +80,7 @@ export default function PromotionPage() {
   const handleConfirm = () => {
     // TODO: POST /admin/promotions { classId, decisions }
     const nowCompleted = [...completed, selectedClass];
-    setCompleted(nowCompleted);
+    markPromoted(selectedClass);
     setConfirmOpen(false);
     toast.success(
       `${selectedClass} saved`,
@@ -90,7 +93,7 @@ export default function PromotionPage() {
   };
 
   const handleUndo = () => {
-    setCompleted((c) => c.filter((x) => x !== selectedClass));
+    undoPromotion(selectedClass);
     toast.info("Reopened", `${selectedClass} can be edited again.`);
   };
 

@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import AdminModal, {
   inputClass,
   labelClass,
   primaryButton,
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
+import { promotionClasses } from "@/constants/admin/mock.constants";
+import { usePromotionStore } from "@/store/promotion.store";
 
 export interface TermFormValues {
   sessionName: string;
@@ -46,9 +50,21 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
   const set = <K extends keyof TermFormValues>(key: K, value: TermFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
 
+  // Starting a session moves students into their new classes, so warn about
+  // any class whose promotion hasn't been done yet.
+  const promotedClasses = usePromotionStore((s) => s.promotedClasses);
+  const notPromoted = isNewSession
+    ? promotionClasses.filter((c) => !promotedClasses.includes(c))
+    : [];
+  const [acknowledged, setAcknowledged] = useState(false);
+
   const datesValid =
     values.startDate && values.endDate && values.endDate > values.startDate;
-  const canSubmit = values.sessionName.trim() && values.termName.trim() && datesValid;
+  const canSubmit =
+    values.sessionName.trim() &&
+    values.termName.trim() &&
+    datesValid &&
+    (notPromoted.length === 0 || acknowledged);
 
   return (
     <AdminModal
@@ -76,6 +92,33 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
       }
     >
       <div className="flex flex-col gap-4">
+        {notPromoted.length > 0 && (
+          <div className="rounded-lg bg-clay-soft border-l-4 border-clay px-4 py-3">
+            <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+              <AlertTriangle size={16} className="text-clay shrink-0" />
+              {notPromoted.length === promotionClasses.length
+                ? "No classes have been promoted yet"
+                : `${notPromoted.length} ${notPromoted.length === 1 ? "class hasn't" : "classes haven't"} been promoted`}
+            </p>
+            <p className="text-sm text-ink/80 mt-1">
+              {notPromoted.join(", ")}. Students in{" "}
+              {notPromoted.length === 1 ? "this class" : "these classes"} will stay where they are in
+              the new session.{" "}
+              <Link href="/portal/admin/promotion" className="font-semibold text-brand underline underline-offset-2">
+                Go to Promotion
+              </Link>
+            </p>
+            <label className="flex items-center gap-2 mt-3 text-sm text-ink cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={acknowledged}
+                onChange={(e) => setAcknowledged(e.target.checked)}
+                className="w-4 h-4 accent-brand"
+              />
+              Start the new session anyway
+            </label>
+          </div>
+        )}
         {isNewSession && (
           <div>
             <label className={labelClass}>Session name</label>

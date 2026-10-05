@@ -7,6 +7,9 @@ import {
   UserCog,
   MessageSquareText,
   Landmark,
+  BookOpen,
+  ClipboardCheck,
+  School,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,9 +32,17 @@ export const isSidebarGroup = (entry: SidebarEntry): entry is SidebarGroup => "c
 
 export const adminSidebarLinks: SidebarEntry[] = [
   { name: "Dashboard", href: "/portal/admin", icon: LayoutDashboard },
-  { name: "Sessions & Terms", href: "/portal/admin/sessions", icon: CalendarRange },
-  { name: "V.P's Remarks", href: "/portal/admin/remarks", icon: MessageSquareText },
-  { name: "Promotion", href: "/portal/admin/promotion", icon: ArrowUpCircle },
+  {
+    name: "Academics",
+    icon: School,
+    children: [
+      { name: "Sessions & Terms", href: "/portal/admin/sessions", icon: CalendarRange },
+      { name: "Classes & Subjects", href: "/portal/admin/classes", icon: BookOpen },
+      { name: "Results Overview", href: "/portal/admin/results", icon: ClipboardCheck },
+      { name: "V.P's Remarks", href: "/portal/admin/remarks", icon: MessageSquareText },
+      { name: "Promotion", href: "/portal/admin/promotion", icon: ArrowUpCircle },
+    ],
+  },
   {
     name: "Manage Users",
     icon: UserCog,

@@ -11,6 +11,7 @@ import {
   promotionClasses,
 } from "@/constants/admin/mock.constants";
 import type { TermStatus } from "@/types/admin.types";
+import { usePromotionStore } from "@/store/promotion.store";
 
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -22,6 +23,7 @@ const termBar: Record<TermStatus, string> = {
 };
 
 export default function AdminDashboard() {
+  const promotedCount = usePromotionStore((s) => s.promotedClasses.length);
   const currentSession = mockSessions.find((s) => s.isCurrent);
   const activeTerm = currentSession?.terms.find((t) => t.status === "active");
   const sessionEnded =
@@ -37,7 +39,7 @@ export default function AdminDashboard() {
   const steps = [
     { label: "Close the 3rd term", hint: "Locks results so they can't be edited", done: sessionEnded, href: "/portal/admin/sessions" },
     { label: "Write V.P's remarks", hint: "One remark per student, per class", done: false, href: "/portal/admin/remarks" },
-    { label: "Promote students", hint: "Class by class, from SS3 down", done: false, href: "/portal/admin/promotion" },
+    { label: "Promote students", hint: `${promotedCount} of ${promotionClasses.length} classes done`, done: promotedCount === promotionClasses.length, href: "/portal/admin/promotion" },
     { label: "Start the new session", hint: "Students move to their new classes", done: false, href: "/portal/admin/sessions" },
     { label: "Assign class teachers", hint: `${classesWithoutTeacher} class${classesWithoutTeacher === 1 ? "" : "es"} without a teacher`, done: false, href: "/portal/admin/teachers" },
   ];

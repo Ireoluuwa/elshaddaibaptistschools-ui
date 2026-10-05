@@ -87,13 +87,13 @@ export const mockTeachers: AdminTeacher[] = [
 
 // ── Term results (per student) ──────────────────────────────────────────────
 
-const juniorSubjects = [
+export const juniorSubjects = [
   "English Language", "Mathematics", "Basic Science", "Basic Technology",
   "Social Studies", "Civic Education", "Christian Religious Studies",
   "Computer Studies", "Agricultural Science", "Home Economics", "Yoruba", "French",
 ];
 
-const seniorSubjects: Record<string, string[]> = {
+export const seniorSubjects: Record<string, string[]> = {
   Science: ["English Language", "Mathematics", "Physics", "Chemistry", "Biology", "Further Mathematics", "Civic Education", "Computer Studies", "Agricultural Science"],
   Art: ["English Language", "Mathematics", "Literature in English", "Government", "History", "Christian Religious Studies", "Civic Education", "Yoruba", "Economics"],
   Commercial: ["English Language", "Mathematics", "Economics", "Commerce", "Financial Accounting", "Office Practice", "Civic Education", "Computer Studies", "Marketing"],
@@ -141,3 +141,41 @@ export const mockBursars: AdminBursar[] = [
   { id: "bur-1", username: "bursar.adebayo", firstName: "Kemi", lastName: "Adebayo", email: "kemi.adebayo@esbs.ng", phoneNumber: "0803 123 4567", status: "active", lastSignIn: "2026-10-03", invitedAt: "2025-09-01" },
   { id: "bur-2", username: "bursar.okon", firstName: "Emmanuel", lastName: "Okon", phoneNumber: "0812 987 6543", status: "invited", invitedAt: "2026-09-28" },
 ];
+
+// ── Curriculum (which subjects each class takes) ────────────────────────────
+
+// Key for subjects every student in a class takes, whatever their department.
+export const ALL_DEPARTMENTS = "All departments";
+
+export interface SchoolClassInfo {
+  name: string;
+  isSenior: boolean;
+}
+
+export const mockClasses: SchoolClassInfo[] = promotionClasses.map((name) => ({
+  name,
+  isSenior: name.startsWith("SS"),
+}));
+
+// Subjects every senior student takes; the rest depend on their department.
+const seniorCore = ["English Language", "Mathematics", "Civic Education"];
+
+// curriculum[className][department or ALL_DEPARTMENTS] = subjects
+export const mockCurriculum: Record<string, Record<string, string[]>> = Object.fromEntries(
+  mockClasses.map((c) => [
+    c.name,
+    c.isSenior
+      ? {
+          [ALL_DEPARTMENTS]: [...seniorCore],
+          ...Object.fromEntries(
+            departments.map((d) => [d, seniorSubjects[d].filter((s) => !seniorCore.includes(s))]),
+          ),
+        }
+      : { [ALL_DEPARTMENTS]: [...juniorSubjects] },
+  ]),
+);
+
+// Every subject the school offers, for suggestions when adding one.
+export const allSubjects = Array.from(
+  new Set([...juniorSubjects, ...Object.values(seniorSubjects).flat()]),
+).sort();
