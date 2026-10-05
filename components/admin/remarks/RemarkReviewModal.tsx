@@ -1,44 +1,45 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import AdminModal, {
   primaryButton,
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
 import { gradeMap } from "@/constants/teacher/results.constants";
-import { remarkBands, type MockTermResult } from "@/constants/admin/mock.constants";
-import type { AdminStudent } from "@/types/admin.types";
+import { remarkBands } from "@/constants/admin/remarks.constants";
+import type { ClassResultRow, StudentTermResult } from "@/types/admin-results.types";
 
 interface RemarkReviewModalProps {
-  student: AdminStudent;
-  result: MockTermResult;
+  row: ClassResultRow & { result: StudentTermResult };
+  className: string;
   termLabel: string;
-  initialRemark: string;
   position: number;
   total: number;
+  isSaving: boolean;
   onClose: () => void;
   onPrev?: () => void;
   onSave: (remark: string, goNext: boolean) => void;
 }
 
-export const overallOf = (result: MockTermResult) => {
+export const overallOf = (result: Pick<StudentTermResult, "scores">) => {
   const obtained = result.scores.reduce((sum, s) => sum + s.test1 + s.test2 + s.exam, 0);
   return result.scores.length ? (obtained / (result.scores.length * 100)) * 100 : 0;
 };
 
 const RemarkReviewModal: React.FC<RemarkReviewModalProps> = ({
-  student,
-  result,
+  row,
+  className,
   termLabel,
-  initialRemark,
   position,
   total,
+  isSaving,
   onClose,
   onPrev,
   onSave,
 }) => {
-  const [remark, setRemark] = useState(initialRemark);
+  const { result } = row;
+  const [remark, setRemark] = useState(result.vpRemark ?? "");
 
   const overall = overallOf(result);
   const overallGrade = gradeMap(overall).grade;
@@ -57,15 +58,15 @@ const RemarkReviewModal: React.FC<RemarkReviewModalProps> = ({
     <AdminModal
       isOpen
       wide
-      onClose={onClose}
-      title={`${student.lastName} ${student.firstName}`}
-      description={`${student.className}${student.department ? ` ${student.department}` : ""} · ${termLabel}`}
+      onClose={isSaving ? () => {} : onClose}
+      title={`${row.lastName} ${row.firstName}`}
+      description={`${className}${row.department ? ` ${row.department}` : ""} · ${termLabel}`}
       footer={
         <div className="w-full flex items-center justify-between gap-3">
           <div className="flex items-center gap-1">
             <button
               onClick={onPrev}
-              disabled={!onPrev}
+              disabled={!onPrev || isSaving}
               aria-label="Previous student"
               className="h-9 w-9 inline-flex items-center justify-center rounded-lg border border-line text-ink hover:border-ink/30 disabled:opacity-30 disabled:pointer-events-none"
             >
@@ -79,7 +80,7 @@ const RemarkReviewModal: React.FC<RemarkReviewModalProps> = ({
             {!isLast && (
               <button
                 onClick={() => onSave(remark, false)}
-                disabled={!remark.trim()}
+                disabled={!remark.trim() || isSaving}
                 className={`${secondaryButton} hidden sm:inline-flex disabled:opacity-40 disabled:pointer-events-none`}
               >
                 Save
@@ -87,9 +88,10 @@ const RemarkReviewModal: React.FC<RemarkReviewModalProps> = ({
             )}
             <button
               onClick={() => onSave(remark, !isLast)}
-              disabled={!remark.trim()}
+              disabled={!remark.trim() || isSaving}
               className={primaryButton}
             >
+              {isSaving && <Loader2 size={16} className="animate-spin" />}
               {isLast ? "Save" : (
                 <>
                   Save & next <ChevronRight size={16} />
@@ -119,9 +121,9 @@ const RemarkReviewModal: React.FC<RemarkReviewModalProps> = ({
             <thead className="bg-canvas text-xs text-muted">
               <tr>
                 <th className="text-left font-medium px-4 py-2">Subject</th>
-                <th className="hidden sm:table-cell text-right font-medium px-3 py-2">1st test <span className="text-muted/60">/20</span></th>
-                <th className="hidden sm:table-cell text-right font-medium px-3 py-2">2nd test <span className="text-muted/60">/20</span></th>
-                <th className="hidden sm:table-cell text-right font-medium px-3 py-2">Exam <span className="text-muted/60">/60</span></th>
+                <th className="hidden sm:table-cell text-right font-medium px-3 py-2">1st test <span className="text-muted/60">/15</span></th>
+                <th className="hidden sm:table-cell text-right font-medium px-3 py-2">2nd test <span className="text-muted/60">/15</span></th>
+                <th className="hidden sm:table-cell text-right font-medium px-3 py-2">Exam <span className="text-muted/60">/70</span></th>
                 <th className="text-right font-medium px-3 py-2">Total</th>
                 <th className="text-center font-medium px-4 py-2 w-16">Grade</th>
               </tr>
