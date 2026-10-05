@@ -10,7 +10,25 @@ import SidebarItem from "@/components/teacher/shared/sidebar/SidebarItem";
 import { adminSidebarLinks } from "@/constants/admin/sidebar.constants";
 import { useLogout, useProfileQuery } from "@/hooks/auth.hooks";
 
-const AdminSidebar = () => {
+type SidebarLink = (typeof adminSidebarLinks)[number];
+
+interface AdminSidebarProps {
+  links?: SidebarLink[];
+  portalLabel?: string;
+  homeHref?: string;
+  // Omit to show the account card without a profile link.
+  profileHref?: string;
+  roleLabel?: string;
+}
+
+// Shared by the admin and bursar portals.
+const AdminSidebar = ({
+  links = adminSidebarLinks,
+  portalLabel = "Admin Portal",
+  homeHref = "/portal/admin",
+  profileHref = "/portal/admin/profile",
+  roleLabel = "Administrator",
+}: AdminSidebarProps) => {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,9 +36,25 @@ const AdminSidebar = () => {
   const { data: profile } = useProfileQuery();
 
   const isActive = (href: string) => {
-    if (href === "/portal/admin") return pathname === href;
+    if (href === homeHref) return pathname === href;
     return pathname.startsWith(href);
   };
+
+  const accountCard = (
+    <>
+      <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white text-sm font-bold uppercase">
+        {profile?.username?.[0] ?? roleLabel[0]}
+      </div>
+      {!collapsed && (
+        <div className="flex-1 min-w-0">
+          <p className="text-white text-sm font-semibold truncate group-hover:underline underline-offset-2">
+            {profile?.username ?? roleLabel}
+          </p>
+          <p className="text-white/40 text-[11px]">{profileHref ? "View profile" : roleLabel}</p>
+        </div>
+      )}
+    </>
+  );
 
   const renderContent = () => (
     <div className="flex flex-col h-full overflow-hidden">
@@ -37,7 +71,7 @@ const AdminSidebar = () => {
               EL-SHADDAI
             </span>
             <span className="text-white/50 text-[10px] font-medium uppercase tracking-widest">
-              Admin Portal
+              {portalLabel}
             </span>
           </div>
         )}
@@ -46,7 +80,7 @@ const AdminSidebar = () => {
       <div className="mx-5 h-px bg-white/10 mb-4 shrink-0" />
 
       <nav className="flex-1 flex flex-col gap-1 px-3 overflow-y-auto scrollbar-hide py-2">
-        {adminSidebarLinks.map((link) => (
+        {links.map((link) => (
           <SidebarItem
             key={link.href}
             {...link}
@@ -62,27 +96,21 @@ const AdminSidebar = () => {
         <div className="mx-2 h-px bg-white/10 mb-4" />
         <div
           className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
-            pathname === "/portal/admin/profile" ? "bg-white/15" : "bg-white/5"
+            profileHref && pathname === profileHref ? "bg-white/15" : "bg-white/5"
           }`}
         >
-          <Link
-            href="/portal/admin/profile"
-            onClick={() => setMobileOpen(false)}
-            title="Profile"
-            className="flex items-center gap-3 flex-1 min-w-0 group"
-          >
-            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white text-sm font-bold uppercase">
-              {profile?.username?.[0] ?? "A"}
-            </div>
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-semibold truncate group-hover:underline underline-offset-2">
-                  {profile?.username ?? "Administrator"}
-                </p>
-                <p className="text-white/40 text-[11px]">View profile</p>
-              </div>
-            )}
-          </Link>
+          {profileHref ? (
+            <Link
+              href={profileHref}
+              onClick={() => setMobileOpen(false)}
+              title="Profile"
+              className="flex items-center gap-3 flex-1 min-w-0 group"
+            >
+              {accountCard}
+            </Link>
+          ) : (
+            <div className="flex items-center gap-3 flex-1 min-w-0">{accountCard}</div>
+          )}
           {!collapsed && (
             <button
               onClick={handleLogout}
