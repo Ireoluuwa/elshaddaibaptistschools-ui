@@ -1,95 +1,122 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Lock, Search, Unlock } from "lucide-react";
+import { Loader2, Lock, Search, Unlock } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import ClassNav from "@/components/admin/shared/ClassNav";
 import MoneyInput from "@/components/bursar/MoneyInput";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
-import { mockStudents, promotionClasses } from "@/constants/admin/mock.constants";
-import { currentTermLabel, mockStudentFees, naira } from "@/constants/bursar/mock.constants";
+import { useBursaryOverview, useBursaryTerms, useClassFees, useSaveFees } from "@/hooks/bursary.hooks";
+import { apiErrorMessage } from "@/lib/api-error";
+import { naira } from "@/lib/money";
 import { toast } from "@/store/toast.store";
 
-const initialFees = Object.fromEntries(mockStudentFees.map((f) => [f.studentId, f.outstanding]));
-
-const activeIn = (className: string) =>
-  mockStudents.filter((s) => s.className === className && s.status === "active");
+const classOrder = (a: { className: string }, b: { className: string }) =>
+  Number(a.className.startsWith("SS")) - Number(b.className.startsWith("SS")) || a.className.localeCompare(b.className);
 
 const rowGrid =
   "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_170px_130px_70px] items-center gap-x-4 gap-y-2";
 
 export default function StudentFeesPage() {
-  const [selectedClass, setSelectedClass] = useState(promotionClasses[0]);
-  const [fees, setFees] = useState<Record<string, number>>(initialFees);
-  const [saved, setSaved] = useState<Record<string, number>>(initialFees);
+  const { data: terms = [] } = useBursaryTerms();
+  const [pickedTermId, setPickedTermId] = useState<string | undefined>(undefined);
+  const { data: overview } = useBursaryOverview(pickedTermId);
+  const termId = overview?.term.id;
+  const classes = useMemo(
+    () => [...(overview?.classes ?? [])].filter((c) => c.students > 0).sort(classOrder),
+    [overview],
+  );
+
+  const [pickedClassId, setPickedClassId] = useState<string | null>(null);
+  const classId = pickedClassId ?? classes[0]?.classId ?? null;
+  const currentClass = classes.find((c) => c.classId === classId);
+  const { data, isLoading, isError, refetch } = useClassFees(classId, termId);
+  const saveFees = useSaveFees();
+
+  // Unsaved amounts by student.
+  const [edits, setEdits] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
   const [owingOnly, setOwingOnly] = useState(false);
 
-  const students = useMemo(() => activeIn(selectedClass), [selectedClass]);
+  const students = data?.students ?? [];
+  const amountOf = (id: string, saved: number) => edits[id] ?? saved;
+  const changed = students.filter((s) => edits[s.studentId] !== undefined && edits[s.studentId] !== s.outstanding);
+  const owing = students.filter((s) => amountOf(s.studentId, s.outstanding) > 0);
+  const classOutstanding = owing.reduce((sum, s) => sum + amountOf(s.studentId, s.outstanding), 0);
+
   const q = search.toLowerCase();
   const visible = students.filter(
     (s) =>
-      (!owingOnly || (fees[s.id] ?? 0) > 0) &&
+      (!owingOnly || amountOf(s.studentId, s.outstanding) > 0) &&
       `${s.firstName} ${s.lastName} ${s.username}`.toLowerCase().includes(q),
   );
 
-  const owingIn = (className: string, source: Record<string, number>) =>
-    activeIn(className).filter((s) => (source[s.id] ?? 0) > 0);
-  const owing = owingIn(selectedClass, fees);
-  const classOutstanding = owing.reduce((sum, s) => sum + fees[s.id], 0);
-  const changed = students.filter((s) => (fees[s.id] ?? 0) !== (saved[s.id] ?? 0));
-
-  const setFee = (id: string, value: number) => setFees((f) => ({ ...f, [id]: value }));
-
-  const handleSave = () => {
-    // TODO: PATCH /bursary/fees { termId, fees: [{ studentId, outstanding }] }
-    setSaved((s) => {
-      const next = { ...s };
-      changed.forEach((st) => (next[st.id] = fees[st.id] ?? 0));
-      return next;
-    });
-    const nowOwing = changed.filter((s) => (fees[s.id] ?? 0) > 0).length;
-    toast.success(
-      `${selectedClass} fees saved`,
-      `${changed.length} updated · ${nowOwing} with results on hold`,
-    );
+  const handleSave = async () => {
+    if (!termId || !changed.length) return;
+    try {
+      await saveFees.mutateAsync({
+        termId,
+        fees: changed.map((s) => ({ studentId: s.studentId, outstanding: edits[s.studentId] })),
+      });
+      const onHold = changed.filter((s) => edits[s.studentId] > 0).length;
+      setEdits({});
+      toast.success(`${currentClass?.className} fees saved`, `${changed.length} updated · ${onHold} with results on hold`);
+    } catch (err) {
+      toast.error("Couldn't save fees", apiErrorMessage(err));
+    }
   };
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Student Fees"
-        description={`Outstanding balances for ${currentTermLabel}. Students who owe can't see their result until it's cleared.`}
+        description={`Outstanding balances${overview ? ` for ${overview.term.label}` : ""}. Students who owe can't see their result until it's cleared.`}
+        action={
+          <select
+            value={pickedTermId ?? termId ?? ""}
+            onChange={(e) => {
+              setPickedTermId(e.target.value);
+              setEdits({});
+            }}
+            aria-label="Term"
+            className="h-10 px-3 rounded-lg border border-line focus:border-brand outline-none text-sm text-ink bg-white self-start"
+          >
+            {terms.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        }
       />
 
       <div className="grid lg:grid-cols-[220px_minmax(0,1fr)] gap-6 items-start">
         <ClassNav
-          selected={selectedClass}
-          onSelect={setSelectedClass}
-          items={promotionClasses.map((c) => {
-            const count = owingIn(c, saved).length;
-            return {
-              key: c,
-              label: c,
-              detail: count ? `${count} owing` : "All cleared",
-              done: count === 0,
-            };
-          })}
+          selected={classId ?? ""}
+          onSelect={(id) => {
+            if (changed.length && !confirm("You have unsaved changes in this class. Leave without saving?")) return;
+            setPickedClassId(id);
+            setEdits({});
+          }}
+          items={classes.map((c) => ({
+            key: c.classId,
+            label: c.className,
+            detail: c.owing ? `${c.owing} owing` : "All cleared",
+            done: c.owing === 0,
+          }))}
         />
 
         <section className={`${panelClass} overflow-hidden`}>
           <header className="flex flex-wrap items-end justify-between gap-3 px-5 py-4 border-b border-line">
             <div>
-              <h2 className="text-xl font-bold text-ink">{selectedClass}</h2>
+              <h2 className="text-xl font-bold text-ink">{currentClass?.className ?? "—"}</h2>
               <p className="text-sm text-muted mt-0.5">
                 {owing.length === 0 ? (
                   <span className="text-brand font-medium">Everyone has paid</span>
                 ) : (
                   <>
-                    <span className="font-semibold text-clay tabular-nums">{owing.length}</span> of{" "}
-                    {students.length} owing ·{" "}
-                    <span className="font-semibold text-ink tabular-nums">{naira(classOutstanding)}</span>{" "}
-                    outstanding
+                    <span className="font-semibold text-clay tabular-nums">{owing.length}</span> of {students.length} owing ·{" "}
+                    <span className="font-semibold text-ink tabular-nums">{naira(classOutstanding)}</span> outstanding
                   </>
                 )}
               </p>
@@ -106,12 +133,7 @@ export default function StudentFeesPage() {
                 />
               </div>
               <label className="inline-flex items-center gap-2 text-sm text-ink cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={owingOnly}
-                  onChange={(e) => setOwingOnly(e.target.checked)}
-                  className="w-4 h-4 accent-brand"
-                />
+                <input type="checkbox" checked={owingOnly} onChange={(e) => setOwingOnly(e.target.checked)} className="w-4 h-4 accent-brand" />
                 Owing only
               </label>
             </div>
@@ -124,23 +146,39 @@ export default function StudentFeesPage() {
             <span />
           </div>
 
-          {visible.length === 0 ? (
+          {isLoading ? (
+            <div className="p-5 flex flex-col gap-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-10 rounded-lg bg-canvas animate-pulse" />
+              ))}
+            </div>
+          ) : isError ? (
+            <p className="px-5 py-12 text-center text-sm text-muted">
+              Couldn&apos;t load fees.{" "}
+              <button onClick={() => refetch()} className="font-semibold text-brand hover:underline">
+                Try again
+              </button>
+            </p>
+          ) : visible.length === 0 ? (
             <p className="px-5 py-12 text-center text-sm text-muted">
               {owingOnly ? "Nobody in this class owes fees." : "No students match."}
             </p>
           ) : (
             <ul className="divide-y divide-line">
               {visible.map((s) => {
-                const amount = fees[s.id] ?? 0;
+                const amount = amountOf(s.studentId, s.outstanding);
                 const isOwing = amount > 0;
-                const edited = amount !== (saved[s.id] ?? 0);
+                const edited = edits[s.studentId] !== undefined && edits[s.studentId] !== s.outstanding;
                 return (
-                  <li key={s.id} className={`${rowGrid} px-5 py-3 ${edited ? "bg-tint/50" : ""}`}>
+                  <li key={s.studentId} className={`${rowGrid} px-5 py-3 ${edited ? "bg-tint/50" : ""}`}>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-ink truncate">
                         {s.lastName} {s.firstName}
                       </p>
-                      <p className="text-xs text-muted tabular-nums">{s.username}</p>
+                      <p className="text-xs text-muted tabular-nums">
+                        {s.username}
+                        {s.department && ` · ${s.department}`}
+                      </p>
                     </div>
 
                     <div className="row-start-2 sm:row-start-auto">
@@ -148,7 +186,7 @@ export default function StudentFeesPage() {
                         size="sm"
                         label={`Outstanding for ${s.firstName} ${s.lastName}`}
                         value={amount}
-                        onChange={(v) => setFee(s.id, v)}
+                        onChange={(v) => setEdits((e) => ({ ...e, [s.studentId]: v }))}
                         highlight={isOwing}
                       />
                     </div>
@@ -165,7 +203,7 @@ export default function StudentFeesPage() {
                     <div className="row-start-2 col-start-2 sm:row-start-auto sm:col-start-auto justify-self-end">
                       {isOwing && (
                         <button
-                          onClick={() => setFee(s.id, 0)}
+                          onClick={() => setEdits((e) => ({ ...e, [s.studentId]: 0 }))}
                           className="text-sm font-medium text-brand hover:underline underline-offset-2"
                         >
                           Cleared
@@ -180,12 +218,11 @@ export default function StudentFeesPage() {
 
           <footer className="sticky bottom-0 flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-t border-line bg-white">
             <span className="text-sm text-muted">
-              {changed.length === 0
-                ? "All changes saved"
-                : `${changed.length} unsaved change${changed.length === 1 ? "" : "s"}`}
+              {changed.length === 0 ? "All changes saved" : `${changed.length} unsaved change${changed.length === 1 ? "" : "s"}`}
             </span>
-            <button onClick={handleSave} disabled={changed.length === 0} className={primaryButton}>
-              Save {selectedClass}
+            <button onClick={handleSave} disabled={changed.length === 0 || saveFees.isPending} className={primaryButton}>
+              {saveFees.isPending && <Loader2 size={16} className="animate-spin" />}
+              Save {currentClass?.className}
             </button>
           </footer>
         </section>
