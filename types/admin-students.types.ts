@@ -1,4 +1,4 @@
-export type StudentStatus = "active" | "graduated" | "withdrawn";
+export type StudentStatus = "active" | "graduated" | "removed";
 export type EnrollmentOutcome = "promoted" | "repeated" | "graduated" | "withdrawn";
 
 export interface StudentListItem {

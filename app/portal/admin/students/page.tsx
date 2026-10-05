@@ -12,7 +12,7 @@ import type { StudentStatus } from "@/types/admin-students.types";
 const statusTone: Record<StudentStatus, "brand" | "muted" | "clay"> = {
   active: "brand",
   graduated: "muted",
-  withdrawn: "clay",
+  removed: "clay",
 };
 
 const filterClass =
@@ -83,8 +83,8 @@ export default function AdminStudentsPage() {
               className={`${filterClass} flex-1`}
             >
               <option value="active">Active</option>
+              <option value="removed">Removed</option>
               <option value="graduated">Graduated</option>
-              <option value="withdrawn">Withdrawn</option>
               <option value="all">Any status</option>
             </select>
           </div>
