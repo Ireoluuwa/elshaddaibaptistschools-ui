@@ -26,7 +26,7 @@ const portals = {
     links: bursarSidebarLinks,
     portalLabel: "Bursary",
     homeHref: "/portal/bursar",
-    profileHref: "",
+    profileHref: "/portal/bursar/profile",
     roleLabel: "Bursar",
   },
 };
