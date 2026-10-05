@@ -1,4 +1,4 @@
-import type { TermReportDetails } from "./admin.types";
+import type { TermReportDetails } from "./session.types";
 import type { ReportFees } from "./bursar.types";
 
 export interface TerminalResultScore {
