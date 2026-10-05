@@ -51,9 +51,10 @@ export const storageService = {
   },
 
   // Report-sheet signatures share the public profile_image bucket for now.
-  uploadSignature: async (file: File, termId: string): Promise<string> => {
+  // `owner` is a term id or a staff username, used to name the file.
+  uploadSignature: async (file: File, owner: string): Promise<string> => {
     const fileExt = file.name.split('.').pop()?.toLowerCase() || 'png';
-    const filePath = `signatures/${termId}-${Date.now()}.${fileExt}`;
+    const filePath = `signatures/${owner.replace(/[^a-zA-Z0-9-]/g, '-')}-${Date.now()}.${fileExt}`;
 
     const { error } = await supabase.storage
       .from('profile_image')
