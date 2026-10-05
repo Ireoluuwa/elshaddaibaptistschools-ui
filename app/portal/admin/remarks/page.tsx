@@ -34,7 +34,9 @@ export default function RemarksPage() {
   );
   const [pickedTermId, setPickedTermId] = useState<string | null>(null);
   const termId = pickedTermId ?? terms.find((t) => t.status === "active")?.id ?? terms[0]?.id ?? null;
-  const termLabel = terms.find((t) => t.id === termId)?.label ?? "";
+  const selectedTerm = terms.find((t) => t.id === termId);
+  const termLabel = selectedTerm?.label ?? "";
+  const termClosed = selectedTerm?.status === "closed";
 
   const [pickedClassId, setPickedClassId] = useState<string | null>(null);
   const classId = pickedClassId ?? classes[0]?.id ?? null;
@@ -87,6 +89,13 @@ export default function RemarksPage() {
         }
       />
 
+      {termClosed && (
+        <p className="text-sm text-ink px-4 py-3 rounded-lg bg-clay-soft border-l-4 border-clay">
+          <span className="font-semibold">{termLabel} is closed.</span> You can read the remarks, but reopen the
+          term in Sessions &amp; Terms to change them.
+        </p>
+      )}
+
       <div className="grid lg:grid-cols-[220px_minmax(0,1fr)] gap-6 items-start">
         <ClassNav
           selected={classId ?? ""}
@@ -115,7 +124,7 @@ export default function RemarksPage() {
                   : `${remarked} of ${reviewable.length} students remarked`}
               </p>
             </div>
-            {reviewable.length > remarked && (
+            {!termClosed && reviewable.length > remarked && (
               <button
                 onClick={() => setOpenId((reviewable.find((r) => !r.result.vpRemark) ?? reviewable[0]).studentId)}
                 className="h-9 px-3 text-sm font-semibold text-white bg-brand hover:bg-brand-dark rounded-lg transition-colors"
@@ -209,6 +218,7 @@ export default function RemarksPage() {
           position={openIndex + 1}
           total={reviewable.length}
           isSaving={setVpRemark.isPending}
+          readOnly={termClosed}
           onClose={() => setOpenId(null)}
           onPrev={openIndex > 0 ? () => setOpenId(reviewable[openIndex - 1].studentId) : undefined}
           onSave={handleSave}
