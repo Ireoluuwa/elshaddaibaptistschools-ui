@@ -231,7 +231,7 @@ export default function SessionsPage() {
         title={pending?.kind === "close" ? "Close this term?" : "Make this the active term?"}
         message={
           pending?.kind === "close"
-            ? `${pending.session.name} ${pending.term.name} will be locked. Teachers won't be able to edit its reports or results.`
+            ? `${pending.session.name} ${pending.term.name} will be locked. Nobody, including admins, can change its results, weekly reports, V.P's remarks or report details until you reopen it.`
             : `${pending?.session.name} ${pending?.term.name} will become the active term. Any other active term will be closed.`
         }
         confirmText={pending?.kind === "close" ? "Close term" : "Make active"}

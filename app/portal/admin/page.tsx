@@ -41,8 +41,9 @@ export default function AdminDashboard() {
 
   // TODO: drive from the backend once promotion progress is stored.
   const steps = [
-    { label: "Close the 3rd term", hint: "Locks results so they can't be edited", done: sessionEnded, href: "/portal/admin/sessions" },
     { label: "Write V.P's remarks", hint: "One remark per student, per class", done: false, href: "/portal/admin/remarks" },
+    { label: "Add signature & report dates", hint: "Printed on every report sheet", done: false, href: "/portal/admin/sessions" },
+    { label: "Close the 3rd term", hint: "Locks results, remarks and report details", done: sessionEnded, href: "/portal/admin/sessions" },
     { label: "Promote students", hint: `${promotedCount} of ${promotable.length} classes done`, done: promotable.length > 0 && promotedCount === promotable.length, href: "/portal/admin/promotion" },
     { label: "Start the new session", hint: "Students move to their new classes", done: false, href: "/portal/admin/sessions" },
     { label: "Assign class teachers", hint: classesWithoutTeacher ? `${classesWithoutTeacher} class${classesWithoutTeacher === 1 ? "" : "es"} without a teacher` : "Every class has a teacher", done: classes.length > 0 && classesWithoutTeacher === 0, href: "/portal/admin/teachers" },

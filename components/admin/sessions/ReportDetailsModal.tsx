@@ -41,6 +41,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
 
   const shownSignature = previewUrl ?? signatureUrl;
   const busy = isUploading || isPending;
+  const locked = term.status === "closed";
   const canSave = !!shownSignature && !!signedDate && !busy;
 
   const removeSignature = () => {
@@ -80,24 +81,36 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
       title="Report sheet details"
       description={`${sessionName} • ${term.name}. Printed on every student's report sheet.`}
       footer={
-        <>
-          <button onClick={onClose} disabled={busy} className={secondaryButton}>
-            Cancel
+        locked ? (
+          <button onClick={onClose} className={secondaryButton}>
+            Close
           </button>
-          <button onClick={handleSave} disabled={!canSave} className={primaryButton}>
-            {busy && <Loader2 size={16} className="animate-spin" />}
-            {isUploading ? "Uploading…" : isPending ? "Saving…" : "Save details"}
-          </button>
-        </>
+        ) : (
+          <>
+            <button onClick={onClose} disabled={busy} className={secondaryButton}>
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={!canSave} className={primaryButton}>
+              {busy && <Loader2 size={16} className="animate-spin" />}
+              {isUploading ? "Uploading…" : isPending ? "Saving…" : "Save details"}
+            </button>
+          </>
+        )
       }
     >
       <div className="flex flex-col gap-4">
+        {locked && (
+          <p className="text-sm text-ink px-3 py-2.5 rounded-lg bg-clay-soft border-l-4 border-clay">
+            This term is closed. Reopen it to change these details.
+          </p>
+        )}
         <div>
           <span className={labelClass}>Signature</span>
           {shownSignature ? (
             <div className="flex items-center gap-3 p-3 rounded-lg border border-line">
               {/* eslint-disable-next-line @next/next/no-img-element -- local preview or storage URL */}
               <img src={shownSignature} alt="Signature" className="h-14 max-w-[200px] object-contain" />
+              {!locked && (
               <button
                 onClick={removeSignature}
                 disabled={busy}
@@ -106,7 +119,10 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
               >
                 <Trash2 size={16} />
               </button>
+              )}
             </div>
+          ) : locked ? (
+            <p className="text-sm text-muted">No signature added.</p>
           ) : (
             <label className="flex flex-col items-center gap-1.5 p-5 rounded-lg border border-dashed border-muted/40 hover:border-brand hover:bg-tint cursor-pointer text-center transition-colors">
               <ImageUp size={20} className="text-brand" />
@@ -124,17 +140,17 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
 
         <div>
           <label htmlFor="signed-date" className={labelClass}>Date signed</label>
-          <input id="signed-date" type="date" value={signedDate} onChange={(e) => setSignedDate(e.target.value)} className={inputClass} />
+          <input id="signed-date" type="date" value={signedDate} onChange={(e) => setSignedDate(e.target.value)} disabled={locked} className={`${inputClass} disabled:bg-canvas disabled:text-muted`} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label htmlFor="vacation-date" className={labelClass}>Vacation date</label>
-            <input id="vacation-date" type="date" value={vacationDate} onChange={(e) => setVacationDate(e.target.value)} className={inputClass} />
+            <input id="vacation-date" type="date" value={vacationDate} onChange={(e) => setVacationDate(e.target.value)} disabled={locked} className={`${inputClass} disabled:bg-canvas disabled:text-muted`} />
           </div>
           <div>
             <label htmlFor="resumption-date" className={labelClass}>School resumes</label>
-            <input id="resumption-date" type="date" value={resumptionDate} onChange={(e) => setResumptionDate(e.target.value)} className={inputClass} />
+            <input id="resumption-date" type="date" value={resumptionDate} onChange={(e) => setResumptionDate(e.target.value)} disabled={locked} className={`${inputClass} disabled:bg-canvas disabled:text-muted`} />
           </div>
         </div>
       </div>
