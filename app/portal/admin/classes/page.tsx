@@ -11,6 +11,7 @@ import {
   useClasses,
   useCurriculum,
   useSaveCurriculum,
+  useSetNextClass,
   useSubjectCatalog,
 } from "@/hooks/curriculum.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
@@ -46,6 +47,7 @@ export default function ClassesSubjectsPage() {
   const { data: curriculum, isLoading: curriculumLoading, isError } = useCurriculum(selectedId);
   const { data: catalog = [] } = useSubjectCatalog();
   const saveCurriculum = useSaveCurriculum();
+  const setNextClass = useSetNextClass();
 
   // Unsaved edits per class, kept while switching classes.
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
@@ -82,6 +84,17 @@ export default function ClassesSubjectsPage() {
     const match = catalog.find((s) => s.toLowerCase() === trimmed.toLowerCase());
     setList(activeTab, [...listed, match ?? trimmed]);
     setNewSubject("");
+  };
+
+  const handleNextClass = async (nextClassId: string | null) => {
+    if (!current) return;
+    try {
+      await setNextClass.mutateAsync({ id: current.id, nextClassId });
+      const target = classes.find((c) => c.id === nextClassId)?.name;
+      toast.success("Promotion path updated", target ? `${current.name} → ${target}` : `${current.name} students graduate`);
+    } catch (err) {
+      toast.error("Couldn't update promotion path", apiErrorMessage(err));
+    }
   };
 
   const handleSave = async () => {
@@ -151,11 +164,31 @@ export default function ClassesSubjectsPage() {
           ) : (
             <>
               <header className="px-5 pt-4 border-b border-line">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="text-xl font-bold text-ink">{current.name}</h2>
-                  <span className="text-xs font-medium text-muted">
-                    {current.isSenior ? "Senior class" : "Junior class"}
-                  </span>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-baseline gap-3">
+                    <h2 className="text-xl font-bold text-ink">{current.name}</h2>
+                    <span className="text-xs font-medium text-muted">
+                      {current.isSenior ? "Senior class" : "Junior class"}
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-2 text-sm text-muted">
+                    Promoted students go to
+                    <select
+                      value={current.nextClassId ?? ""}
+                      onChange={(e) => handleNextClass(e.target.value || null)}
+                      disabled={setNextClass.isPending}
+                      className="h-8 px-2 rounded-lg border border-line focus:border-brand outline-none text-sm text-ink bg-white"
+                    >
+                      <option value="">Graduate</option>
+                      {classes
+                        .filter((c) => c.id !== current.id)
+                        .map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
                 </div>
 
                 {current.isSenior ? (

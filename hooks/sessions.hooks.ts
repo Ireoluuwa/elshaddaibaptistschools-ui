@@ -14,7 +14,7 @@ export const useSessions = () =>
     queryFn: sessionsService.getAll,
   });
 
-// Any term change can affect other terms and the active period, so refresh both.
+// Term changes affect the active period, and starting a session moves every student.
 const useInvalidateSessions = () => {
   const queryClient = useQueryClient();
   return () =>
@@ -23,6 +23,11 @@ const useInvalidateSessions = () => {
       queryClient.invalidateQueries({ queryKey: ['resultsDashboardInit'] }),
       queryClient.invalidateQueries({ queryKey: ['myResult'] }),
       queryClient.invalidateQueries({ queryKey: ['teacherDashboardInit'] }),
+      queryClient.invalidateQueries({ queryKey: ['promotions'] }),
+      queryClient.invalidateQueries({ queryKey: ['adminStudents'] }),
+      queryClient.invalidateQueries({ queryKey: ['adminStudent'] }),
+      queryClient.invalidateQueries({ queryKey: ['resultsOverview'] }),
+      queryClient.invalidateQueries({ queryKey: ['classResults'] }),
     ]);
 };
 
