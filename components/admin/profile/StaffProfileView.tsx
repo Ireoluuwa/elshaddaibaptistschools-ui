@@ -28,13 +28,15 @@ function DetailsForm({ profile, showPosition }: { profile: StaffProfile; showPos
   const [form, setForm] = useState(initial);
   const set = (key: keyof Form, value: string) => setForm((f) => ({ ...f, [key]: value }));
 
-  const changes: UpdateStaffProfilePayload = {};
-  (Object.keys(form) as (keyof Form)[]).forEach((key) => {
-    if (form[key].trim() !== initial[key]) {
-      const value = form[key].trim();
-      changes[key] = key === "firstName" || key === "lastName" ? value : value || null;
-    }
-  });
+  // Names are always sent as text; other fields clear to null when emptied.
+  const changes = Object.fromEntries(
+    (Object.keys(form) as (keyof Form)[])
+      .filter((key) => form[key].trim() !== initial[key])
+      .map((key) => {
+        const value = form[key].trim();
+        return [key, key === "firstName" || key === "lastName" ? value : value || null];
+      }),
+  ) as UpdateStaffProfilePayload;
   const hasChanges = Object.keys(changes).length > 0;
   const valid = !!form.firstName.trim();
 

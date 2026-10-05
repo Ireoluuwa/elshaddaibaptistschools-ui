@@ -9,6 +9,7 @@ import AdminModal, {
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
 import { useUpdateReportDetails } from "@/hooks/sessions.hooks";
+import { useStaffProfile } from "@/hooks/profile.hooks";
 import { storageService } from "@/services/storage.service";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
@@ -20,24 +21,38 @@ interface ReportDetailsModalProps {
   onClose: () => void;
 }
 
-const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, term, onClose }) => {
+const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
+  sessionName,
+  term,
+  onClose,
+}) => {
   const saved = term.reportDetails;
   const [signatureUrl, setSignatureUrl] = useState(saved?.signatureUrl ?? "");
   const [signatureFile, setSignatureFile] = useState<File | null>(null);
-  const [signedDate, setSignedDate] = useState(saved?.signedDate ?? term.endDate);
-  const [vacationDate, setVacationDate] = useState(saved?.vacationDate ?? term.endDate);
-  const [resumptionDate, setResumptionDate] = useState(saved?.resumptionDate ?? "");
+  const [signedDate, setSignedDate] = useState(
+    saved?.signedDate ?? term.endDate,
+  );
+  const [vacationDate, setVacationDate] = useState(
+    saved?.vacationDate ?? term.endDate,
+  );
+  const [resumptionDate, setResumptionDate] = useState(
+    saved?.resumptionDate ?? "",
+  );
   const [isUploading, setIsUploading] = useState(false);
   const { mutateAsync: saveDetails, isPending } = useUpdateReportDetails();
+  const { data: myProfile } = useStaffProfile();
 
   // Preview a newly picked file locally; it's only uploaded on save.
   const previewUrl = useMemo(
     () => (signatureFile ? URL.createObjectURL(signatureFile) : null),
     [signatureFile],
   );
-  useEffect(() => () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-  }, [previewUrl]);
+  useEffect(
+    () => () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    },
+    [previewUrl],
+  );
 
   const shownSignature = previewUrl ?? signatureUrl;
   const busy = isUploading || isPending;
@@ -65,7 +80,10 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
           resumptionDate: resumptionDate || null,
         },
       });
-      toast.success("Report sheet details saved", `${sessionName} • ${term.name}`);
+      toast.success(
+        "Report sheet details saved",
+        `${sessionName} • ${term.name}`,
+      );
       onClose();
     } catch (err) {
       toast.error("Couldn't save details", apiErrorMessage(err));
@@ -87,12 +105,24 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
           </button>
         ) : (
           <>
-            <button onClick={onClose} disabled={busy} className={secondaryButton}>
+            <button
+              onClick={onClose}
+              disabled={busy}
+              className={secondaryButton}
+            >
               Cancel
             </button>
-            <button onClick={handleSave} disabled={!canSave} className={primaryButton}>
+            <button
+              onClick={handleSave}
+              disabled={!canSave}
+              className={primaryButton}
+            >
               {busy && <Loader2 size={16} className="animate-spin" />}
-              {isUploading ? "Uploading…" : isPending ? "Saving…" : "Save details"}
+              {isUploading
+                ? "Uploading…"
+                : isPending
+                  ? "Saving…"
+                  : "Save details"}
             </button>
           </>
         )
@@ -109,48 +139,96 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
           {shownSignature ? (
             <div className="flex items-center gap-3 p-3 rounded-lg border border-line">
               {/* eslint-disable-next-line @next/next/no-img-element -- local preview or storage URL */}
-              <img src={shownSignature} alt="Signature" className="h-14 max-w-[200px] object-contain" />
+              <img
+                src={shownSignature}
+                alt="Signature"
+                className="h-14 max-w-[200px] object-contain"
+              />
               {!locked && (
-              <button
-                onClick={removeSignature}
-                disabled={busy}
-                className="ml-auto p-2 rounded-lg text-muted hover:text-danger transition-colors"
-                title="Remove signature"
-              >
-                <Trash2 size={16} />
-              </button>
+                <button
+                  onClick={removeSignature}
+                  disabled={busy}
+                  className="ml-auto p-2 rounded-lg text-muted hover:text-danger transition-colors"
+                  title="Remove signature"
+                >
+                  <Trash2 size={16} />
+                </button>
               )}
             </div>
           ) : locked ? (
             <p className="text-sm text-muted">No signature added.</p>
           ) : (
-            <label className="flex flex-col items-center gap-1.5 p-5 rounded-lg border border-dashed border-muted/40 hover:border-brand hover:bg-tint cursor-pointer text-center transition-colors">
-              <ImageUp size={20} className="text-brand" />
-              <span className="text-sm font-medium text-ink">Upload signature</span>
-              <span className="text-xs text-muted">PNG with a transparent background works best</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => setSignatureFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
+            <div className="flex flex-col gap-2">
+              {myProfile?.signatureUrl && (
+                <button
+                  type="button"
+                  onClick={() => setSignatureUrl(myProfile.signatureUrl ?? "")}
+                  className="h-10 px-3 inline-flex items-center justify-center gap-2 text-sm font-semibold text-brand border border-brand/40 hover:bg-tint rounded-lg transition-colors"
+                >
+                  Use my saved signature
+                </button>
+              )}
+              <label className="flex flex-col items-center gap-1.5 p-5 rounded-lg border border-dashed border-muted/40 hover:border-brand hover:bg-tint cursor-pointer text-center transition-colors">
+                <ImageUp size={20} className="text-brand" />
+                <span className="text-sm font-medium text-ink">
+                  Upload signature
+                </span>
+                <span className="text-xs text-muted">
+                  PNG with a transparent background works best
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    setSignatureFile(e.target.files?.[0] ?? null)
+                  }
+                />
+              </label>
+            </div>
           )}
         </div>
 
         <div>
-          <label htmlFor="signed-date" className={labelClass}>Date signed</label>
-          <input id="signed-date" type="date" value={signedDate} onChange={(e) => setSignedDate(e.target.value)} disabled={locked} className={`${inputClass} disabled:bg-canvas disabled:text-muted`} />
+          <label htmlFor="signed-date" className={labelClass}>
+            Date signed
+          </label>
+          <input
+            id="signed-date"
+            type="date"
+            value={signedDate}
+            onChange={(e) => setSignedDate(e.target.value)}
+            disabled={locked}
+            className={`${inputClass} disabled:bg-canvas disabled:text-muted`}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="vacation-date" className={labelClass}>Vacation date</label>
-            <input id="vacation-date" type="date" value={vacationDate} onChange={(e) => setVacationDate(e.target.value)} disabled={locked} className={`${inputClass} disabled:bg-canvas disabled:text-muted`} />
+            <label htmlFor="vacation-date" className={labelClass}>
+              Vacation date
+            </label>
+            <input
+              id="vacation-date"
+              type="date"
+              value={vacationDate}
+              onChange={(e) => setVacationDate(e.target.value)}
+              disabled={locked}
+              className={`${inputClass} disabled:bg-canvas disabled:text-muted`}
+            />
           </div>
           <div>
-            <label htmlFor="resumption-date" className={labelClass}>School resumes</label>
-            <input id="resumption-date" type="date" value={resumptionDate} onChange={(e) => setResumptionDate(e.target.value)} disabled={locked} className={`${inputClass} disabled:bg-canvas disabled:text-muted`} />
+            <label htmlFor="resumption-date" className={labelClass}>
+              School resumes
+            </label>
+            <input
+              id="resumption-date"
+              type="date"
+              value={resumptionDate}
+              onChange={(e) => setResumptionDate(e.target.value)}
+              disabled={locked}
+              className={`${inputClass} disabled:bg-canvas disabled:text-muted`}
+            />
           </div>
         </div>
       </div>

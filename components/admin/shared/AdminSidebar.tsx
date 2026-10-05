@@ -45,15 +45,18 @@ const AdminSidebar = ({ portal = "admin" }: { portal?: keyof typeof portals }) =
     return pathname.startsWith(href);
   };
 
+  const displayName =
+    [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || profile?.username || roleLabel;
+
   const accountCard = (
     <>
       <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0 text-white text-sm font-bold uppercase">
-        {profile?.username?.[0] ?? roleLabel[0]}
+        {displayName[0]}
       </div>
       {!collapsed && (
         <div className="flex-1 min-w-0">
           <p className="text-white text-sm font-semibold truncate group-hover:underline underline-offset-2">
-            {profile?.username ?? roleLabel}
+            {displayName}
           </p>
           <p className="text-white/40 text-[11px]">{profileHref ? "View profile" : roleLabel}</p>
         </div>
