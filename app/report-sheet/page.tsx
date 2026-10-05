@@ -6,10 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMyResult, useStudentResult } from "@/hooks/result.hooks";
 import { gradeMap } from "@/constants/teacher/results.constants";
-import { previewResult } from "@/constants/result-preview.constants";
+import { previewOwingResult, previewResult } from "@/constants/result-preview.constants";
+import ResultOnHold from "@/components/student/results/ResultOnHold";
 
 const formatDate = (d?: string) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }) : "";
+
+// Fee amounts on the sheet: blank when unknown, "0" when nothing is owed.
+const feeText = (n?: number) => (n === undefined ? "" : n.toLocaleString());
 
 interface ReportSheetPageProps {
   searchParams: Promise<{ termId?: string; studentId?: string; preview?: string }>;
@@ -19,13 +23,15 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
   const { termId, studentId, preview } = use(searchParams);
 
   // Local-only: render sample data without logging in or hitting the API.
-  const isPreview = preview === "1" && process.env.NODE_ENV === "development";
+  // ?preview=1 shows a normal result; ?preview=owing shows the fees-on-hold screen.
+  const isPreview =
+    (preview === "1" || preview === "owing") && process.env.NODE_ENV === "development";
   const isTeacherView = !!studentId;
   const myResult = useMyResult(isTeacherView ? undefined : termId, !isTeacherView && !isPreview);
   const studentResult = useStudentResult(studentId ?? "", termId ?? "");
 
   const { data, isLoading, isError } = isPreview
-    ? { data: previewResult, isLoading: false, isError: false }
+    ? { data: preview === "owing" ? previewOwingResult : previewResult, isLoading: false, isError: false }
     : isTeacherView
       ? studentResult
       : myResult;
@@ -99,6 +105,20 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
 
   const { result, student } = data;
   const scores = result.scores ?? [];
+  const fees = result.fees;
+
+  // Students who owe fees see a hold screen instead. Teachers can still view the result.
+  // TODO: the backend must also refuse to send the result, or this is only cosmetic.
+  if (!isTeacherView && fees && fees.outstanding > 0) {
+    return (
+      <ResultOnHold
+        outstanding={fees.outstanding}
+        termLabel={[result.term?.name, result.term?.academicYear?.name].filter(Boolean).join(", ")}
+        studentName={student?.name}
+        backHref={backHref}
+      />
+    );
+  }
 
   const totalObtainable = scores.length * 100;
   const totalObtained = scores.reduce((sum, s) => sum + s.test1 + s.test2 + s.exam, 0);
@@ -329,19 +349,21 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           <div className="text-xs flex flex-col sm:flex-row items-center justify-center gap-2 mt-6">
             <div className="flex items-center gap-2">
               <span>Outstanding: ₦</span>
-              <span className="w-24 border-b border-black inline-block h-4" />
+              <span className="w-24 border-b border-black inline-block h-4 text-center font-normal">{feeText(fees?.outstanding)}</span>
             </div>
             <div className="flex items-center gap-2">
               <span>, Next Term Tuition: ₦</span>
-              <span className="w-24 border-b border-black inline-block h-4" />
+              <span className="w-24 border-b border-black inline-block h-4 text-center font-normal">{feeText(fees?.nextTermTuition)}</span>
             </div>
             <div className="flex items-center gap-2">
               <span>, I.C.T: </span>
-              <span className="w-24 border-b border-black inline-block h-4" />
+              <span className="w-24 border-b border-black inline-block h-4 text-center font-normal">{feeText(fees?.ict)}</span>
             </div>
             <div className="flex items-center gap-2">
               <span>Total: </span>
-              <span className="w-24 border-b border-black inline-block h-4" />
+              <span className="w-24 border-b border-black inline-block h-4 text-center">
+                {fees ? feeText(fees.outstanding + fees.nextTermTuition + fees.ict) : ""}
+              </span>
             </div>
           </div>
         </div>

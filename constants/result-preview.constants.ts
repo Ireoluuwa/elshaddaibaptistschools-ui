@@ -26,6 +26,7 @@ export const previewResult: StudentResultData = {
     teacherRemark:
       "Feranmi is a diligent and well-behaved student. Keep up the good work.",
     vpRemark: "A good result. Keep it up.",
+    fees: { outstanding: 0, nextTermTuition: 125000, ict: 12000 },
     term: {
       id: "preview",
       name: "3rd Term",
@@ -51,5 +52,14 @@ export const previewResult: StudentResultData = {
       { subjectName: "Yoruba", test1: 9, test2: 10, exam: 26 },
       { subjectName: "French", test1: 12, test2: 11, exam: 35 },
     ],
+  },
+};
+
+// Same student, but owing fees: /report-sheet?preview=owing
+export const previewOwingResult: StudentResultData = {
+  ...previewResult,
+  result: previewResult.result && {
+    ...previewResult.result,
+    fees: { outstanding: 45000, nextTermTuition: 125000, ict: 12000 },
   },
 };

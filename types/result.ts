@@ -1,4 +1,5 @@
 import type { TermReportDetails } from "./admin.types";
+import type { ReportFees } from "./bursar.types";
 
 export interface TerminalResultScore {
   subjectName: string;
@@ -28,6 +29,8 @@ export interface TerminalResult {
   totalDays: number;
   teacherRemark?: string;
   vpRemark?: string;
+  // Set by the bursar. Students with outstanding > 0 can't view this result.
+  fees?: ReportFees;
   status: 'DRAFT' | 'PUBLISHED';
   term?: {
     id: string;
