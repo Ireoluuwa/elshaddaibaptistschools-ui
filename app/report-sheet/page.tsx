@@ -44,9 +44,6 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  // On narrow screens the sheet is shrunk to fit; readers can switch to full size.
-  const [fitToScreen, setFitToScreen] = useState(true);
-  const [fitScale, setFitScale] = useState(1);
 
   const handleDownload = async () => {
     if (!sheetRef.current || !data?.result) return;
@@ -176,22 +173,6 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           )}
         </div>
         <div className="flex items-center gap-2">
-        {fitScale < 1 && (
-          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-xs font-bold shadow-sm">
-            <button
-              onClick={() => setFitToScreen(true)}
-              className={`h-8 px-3 rounded-md transition-colors ${fitToScreen ? "bg-[#0e2e1d] text-white" : "text-gray-600"}`}
-            >
-              Fit
-            </button>
-            <button
-              onClick={() => setFitToScreen(false)}
-              className={`h-8 px-3 rounded-md transition-colors ${!fitToScreen ? "bg-[#0e2e1d] text-white" : "text-gray-600"}`}
-            >
-              100%
-            </button>
-          </div>
-        )}
         <button
           onClick={handleDownload}
           disabled={isDownloading}
@@ -205,7 +186,7 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
 
       {/* A4 Document — always laid out at full A4 width; shrunk on small screens.
           The inner element is what the PDF captures. */}
-      <FitToWidth fit={fitToScreen} onScaleChange={setFitScale}>
+      <FitToWidth>
       <div ref={sheetRef} className="w-[210mm] bg-white shadow-xl min-h-[297mm] p-12 print:shadow-none print:w-full print:p-0 print:m-0 border border-transparent print:border-none">
 
         {/* Header */}
