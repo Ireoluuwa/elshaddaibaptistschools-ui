@@ -22,7 +22,8 @@ export const classrooms = [
 ];
 
 export const csvRequirements = [
-  "Headers: first_name, last_name, username, class",
+  "Headers: first_name, last_name, class, department",
+  "department is only needed for SS classes (e.g. Science)",
+  "Usernames and passwords are created for you",
   "Maximum 200 rows per upload",
-  "UTF-8 encoding strictly required",
 ];

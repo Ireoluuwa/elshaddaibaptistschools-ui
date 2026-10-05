@@ -1,161 +1,135 @@
 "use client";
 
-import React, { useState } from "react";
-import { UserPlus, CheckCircle2, Lock, Eye, EyeOff } from "lucide-react";
-import { classrooms } from "@/constants/teacher/students.constants";
+import React, { useMemo, useState } from "react";
+import { Info, Loader2, UserPlus } from "lucide-react";
+import CredentialsModal from "@/components/admin/shared/CredentialsModal";
+import { inputClass, labelClass, panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
+import { useClasses, useDepartments } from "@/hooks/curriculum.hooks";
+import { useEnrollStudent } from "@/hooks/enrollment.hooks";
+import { apiErrorMessage } from "@/lib/api-error";
+import { toast } from "@/store/toast.store";
+import type { CreatedStudent } from "@/types/enrollment.types";
+
+// JSS classes before SS, then by name.
+const classOrder = (a: { name: string }, b: { name: string }) =>
+  Number(a.name.startsWith("SS")) - Number(b.name.startsWith("SS")) || a.name.localeCompare(b.name);
 
 const ManualEntry = () => {
+  const { data: rawClasses = [] } = useClasses();
+  const { data: departments = [] } = useDepartments();
+  const classes = useMemo(() => [...rawClasses].sort(classOrder), [rawClasses]);
+  const enroll = useEnrollStudent();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [selectedClass, setSelectedClass] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [classId, setClassId] = useState("");
+  const [departmentId, setDepartmentId] = useState("");
+  const [created, setCreated] = useState<CreatedStudent | null>(null);
 
-  const defaultPassword = "1234";
-
+  const selectedClass = classes.find((c) => c.id === classId);
+  const needsDepartment = !!selectedClass?.isSenior;
   const canSubmit =
-    firstName.trim() !== "" &&
-    lastName.trim() !== "" &&
-    username.trim() !== "" &&
-    selectedClass !== "";
+    !!firstName.trim() && !!lastName.trim() && !!classId && (!needsDepartment || !!departmentId) && !enroll.isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
-
-    setIsSaved(true);
-    setTimeout(() => {
-      setIsSaved(false);
+    try {
+      const student = await enroll.mutateAsync({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        classId,
+        departmentId: needsDepartment ? departmentId : undefined,
+      });
+      setCreated(student);
       setFirstName("");
       setLastName("");
-      setUsername("");
-      setSelectedClass("");
-    }, 1500);
+    } catch (err) {
+      toast.error("Couldn't add student", apiErrorMessage(err));
+    }
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      {/* Section Header */}
-      <div className="p-5 border-b border-gray-100 bg-gray-50/50">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 flex items-center gap-2">
-          <span className="w-1 h-4 bg-[#006442] rounded-full" />
-          Personal Information
-        </h2>
-      </div>
+    <section className={`${panelClass} overflow-hidden`}>
+      <header className="px-6 py-4 border-b border-line">
+        <h2 className="font-semibold text-ink">Student details</h2>
+      </header>
 
-      <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-6">
-        {/* Name Row */}
+      <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-              First Name
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Julian"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all placeholder:text-gray-300"
-            />
+          <div>
+            <label htmlFor="first-name" className={labelClass}>First name</label>
+            <input id="first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Tomiwa" className={inputClass} />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-              Last Name
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Barnes"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all placeholder:text-gray-300"
-            />
+          <div>
+            <label htmlFor="last-name" className={labelClass}>Last name</label>
+            <input id="last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="e.g. Nurudeen" className={inputClass} />
           </div>
         </div>
 
-        {/* Username & Password Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-              Username
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. j.barnes2024"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full h-11 px-4 rounded-lg border border-gray-200 bg-white focus:border-[#006442] focus:ring-1 focus:ring-[#006442] outline-none text-sm transition-all placeholder:text-gray-300"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
-              Password
-              <Lock size={12} className="text-gray-300" />
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={defaultPassword}
-                disabled
-                className="w-full h-11 px-4 pr-10 rounded-lg border border-gray-200 bg-gray-50 text-gray-400 text-sm cursor-not-allowed font-mono tracking-wider"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            <span className="text-[11px] text-gray-300 font-medium">
-              Default password — student can change later
-            </span>
-          </div>
-        </div>
-
-        {/* Class Selection */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
-            Class Selection
-          </label>
-          <select
-            value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
-            className="w-full sm:w-1/2 h-11 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-all cursor-pointer font-medium text-gray-600"
-          >
-            <option value="" disabled>
-              Select a classroom...
-            </option>
-            {classrooms.map((cls) => (
-              <option key={cls} value={cls}>
-                {cls}
+        <div className={`grid gap-4 ${needsDepartment ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+          <div>
+            <label htmlFor="class" className={labelClass}>Class</label>
+            <select
+              id="class"
+              value={classId}
+              onChange={(e) => {
+                setClassId(e.target.value);
+                setDepartmentId("");
+              }}
+              className={inputClass}
+            >
+              <option value="" disabled>
+                Choose a class
               </option>
-            ))}
-          </select>
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {needsDepartment && (
+            <div>
+              <label htmlFor="department" className={labelClass}>Department</label>
+              <select id="department" value={departmentId} onChange={(e) => setDepartmentId(e.target.value)} className={inputClass}>
+                <option value="" disabled>
+                  Choose a department
+                </option>
+                {departments.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-end pt-4 mt-2 border-t border-gray-100">
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className="h-11 px-8 bg-[#006442] hover:bg-[#005236] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSaved ? (
-              <>
-                <CheckCircle2 size={18} />
-                Student Added!
-              </>
-            ) : (
-              <>
-                <UserPlus size={16} />
-                Add Student
-              </>
-            )}
+        <p className="flex items-start gap-2 text-sm text-muted px-3 py-2.5 rounded-lg bg-tint">
+          <Info size={16} className="text-brand shrink-0 mt-0.5" />
+          The username (e.g. EBS/STU/031) and a temporary password are created automatically and shown after
+          you add the student.
+        </p>
+
+        <div className="flex justify-end">
+          <button type="submit" disabled={!canSubmit} className={primaryButton}>
+            {enroll.isPending ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+            {enroll.isPending ? "Adding…" : "Add student"}
           </button>
         </div>
       </form>
-    </div>
+
+      {created && (
+        <CredentialsModal
+          title="Student added"
+          name={`${created.firstName} ${created.lastName}`}
+          username={created.username}
+          password={created.password}
+          onClose={() => setCreated(null)}
+        />
+      )}
+    </section>
   );
 };
 
