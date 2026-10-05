@@ -1,79 +1,106 @@
 "use client";
 
-import React, { useState } from "react";
-import { ImageUp, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ImageUp, Loader2, Trash2 } from "lucide-react";
 import AdminModal, {
   inputClass,
   labelClass,
   primaryButton,
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
-import type { AdminTerm, TermReportDetails } from "@/types/admin.types";
+import { useUpdateReportDetails } from "@/hooks/sessions.hooks";
+import { storageService } from "@/services/storage.service";
+import { apiErrorMessage } from "@/lib/api-error";
+import { toast } from "@/store/toast.store";
+import type { Term } from "@/types/session.types";
 
 interface ReportDetailsModalProps {
   sessionName: string;
-  term: AdminTerm;
+  term: Term;
   onClose: () => void;
-  onSave: (details: TermReportDetails) => void;
 }
 
-const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
-  sessionName,
-  term,
-  onClose,
-  onSave,
-}) => {
-  const [details, setDetails] = useState<TermReportDetails>(
-    term.reportDetails ?? {
-      signatureUrl: "",
-      signedDate: term.endDate,
-      vacationDate: term.endDate,
-      resumptionDate: "",
-    },
-  );
+const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, term, onClose }) => {
+  const saved = term.reportDetails;
+  const [signatureUrl, setSignatureUrl] = useState(saved?.signatureUrl ?? "");
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [signedDate, setSignedDate] = useState(saved?.signedDate ?? term.endDate);
+  const [vacationDate, setVacationDate] = useState(saved?.vacationDate ?? term.endDate);
+  const [resumptionDate, setResumptionDate] = useState(saved?.resumptionDate ?? "");
+  const [isUploading, setIsUploading] = useState(false);
+  const { mutateAsync: saveDetails, isPending } = useUpdateReportDetails();
 
-  const set = <K extends keyof TermReportDetails>(key: K, value: TermReportDetails[K]) =>
-    setDetails((d) => ({ ...d, [key]: value }));
+  // Preview a newly picked file locally; it's only uploaded on save.
+  useEffect(() => {
+    if (!signatureFile) return setPreviewUrl(null);
+    const url = URL.createObjectURL(signatureFile);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [signatureFile]);
 
-  // TODO: upload to storage once the backend endpoint exists; a data URL is enough to preview.
-  const handleSignature = (file?: File) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => set("signatureUrl", reader.result as string);
-    reader.readAsDataURL(file);
+  const shownSignature = previewUrl ?? signatureUrl;
+  const busy = isUploading || isPending;
+  const canSave = !!shownSignature && !!signedDate && !busy;
+
+  const removeSignature = () => {
+    setSignatureFile(null);
+    setSignatureUrl("");
   };
 
-  const canSave = details.signatureUrl && details.signedDate;
+  const handleSave = async () => {
+    try {
+      let url = signatureUrl;
+      if (signatureFile) {
+        setIsUploading(true);
+        url = await storageService.uploadSignature(signatureFile, term.id);
+      }
+      await saveDetails({
+        termId: term.id,
+        payload: {
+          signatureUrl: url || null,
+          signedDate: signedDate || null,
+          vacationDate: vacationDate || null,
+          resumptionDate: resumptionDate || null,
+        },
+      });
+      toast.success("Report sheet details saved", `${sessionName} • ${term.name}`);
+      onClose();
+    } catch (err) {
+      toast.error("Couldn't save details", apiErrorMessage(err));
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <AdminModal
       isOpen
-      onClose={onClose}
+      onClose={busy ? () => {} : onClose}
       title="Report sheet details"
       description={`${sessionName} • ${term.name}. Printed on every student's report sheet.`}
       footer={
         <>
-          <button onClick={onClose} className={secondaryButton}>
+          <button onClick={onClose} disabled={busy} className={secondaryButton}>
             Cancel
           </button>
-          <button onClick={() => onSave(details)} disabled={!canSave} className={primaryButton}>
-            Save details
+          <button onClick={handleSave} disabled={!canSave} className={primaryButton}>
+            {busy && <Loader2 size={16} className="animate-spin" />}
+            {isUploading ? "Uploading…" : isPending ? "Saving…" : "Save details"}
           </button>
         </>
       }
     >
       <div className="flex flex-col gap-4">
         <div>
-          <label className={labelClass}>Signature</label>
-          {details.signatureUrl ? (
+          <span className={labelClass}>Signature</span>
+          {shownSignature ? (
             <div className="flex items-center gap-3 p-3 rounded-lg border border-line">
-              <img
-                src={details.signatureUrl}
-                alt="Signature"
-                className="h-14 max-w-[200px] object-contain"
-              />
+              {/* eslint-disable-next-line @next/next/no-img-element -- local preview or storage URL */}
+              <img src={shownSignature} alt="Signature" className="h-14 max-w-[200px] object-contain" />
               <button
-                onClick={() => set("signatureUrl", "")}
+                onClick={removeSignature}
+                disabled={busy}
                 className="ml-auto p-2 rounded-lg text-muted hover:text-danger transition-colors"
                 title="Remove signature"
               >
@@ -83,46 +110,31 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
           ) : (
             <label className="flex flex-col items-center gap-1.5 p-5 rounded-lg border border-dashed border-muted/40 hover:border-brand hover:bg-tint cursor-pointer text-center transition-colors">
               <ImageUp size={20} className="text-brand" />
-              <span className="text-sm font-semibold text-secondary">Upload signature</span>
+              <span className="text-sm font-medium text-ink">Upload signature</span>
               <span className="text-xs text-muted">PNG with a transparent background works best</span>
               <input
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => handleSignature(e.target.files?.[0])}
+                onChange={(e) => setSignatureFile(e.target.files?.[0] ?? null)}
               />
             </label>
           )}
         </div>
 
         <div>
-          <label className={labelClass}>Date signed</label>
-          <input
-            type="date"
-            value={details.signedDate}
-            onChange={(e) => set("signedDate", e.target.value)}
-            className={inputClass}
-          />
+          <label htmlFor="signed-date" className={labelClass}>Date signed</label>
+          <input id="signed-date" type="date" value={signedDate} onChange={(e) => setSignedDate(e.target.value)} className={inputClass} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>Vacation date</label>
-            <input
-              type="date"
-              value={details.vacationDate}
-              onChange={(e) => set("vacationDate", e.target.value)}
-              className={inputClass}
-            />
+            <label htmlFor="vacation-date" className={labelClass}>Vacation date</label>
+            <input id="vacation-date" type="date" value={vacationDate} onChange={(e) => setVacationDate(e.target.value)} className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>School resumes</label>
-            <input
-              type="date"
-              value={details.resumptionDate}
-              onChange={(e) => set("resumptionDate", e.target.value)}
-              className={inputClass}
-            />
+            <label htmlFor="resumption-date" className={labelClass}>School resumes</label>
+            <input id="resumption-date" type="date" value={resumptionDate} onChange={(e) => setResumptionDate(e.target.value)} className={inputClass} />
           </div>
         </div>
       </div>
