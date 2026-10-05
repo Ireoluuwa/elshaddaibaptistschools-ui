@@ -32,7 +32,9 @@ const LoginForm = () => {
           router.push(`/portal/${data.user.role.toLowerCase()}`);
         },
         onError: (error: any) => {
-          toast.error("Login Failed", error.response?.data?.message || "Invalid credentials.");
+          // No response means the server wasn't reached; axios already shows a network error.
+          if (!error.response) return;
+          toast.error("Login Failed", error.response.data?.message || "Invalid credentials.");
         },
       }
     );

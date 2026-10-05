@@ -1,8 +1,17 @@
 import axios from 'axios';
 import { toast } from '@/store/toast.store';
 
+// When the app is opened from another device on the network (e.g. a phone),
+// "localhost" in the API URL would point at that device, so use the page's host instead.
+const resolveApiUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL;
+  if (!url || typeof window === 'undefined') return url;
+  const { hostname } = window.location;
+  return hostname === 'localhost' ? url : url.replace('//localhost', `//${hostname}`);
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: resolveApiUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
