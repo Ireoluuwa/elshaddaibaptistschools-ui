@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, Loader2, Plus } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import CredentialsModal from "@/components/admin/shared/CredentialsModal";
-import SetPasswordModal from "@/components/admin/shared/SetPasswordModal";
 import AdminModal, {
   inputClass,
   labelClass,
@@ -19,7 +18,6 @@ import {
   useAdminTeachers,
   useAssignTeacherClass,
   useCreateTeacher,
-  useStaffAccountActions,
 } from "@/hooks/admin-staff.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
@@ -30,10 +28,7 @@ const emptyForm = { firstName: "", lastName: "", username: "", email: "", phoneN
 const rowGrid =
   "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_150px_auto] items-center gap-x-4 gap-y-2";
 
-const linkButton = "text-sm font-medium underline-offset-2 hover:underline disabled:opacity-40";
-
 type Credentials = { title: string; name: string; username: string; password: string };
-type Pending = { kind: "remove" | "delete"; teacher: TeacherAccount };
 
 const nameOf = (t: TeacherAccount) => `${t.firstName} ${t.lastName}`.trim() || t.username;
 
@@ -42,13 +37,10 @@ export default function AdminTeachersPage() {
   const { data: classes = [] } = useClasses();
   const createTeacher = useCreateTeacher();
   const assignClass = useAssignTeacherClass();
-  const actions = useStaffAccountActions("teacher");
 
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
-  const [passwordFor, setPasswordFor] = useState<TeacherAccount | null>(null);
   const [credentials, setCredentials] = useState<Credentials | null>(null);
-  const [pending, setPending] = useState<Pending | null>(null);
 
   const unassigned = useMemo(
     () => classes.filter((c) => !teachers.some((t) => t.isActive && t.classId === c.id)).map((c) => c.name),
@@ -78,28 +70,6 @@ export default function AdminTeachersPage() {
       setCredentials({ title: "Teacher added", name: nameOf(teacher), username: teacher.username, password });
     } catch (err) {
       toast.error("Couldn't add teacher", apiErrorMessage(err));
-    }
-  };
-
-  const handleConfirm = async () => {
-    if (!pending) return;
-    const { kind, teacher } = pending;
-    try {
-      if (kind === "remove") await actions.remove.mutateAsync(teacher.id);
-      else await actions.deletePermanently.mutateAsync(teacher.id);
-      toast.success(kind === "remove" ? "Teacher removed" : "Teacher deleted", nameOf(teacher));
-    } catch (err) {
-      toast.error(kind === "remove" ? "Couldn't remove teacher" : "Couldn't delete teacher", apiErrorMessage(err));
-    }
-    setPending(null);
-  };
-
-  const handleRestore = async (teacher: TeacherAccount) => {
-    try {
-      await actions.restore.mutateAsync(teacher.id);
-      toast.success("Teacher restored", `${nameOf(teacher)} can sign in again. Assign their class.`);
-    } catch (err) {
-      toast.error("Couldn't restore teacher", apiErrorMessage(err));
     }
   };
 
@@ -148,13 +118,13 @@ export default function AdminTeachersPage() {
           ) : (
             teachers.map((t) => (
               <li key={t.id} className={`${rowGrid} px-5 py-3.5`}>
-                <div className="min-w-0">
-                  <p className={`text-sm font-medium truncate ${t.isActive ? "text-ink" : "text-muted"}`}>{nameOf(t)}</p>
+                <Link href={`/portal/admin/teachers/${t.id}`} className="min-w-0 group">
+                  <p className={`text-sm font-medium truncate group-hover:underline underline-offset-2 ${t.isActive ? "text-ink" : "text-muted"}`}>{nameOf(t)}</p>
                   <p className="text-xs text-muted truncate">
                     {t.username}
                     {(t.email || t.phoneNumber) && ` · ${t.email ?? t.phoneNumber}`}
                   </p>
-                </div>
+                </Link>
 
                 <div className="row-start-2 sm:row-start-auto">
                   {t.isActive ? (
@@ -177,27 +147,13 @@ export default function AdminTeachersPage() {
                   )}
                 </div>
 
-                <div className="row-span-2 sm:row-span-1 flex items-center gap-4 justify-self-end">
-                  {t.isActive ? (
-                    <>
-                      <button onClick={() => setPasswordFor(t)} className={`${linkButton} text-ink`}>
-                        Password
-                      </button>
-                      <button onClick={() => setPending({ kind: "remove", teacher: t })} className={`${linkButton} text-danger`}>
-                        Remove
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => handleRestore(t)} disabled={actions.restore.isPending} className={`${linkButton} text-brand`}>
-                        Restore
-                      </button>
-                      <button onClick={() => setPending({ kind: "delete", teacher: t })} className={`${linkButton} text-danger`}>
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </div>
+                <Link
+                  href={`/portal/admin/teachers/${t.id}`}
+                  aria-label={`Manage ${nameOf(t)}`}
+                  className="row-span-2 sm:row-span-1 justify-self-end p-1.5 text-muted/50 hover:text-brand transition-colors"
+                >
+                  <ChevronRight size={18} />
+                </Link>
               </li>
             ))
           )}
@@ -253,34 +209,8 @@ export default function AdminTeachersPage() {
         </div>
       </AdminModal>
 
-      {passwordFor && (
-        <SetPasswordModal
-          personName={nameOf(passwordFor)}
-          onSubmit={(newPassword) => actions.setPassword.mutateAsync({ id: passwordFor.id, newPassword })}
-          onClose={() => setPasswordFor(null)}
-          onChanged={(c) => {
-            setCredentials({ title: "Password changed", name: nameOf(passwordFor), ...c });
-            setPasswordFor(null);
-          }}
-        />
-      )}
-
       {credentials && <CredentialsModal {...credentials} onClose={() => setCredentials(null)} />}
 
-      <AdminConfirm
-        isOpen={!!pending}
-        danger
-        onClose={() => setPending(null)}
-        onConfirm={handleConfirm}
-        isPending={actions.remove.isPending || actions.deletePermanently.isPending}
-        title={pending?.kind === "remove" ? `Remove ${pending && nameOf(pending.teacher)}?` : `Delete ${pending && nameOf(pending.teacher)} permanently?`}
-        confirmText={pending?.kind === "remove" ? "Remove teacher" : "Delete permanently"}
-        message={
-          pending?.kind === "remove"
-            ? "They won't be able to sign in and will be taken off their class. You can restore them later."
-            : "This deletes their account and can't be undone. It's only allowed if they haven't posted any assignments."
-        }
-      />
     </div>
   );
 }

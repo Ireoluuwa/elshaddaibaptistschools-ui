@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, Plus } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import CredentialsModal from "@/components/admin/shared/CredentialsModal";
-import SetPasswordModal from "@/components/admin/shared/SetPasswordModal";
 import InviteBursarModal, { InviteValues } from "@/components/admin/bursars/InviteBursarModal";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
-import { useAdminBursars, useInviteBursar, useStaffAccountActions } from "@/hooks/admin-staff.hooks";
+import { useAdminBursars, useInviteBursar } from "@/hooks/admin-staff.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
 import type { BursarAccount, BursarStatus } from "@/types/admin-staff.types";
@@ -26,22 +25,16 @@ const formatDate = (d: string) =>
 const rowGrid =
   "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_110px_150px_auto] items-center gap-x-4 gap-y-2";
 
-const linkButton = "text-sm font-medium underline-offset-2 hover:underline disabled:opacity-40";
-
 type Credentials = { title: string; name: string; username: string; password: string };
-type Pending = { kind: "remove" | "delete"; bursar: BursarAccount };
 
 const nameOf = (b: BursarAccount) => `${b.firstName} ${b.lastName}`.trim() || b.username;
 
 export default function AdminBursarsPage() {
   const { data: bursars = [], isLoading, isError, refetch } = useAdminBursars();
   const inviteBursar = useInviteBursar();
-  const actions = useStaffAccountActions("bursar");
 
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [passwordFor, setPasswordFor] = useState<BursarAccount | null>(null);
   const [credentials, setCredentials] = useState<Credentials | null>(null);
-  const [pending, setPending] = useState<Pending | null>(null);
 
   const handleInvite = async (values: InviteValues) => {
     try {
@@ -56,28 +49,6 @@ export default function AdminBursarsPage() {
       setCredentials({ title: "Account created", name: nameOf(bursar), username: bursar.username, password });
     } catch (err) {
       toast.error("Couldn't invite bursar", apiErrorMessage(err));
-    }
-  };
-
-  const handleConfirm = async () => {
-    if (!pending) return;
-    const { kind, bursar } = pending;
-    try {
-      if (kind === "remove") await actions.remove.mutateAsync(bursar.id);
-      else await actions.deletePermanently.mutateAsync(bursar.id);
-      toast.success(kind === "remove" ? "Bursar removed" : "Bursar deleted", nameOf(bursar));
-    } catch (err) {
-      toast.error(kind === "remove" ? "Couldn't remove bursar" : "Couldn't delete bursar", apiErrorMessage(err));
-    }
-    setPending(null);
-  };
-
-  const handleRestore = async (bursar: BursarAccount) => {
-    try {
-      await actions.restore.mutateAsync(bursar.id);
-      toast.success("Bursar restored", `${nameOf(bursar)} can sign in again.`);
-    } catch (err) {
-      toast.error("Couldn't restore bursar", apiErrorMessage(err));
     }
   };
 
@@ -128,13 +99,13 @@ export default function AdminBursarsPage() {
                 const removed = b.status === "removed";
                 return (
                   <li key={b.id} className={`${rowGrid} px-5 py-3.5`}>
-                    <div className="min-w-0">
-                      <p className={`text-sm font-medium truncate ${removed ? "text-muted" : "text-ink"}`}>{nameOf(b)}</p>
+                    <Link href={`/portal/admin/bursars/${b.id}`} className="min-w-0 group">
+                      <p className={`text-sm font-medium truncate group-hover:underline underline-offset-2 ${removed ? "text-muted" : "text-ink"}`}>{nameOf(b)}</p>
                       <p className="text-xs text-muted truncate">
                         {b.username}
                         {(b.email || b.phoneNumber) && ` · ${b.email ?? b.phoneNumber}`}
                       </p>
-                    </div>
+                    </Link>
 
                     <div className="col-start-2 row-start-1 sm:col-start-auto sm:row-start-auto justify-self-end sm:justify-self-start">
                       <StatusBadge tone={statusTone[b.status]}>{b.status}</StatusBadge>
@@ -144,27 +115,13 @@ export default function AdminBursarsPage() {
                       {b.lastLoginAt ? formatDate(b.lastLoginAt) : `Invited ${formatDate(b.invitedAt)}`}
                     </span>
 
-                    <div className="col-span-2 sm:col-span-1 flex items-center gap-4 sm:justify-end">
-                      {removed ? (
-                        <>
-                          <button onClick={() => handleRestore(b)} disabled={actions.restore.isPending} className={`${linkButton} text-brand`}>
-                            Restore
-                          </button>
-                          <button onClick={() => setPending({ kind: "delete", bursar: b })} className={`${linkButton} text-danger`}>
-                            Delete
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => setPasswordFor(b)} className={`${linkButton} text-ink`}>
-                            Password
-                          </button>
-                          <button onClick={() => setPending({ kind: "remove", bursar: b })} className={`${linkButton} text-danger`}>
-                            Remove
-                          </button>
-                        </>
-                      )}
-                    </div>
+                    <Link
+                      href={`/portal/admin/bursars/${b.id}`}
+                      aria-label={`Manage ${nameOf(b)}`}
+                      className="col-span-2 sm:col-span-1 justify-self-end p-1.5 text-muted/50 hover:text-brand transition-colors"
+                    >
+                      <ChevronRight size={18} />
+                    </Link>
                   </li>
                 );
               })}
@@ -187,34 +144,8 @@ export default function AdminBursarsPage() {
         />
       )}
 
-      {passwordFor && (
-        <SetPasswordModal
-          personName={nameOf(passwordFor)}
-          onSubmit={(newPassword) => actions.setPassword.mutateAsync({ id: passwordFor.id, newPassword })}
-          onClose={() => setPasswordFor(null)}
-          onChanged={(c) => {
-            setCredentials({ title: "Password changed", name: nameOf(passwordFor), ...c });
-            setPasswordFor(null);
-          }}
-        />
-      )}
-
       {credentials && <CredentialsModal {...credentials} onClose={() => setCredentials(null)} />}
 
-      <AdminConfirm
-        isOpen={!!pending}
-        danger
-        onClose={() => setPending(null)}
-        onConfirm={handleConfirm}
-        isPending={actions.remove.isPending || actions.deletePermanently.isPending}
-        title={pending?.kind === "remove" ? `Remove ${pending && nameOf(pending.bursar)}?` : `Delete ${pending && nameOf(pending.bursar)} permanently?`}
-        confirmText={pending?.kind === "remove" ? "Remove bursar" : "Delete permanently"}
-        message={
-          pending?.kind === "remove"
-            ? "They won't be able to sign in. You can restore them later."
-            : "This deletes their account and can't be undone."
-        }
-      />
     </div>
   );
 }
