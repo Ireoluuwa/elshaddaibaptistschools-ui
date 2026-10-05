@@ -5,12 +5,12 @@ import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import {
-  mockSessions,
   mockStudents,
   mockTeachers,
   promotionClasses,
 } from "@/constants/admin/mock.constants";
-import type { TermStatus } from "@/types/admin.types";
+import type { TermStatus } from "@/types/session.types";
+import { useSessions } from "@/hooks/sessions.hooks";
 import { usePromotionStore } from "@/store/promotion.store";
 
 const formatDate = (d: string) =>
@@ -24,10 +24,11 @@ const termBar: Record<TermStatus, string> = {
 
 export default function AdminDashboard() {
   const promotedCount = usePromotionStore((s) => s.promotedClasses.length);
-  const currentSession = mockSessions.find((s) => s.isCurrent);
+  const { data: sessions = [] } = useSessions();
+  const currentSession = sessions.find((s) => s.isCurrent);
   const activeTerm = currentSession?.terms.find((t) => t.status === "active");
   const sessionEnded =
-    !activeTerm && currentSession?.terms.at(-1)?.status === "closed";
+    !!currentSession && !activeTerm && currentSession.terms.at(-1)?.status === "closed";
 
   const activeStudents = mockStudents.filter((s) => s.status === "active").length;
   const activeTeachers = mockTeachers.filter((t) => t.isActive);
