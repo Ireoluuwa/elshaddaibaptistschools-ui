@@ -1,25 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
+import { Loader2 } from "lucide-react";
 import AdminModal, {
   inputClass,
   labelClass,
   primaryButton,
   secondaryButton,
 } from "@/components/admin/shared/AdminModal";
+import { useAddClass } from "@/hooks/curriculum.hooks";
+import { apiErrorMessage } from "@/lib/api-error";
+import { toast } from "@/store/toast.store";
+import type { SchoolClass } from "@/types/curriculum.types";
 
 interface AddClassModalProps {
   existing: string[];
   onClose: () => void;
-  onAdd: (name: string, isSenior: boolean) => void;
+  onAdded: (schoolClass: SchoolClass) => void;
 }
 
-const AddClassModal: React.FC<AddClassModalProps> = ({ existing, onClose, onAdd }) => {
+const AddClassModal: React.FC<AddClassModalProps> = ({ existing, onClose, onAdded }) => {
   const [name, setName] = useState("");
   const [isSenior, setIsSenior] = useState(false);
+  const { mutateAsync, isPending } = useAddClass();
 
   const trimmed = name.trim().toUpperCase();
   const taken = existing.some((c) => c.toUpperCase() === trimmed);
+
+  const handleAdd = async () => {
+    try {
+      onAdded(await mutateAsync({ name: trimmed, isSenior }));
+    } catch (err) {
+      toast.error("Couldn't add class", apiErrorMessage(err));
+    }
+  };
 
   return (
     <AdminModal
@@ -29,7 +43,8 @@ const AddClassModal: React.FC<AddClassModalProps> = ({ existing, onClose, onAdd 
       footer={
         <>
           <button onClick={onClose} className={secondaryButton}>Cancel</button>
-          <button onClick={() => onAdd(trimmed, isSenior)} disabled={!trimmed || taken} className={primaryButton}>
+          <button onClick={handleAdd} disabled={!trimmed || taken || isPending} className={primaryButton}>
+            {isPending && <Loader2 size={16} className="animate-spin" />}
             Add class
           </button>
         </>
