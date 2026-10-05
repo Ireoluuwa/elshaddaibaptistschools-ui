@@ -25,7 +25,7 @@ const LoginForm = () => {
     }
     
     login(
-      { username, password },
+      { username: username.trim(), password },
       {
         onSuccess: (data) => {
           toast.success("Login Successful", `Welcome back, ${data.user.username}!`);
