@@ -10,22 +10,22 @@ import TermFormModal, {
 } from "@/components/admin/sessions/TermFormModal";
 import ReportDetailsModal from "@/components/admin/sessions/ReportDetailsModal";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
-import { mockSessions } from "@/constants/admin/mock.constants";
+import {
+  useActivateTerm,
+  useAddTerm,
+  useCloseTerm,
+  useCreateSession,
+  useSessions,
+} from "@/hooks/sessions.hooks";
+import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
-import type {
-  AdminSession,
-  AdminTerm,
-  TermReportDetails,
-  TermStatus,
-} from "@/types/admin.types";
+import { TERM_NAMES, type Session, type Term, type TermStatus } from "@/types/session.types";
 
 const termTone: Record<TermStatus, "brand" | "muted" | "clay"> = {
   active: "brand",
   closed: "muted",
   upcoming: "clay",
 };
-
-const termOrder = ["1st Term", "2nd Term", "3rd Term"];
 
 const formatDate = (d: string) =>
   new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -39,95 +39,55 @@ const nextSessionName = (name?: string) => {
   return start ? `${start + 1}/${start + 2}` : "";
 };
 
-type PendingAction = { kind: "activate" | "close"; session: AdminSession; term: AdminTerm };
+const nextTermName = (session: Session) =>
+  TERM_NAMES.find((n) => !session.terms.some((t) => t.name === n)) ?? "1st Term";
+
+type PendingAction = { kind: "activate" | "close"; session: Session; term: Term };
 
 export default function SessionsPage() {
-  const [sessions, setSessions] = useState<AdminSession[]>(mockSessions);
-  const [formFor, setFormFor] = useState<AdminSession | "new" | null>(null);
+  const { data: sessions = [], isLoading, isError, refetch } = useSessions();
+  const createSession = useCreateSession();
+  const addTerm = useAddTerm();
+  const activateTerm = useActivateTerm();
+  const closeTerm = useCloseTerm();
+
+  const [formFor, setFormFor] = useState<Session | "new" | null>(null);
   const [pending, setPending] = useState<PendingAction | null>(null);
-  const [detailsFor, setDetailsFor] = useState<{ session: AdminSession; term: AdminTerm } | null>(null);
+  const [detailsFor, setDetailsFor] = useState<{ session: Session; term: Term } | null>(null);
 
-  const handleSaveDetails = (reportDetails: TermReportDetails) => {
-    if (!detailsFor) return;
-    setSessions((prev) =>
-      prev.map((s) => ({
-        ...s,
-        terms: s.terms.map((t) => (t.id === detailsFor.term.id ? { ...t, reportDetails } : t)),
-      })),
-    );
-    toast.success(
-      "Report sheet details saved",
-      `${detailsFor.session.name} • ${detailsFor.term.name}`,
-    );
-    setDetailsFor(null);
-  };
-
-  const handleCreate = (values: TermFormValues) => {
-    const term: AdminTerm = {
-      id: crypto.randomUUID(),
+  const handleCreate = async (values: TermFormValues) => {
+    const term = {
       name: values.termName,
       startDate: values.startDate,
       endDate: values.endDate,
-      status: values.makeCurrent ? "active" : "upcoming",
+      makeActive: values.makeCurrent,
     };
-
-    setSessions((prev) => {
-      // Only one term (and session) can be active at a time.
-      const base = values.makeCurrent
-        ? prev.map((s) => ({
-            ...s,
-            isCurrent: false,
-            terms: s.terms.map((t) =>
-              t.status === "active" ? { ...t, status: "closed" as const } : t,
-            ),
-          }))
-        : prev;
-
+    try {
       if (formFor === "new") {
-        return [
-          { id: crypto.randomUUID(), name: values.sessionName, isCurrent: values.makeCurrent, terms: [term] },
-          ...base,
-        ];
+        await createSession.mutateAsync({ name: values.sessionName, firstTerm: term });
+        toast.success("Session created", `${values.sessionName} • ${values.termName}`);
+      } else if (formFor) {
+        await addTerm.mutateAsync({ sessionId: formFor.id, payload: term });
+        toast.success("Term added", `${formFor.name} • ${values.termName}`);
       }
-      return base.map((s) =>
-        s.id === (formFor as AdminSession).id
-          ? { ...s, isCurrent: values.makeCurrent || s.isCurrent, terms: [...s.terms, term] }
-          : s,
-      );
-    });
-
-    toast.success(
-      formFor === "new" ? "Session created" : "Term added",
-      `${values.sessionName} • ${values.termName}`,
-    );
-    setFormFor(null);
+      setFormFor(null);
+    } catch (err) {
+      toast.error("Couldn't save", apiErrorMessage(err));
+    }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!pending) return;
     const { kind, session, term } = pending;
-
-    setSessions((prev) =>
-      prev.map((s) => ({
-        ...s,
-        isCurrent: kind === "activate" ? s.id === session.id : s.isCurrent,
-        terms: s.terms.map((t) => {
-          if (t.id === term.id) return { ...t, status: kind === "activate" ? "active" : "closed" };
-          if (kind === "activate" && t.status === "active") return { ...t, status: "closed" };
-          return t;
-        }),
-      })),
-    );
-
-    toast.success(
-      kind === "activate" ? "Term activated" : "Term closed",
-      `${session.name} • ${term.name}`,
-    );
-    setPending(null);
+    try {
+      if (kind === "activate") await activateTerm.mutateAsync(term.id);
+      else await closeTerm.mutateAsync(term.id);
+      toast.success(kind === "activate" ? "Term activated" : "Term closed", `${session.name} • ${term.name}`);
+      setPending(null);
+    } catch (err) {
+      toast.error("Couldn't update term", apiErrorMessage(err));
+    }
   };
-
-  const nextTermName = (session: AdminSession) =>
-    termOrder.find((n) => !session.terms.some((t) => t.name === n)) ?? "1st Term";
 
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
@@ -140,6 +100,30 @@ export default function SessionsPage() {
           </button>
         }
       />
+
+      {isLoading && (
+        <div className={`${panelClass} p-5 flex flex-col gap-3`}>
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-10 rounded-lg bg-canvas animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {isError && (
+        <div className={`${panelClass} px-5 py-10 text-center`}>
+          <p className="text-sm text-muted">Couldn&apos;t load sessions.</p>
+          <button onClick={() => refetch()} className="mt-2 text-sm font-semibold text-brand hover:underline">
+            Try again
+          </button>
+        </div>
+      )}
+
+      {!isLoading && !isError && sessions.length === 0 && (
+        <div className={`${panelClass} px-5 py-12 text-center`}>
+          <p className="font-semibold text-ink">No sessions yet</p>
+          <p className="text-sm text-muted mt-1">Start the first session to set up terms.</p>
+        </div>
+      )}
 
       {sessions.map((session) => (
         <section key={session.id} className={`${panelClass} overflow-hidden`}>
@@ -188,9 +172,11 @@ export default function SessionsPage() {
                       term.reportDetails ? "text-ink" : "text-clay font-medium"
                     }`}
                   >
-                    {term.reportDetails
-                      ? `Signed ${formatDate(term.reportDetails.signedDate)}`
-                      : "Add signature & dates"}
+                    {!term.reportDetails
+                      ? "Add signature & dates"
+                      : term.reportDetails.signedDate
+                        ? `Signed ${formatDate(term.reportDetails.signedDate)}`
+                        : "Details added"}
                   </button>
                 </div>
 
@@ -223,7 +209,6 @@ export default function SessionsPage() {
           sessionName={detailsFor.session.name}
           term={detailsFor.term}
           onClose={() => setDetailsFor(null)}
-          onSave={handleSaveDetails}
         />
       )}
 
@@ -235,6 +220,7 @@ export default function SessionsPage() {
           sessionName={formFor === "new" ? undefined : formFor.name}
           suggestedSessionName={nextSessionName(sessions[0]?.name)}
           suggestedTermName={formFor === "new" ? "1st Term" : nextTermName(formFor)}
+          isSubmitting={createSession.isPending || addTerm.isPending}
         />
       )}
 
@@ -249,6 +235,7 @@ export default function SessionsPage() {
             : `${pending?.session.name} ${pending?.term.name} will become the active term. Any other active term will be closed.`
         }
         confirmText={pending?.kind === "close" ? "Close term" : "Make active"}
+        isPending={activateTerm.isPending || closeTerm.isPending}
       />
     </div>
   );

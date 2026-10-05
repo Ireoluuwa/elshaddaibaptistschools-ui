@@ -12,7 +12,7 @@ import { downloadElementAsPdf } from "@/lib/pdf";
 import FitToWidth from "@/components/shared/FitToWidth";
 import { toast } from "@/store/toast.store";
 
-const formatDate = (d?: string) =>
+const formatDate = (d?: string | null) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }) : "";
 
 // Fee amounts on the sheet: blank when unknown, "₦0" when nothing is owed.
