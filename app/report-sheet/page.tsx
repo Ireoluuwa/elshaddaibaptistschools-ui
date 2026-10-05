@@ -1,13 +1,15 @@
 "use client";
 
-import React, { use } from "react";
-import { Download, ChevronLeft, FileEdit } from "lucide-react";
+import React, { use, useRef, useState } from "react";
+import { Download, ChevronLeft, FileEdit, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useMyResult, useStudentResult } from "@/hooks/result.hooks";
 import { gradeMap } from "@/constants/teacher/results.constants";
 import { previewOwingResult, previewResult } from "@/constants/result-preview.constants";
 import ResultOnHold from "@/components/student/results/ResultOnHold";
+import { downloadElementAsPdf } from "@/lib/pdf";
+import { toast } from "@/store/toast.store";
 
 const formatDate = (d?: string) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }) : "";
@@ -39,7 +41,26 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
     ? `/portal/teacher/results/${studentId}`
     : "/portal/student/results";
 
-  const handlePrint = () => window.print();
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!sheetRef.current || !data?.result) return;
+    setIsDownloading(true);
+    try {
+      const name = data.student?.name ?? "Student";
+      const term = [data.result.term?.name, data.result.term?.academicYear?.name]
+        .filter(Boolean)
+        .join(" ")
+        .replace(/\//g, "-");
+      await downloadElementAsPdf(sheetRef.current, `Result - ${name}${term ? ` - ${term}` : ""}`);
+    } catch (err) {
+      console.error("PDF download failed:", err);
+      toast.error("Download failed", "Couldn't create the PDF. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -151,16 +172,17 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
           )}
         </div>
         <button
-          onClick={handlePrint}
-          className="flex items-center gap-2 px-5 py-2 bg-[#006442] hover:bg-[#005236] text-white font-bold rounded-lg shadow-sm transition-colors"
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="flex items-center gap-2 px-5 py-2 bg-[#006442] hover:bg-[#005236] text-white font-bold rounded-lg shadow-sm transition-colors disabled:opacity-70 disabled:cursor-wait"
         >
-          <Download size={18} />
-          Download
+          {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+          {isDownloading ? "Preparing PDF…" : "Download PDF"}
         </button>
       </div>
 
-      {/* A4 Document */}
-      <div className="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-8 md:p-12 print:shadow-none print:w-full print:max-w-none print:p-0 print:m-0 border border-transparent print:border-none">
+      {/* A4 Document — this element is what the PDF captures */}
+      <div ref={sheetRef} className="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-8 md:p-12 print:shadow-none print:w-full print:max-w-none print:p-0 print:m-0 border border-transparent print:border-none">
 
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
