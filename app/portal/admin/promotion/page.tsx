@@ -160,17 +160,20 @@ export default function PromotionPage() {
                 <label htmlFor="pass-mark" className="text-muted">
                   Pass mark
                 </label>
-                <div className="relative">
+                <div className="flex items-center h-9 rounded-lg border border-line focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/15 bg-white overflow-hidden transition-colors">
                   <input
                     id="pass-mark"
                     type="number"
+                    inputMode="numeric"
                     min={0}
                     max={100}
                     value={passMark}
-                    onChange={(e) => setPassMark(Number(e.target.value))}
-                    className="w-16 h-9 pl-3 pr-6 rounded-lg border border-line focus:border-brand outline-none bg-white tabular-nums text-ink"
+                    onChange={(e) =>
+                      setPassMark(Math.min(100, Math.max(0, Math.round(Number(e.target.value) || 0))))
+                    }
+                    className="w-14 h-full pl-3 pr-1 text-right outline-none bg-transparent tabular-nums text-ink font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted">%</span>
+                  <span className="pr-3 text-sm text-muted select-none">%</span>
                 </div>
                 <button
                   onClick={resetToPassMark}
