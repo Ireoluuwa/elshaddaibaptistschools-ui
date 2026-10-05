@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ImageUp, Loader2, Trash2 } from "lucide-react";
 import AdminModal, {
   inputClass,
@@ -24,7 +24,6 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
   const saved = term.reportDetails;
   const [signatureUrl, setSignatureUrl] = useState(saved?.signatureUrl ?? "");
   const [signatureFile, setSignatureFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [signedDate, setSignedDate] = useState(saved?.signedDate ?? term.endDate);
   const [vacationDate, setVacationDate] = useState(saved?.vacationDate ?? term.endDate);
   const [resumptionDate, setResumptionDate] = useState(saved?.resumptionDate ?? "");
@@ -32,12 +31,13 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ sessionName, te
   const { mutateAsync: saveDetails, isPending } = useUpdateReportDetails();
 
   // Preview a newly picked file locally; it's only uploaded on save.
-  useEffect(() => {
-    if (!signatureFile) return setPreviewUrl(null);
-    const url = URL.createObjectURL(signatureFile);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [signatureFile]);
+  const previewUrl = useMemo(
+    () => (signatureFile ? URL.createObjectURL(signatureFile) : null),
+    [signatureFile],
+  );
+  useEffect(() => () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const shownSignature = previewUrl ?? signatureUrl;
   const busy = isUploading || isPending;

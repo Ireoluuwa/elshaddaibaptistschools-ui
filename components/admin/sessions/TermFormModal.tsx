@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import AdminModal, {
   inputClass,
   labelClass,
@@ -11,10 +11,11 @@ import AdminModal, {
 } from "@/components/admin/shared/AdminModal";
 import { promotionClasses } from "@/constants/admin/mock.constants";
 import { usePromotionStore } from "@/store/promotion.store";
+import type { TermName } from "@/types/session.types";
 
 export interface TermFormValues {
   sessionName: string;
-  termName: string;
+  termName: TermName;
   startDate: string;
   endDate: string;
   makeCurrent: boolean;
@@ -27,7 +28,8 @@ interface TermFormModalProps {
   // When set, we're adding a term to this existing session.
   sessionName?: string;
   suggestedSessionName?: string;
-  suggestedTermName: string;
+  suggestedTermName: TermName;
+  isSubmitting?: boolean;
 }
 
 const TermFormModal: React.FC<TermFormModalProps> = ({
@@ -37,6 +39,7 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
   sessionName,
   suggestedSessionName = "",
   suggestedTermName,
+  isSubmitting = false,
 }) => {
   const isNewSession = !sessionName;
   const [values, setValues] = useState<TermFormValues>({
@@ -64,6 +67,7 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
     values.sessionName.trim() &&
     values.termName.trim() &&
     datesValid &&
+    !isSubmitting &&
     (notPromoted.length === 0 || acknowledged);
 
   return (
@@ -86,7 +90,8 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
             disabled={!canSubmit}
             className={primaryButton}
           >
-            {isNewSession ? "Create session" : "Add term"}
+            {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+            {isSubmitting ? "Saving…" : isNewSession ? "Create session" : "Add term"}
           </button>
         </>
       }
@@ -134,7 +139,7 @@ const TermFormModal: React.FC<TermFormModalProps> = ({
           <label className={labelClass}>Term</label>
           <select
             value={values.termName}
-            onChange={(e) => set("termName", e.target.value)}
+            onChange={(e) => set("termName", e.target.value as TermName)}
             className={inputClass}
           >
             <option>1st Term</option>
