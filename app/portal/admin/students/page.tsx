@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Plus, Search } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import StatusBadge from "@/components/admin/shared/StatusBadge";
-import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import StudentDetailModal from "@/components/admin/students/StudentDetailModal";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
-import { mockStudents, promotionClasses } from "@/constants/admin/mock.constants";
-import { toast } from "@/store/toast.store";
-import type { AdminStudent, StudentStatus } from "@/types/admin.types";
+import { useAdminStudents } from "@/hooks/admin-students.hooks";
+import type { StudentListItem, StudentStatus } from "@/types/admin-students.types";
 
 const statusTone: Record<StudentStatus, "brand" | "muted" | "clay"> = {
   active: "brand",
@@ -24,13 +22,21 @@ const filterClass =
 const rowGrid =
   "grid grid-cols-[minmax(0,1fr)_auto_16px] sm:grid-cols-[minmax(0,1fr)_140px_100px_16px] items-center gap-4";
 
+// JSS classes before SS, then by name.
+const classOrder = (a: string, b: string) =>
+  Number(a.startsWith("SS")) - Number(b.startsWith("SS")) || a.localeCompare(b);
+
 export default function AdminStudentsPage() {
-  const [students, setStudents] = useState<AdminStudent[]>(mockStudents);
+  const { data: students = [], isLoading, isError, refetch } = useAdminStudents();
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<StudentStatus | "all">("active");
-  const [selected, setSelected] = useState<AdminStudent | null>(null);
-  const [withdrawing, setWithdrawing] = useState<AdminStudent | null>(null);
+  const [selected, setSelected] = useState<StudentListItem | null>(null);
+
+  const classes = useMemo(
+    () => [...new Set(students.map((s) => s.className).filter((c): c is string => !!c))].sort(classOrder),
+    [students],
+  );
 
   const q = search.toLowerCase();
   const filtered = students.filter(
@@ -40,14 +46,11 @@ export default function AdminStudentsPage() {
       `${s.firstName} ${s.lastName} ${s.username}`.toLowerCase().includes(q),
   );
 
-  const update = (next: AdminStudent) =>
-    setStudents((prev) => prev.map((s) => (s.id === next.id ? next : s)));
-
   return (
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Students"
-        description="Find a student to change their class or manage their account."
+        description="Find a student and see their class history."
         action={
           <Link href="/portal/admin/students/new" className={`${primaryButton} self-start`}>
             <Plus size={16} /> Add student
@@ -71,7 +74,7 @@ export default function AdminStudentsPage() {
           <div className="flex gap-3">
             <select value={classFilter} onChange={(e) => setClassFilter(e.target.value)} aria-label="Class" className={`${filterClass} flex-1`}>
               <option value="all">All classes</option>
-              {promotionClasses.map((c) => (
+              {classes.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>
@@ -100,7 +103,20 @@ export default function AdminStudentsPage() {
         </div>
 
         <ul className="divide-y divide-line">
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            [...Array(6)].map((_, i) => (
+              <li key={i} className="px-5 py-3.5">
+                <div className="h-9 rounded-lg bg-canvas animate-pulse" />
+              </li>
+            ))
+          ) : isError ? (
+            <li className="px-5 py-12 text-center text-sm text-muted">
+              Couldn&apos;t load students.{" "}
+              <button onClick={() => refetch()} className="font-semibold text-brand hover:underline">
+                Try again
+              </button>
+            </li>
+          ) : filtered.length === 0 ? (
             <li className="px-5 py-12 text-center text-muted text-sm">No students match.</li>
           ) : (
             filtered.map((s) => (
@@ -131,38 +147,8 @@ export default function AdminStudentsPage() {
       </section>
 
       {selected && (
-        <StudentDetailModal
-          key={selected.id}
-          student={selected}
-          onClose={() => setSelected(null)}
-          onSave={(next) => {
-            update(next);
-            setSelected(null);
-            toast.success("Student updated", `${next.firstName} is now in ${next.className}.`);
-          }}
-          onWithdraw={(s) => {
-            setSelected(null);
-            setWithdrawing(s);
-          }}
-          onResetPassword={(s) =>
-            toast.success("Password reset", `${s.username}'s password was reset to the default.`)
-          }
-        />
+        <StudentDetailModal key={selected.id} student={selected} onClose={() => setSelected(null)} />
       )}
-
-      <AdminConfirm
-        isOpen={!!withdrawing}
-        danger
-        onClose={() => setWithdrawing(null)}
-        onConfirm={() => {
-          if (withdrawing) update({ ...withdrawing, status: "withdrawn" });
-          toast.success("Student withdrawn", `${withdrawing?.firstName} can no longer sign in.`);
-          setWithdrawing(null);
-        }}
-        title="Withdraw this student?"
-        message={`${withdrawing?.lastName} ${withdrawing?.firstName} will be removed from ${withdrawing?.className} and their account disabled. Their past results are kept.`}
-        confirmText="Withdraw"
-      />
     </div>
   );
 }
