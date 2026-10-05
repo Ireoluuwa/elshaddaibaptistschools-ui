@@ -24,7 +24,7 @@ const emptyForm = { firstName: "", lastName: "", username: "", email: "", phoneN
 const rowGrid =
   "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_140px_16px] items-center gap-x-4";
 
-type Credentials = { title: string; name: string; username: string; password: string };
+type Credentials = { title: string; name: string; username: string; password: string; description?: string };
 
 const nameOf = (t: TeacherAccount) => `${t.firstName} ${t.lastName}`.trim() || t.username;
 
@@ -53,7 +53,13 @@ export default function AdminTeachersPage() {
       });
       setAddOpen(false);
       setForm(emptyForm);
-      setCredentials({ title: "Teacher added", name: nameOf(teacher), username: teacher.username, password });
+      setCredentials({
+        title: "Teacher added",
+        name: nameOf(teacher),
+        username: teacher.username,
+        password,
+        description: "Share these with the teacher. They should change the password after signing in.",
+      });
     } catch (err) {
       toast.error("Couldn't add teacher", apiErrorMessage(err));
     }
@@ -140,7 +146,7 @@ export default function AdminTeachersPage() {
         isOpen={addOpen}
         onClose={() => setAddOpen(false)}
         title="Add teacher"
-        description="We'll create a temporary password for you to share with them."
+        description="They'll sign in with this username and the password 0000, then change it."
         footer={
           <>
             <button onClick={() => setAddOpen(false)} disabled={createTeacher.isPending} className={secondaryButton}>
