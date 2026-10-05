@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import AdminModal, { primaryButton, secondaryButton } from "@/components/admin/shared/AdminModal";
+import AdminConfirm from "@/components/admin/shared/AdminConfirm";
 import { useAdminTeachers, useAssignTeacherClass } from "@/hooks/admin-staff.hooks";
 import { useClasses } from "@/hooks/curriculum.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
@@ -24,6 +25,7 @@ const AssignClassModal: React.FC<AssignClassModalProps> = ({ teacherId, teacherN
   const { data: teachers = [] } = useAdminTeachers();
   const assignClass = useAssignTeacherClass();
   const [selected, setSelected] = useState<string | null>(currentClassId);
+  const [confirming, setConfirming] = useState(false);
 
   const classes = useMemo(() => [...rawClasses].sort(classOrder), [rawClasses]);
 
@@ -32,6 +34,24 @@ const AssignClassModal: React.FC<AssignClassModalProps> = ({ teacherId, teacherN
     teachers
       .filter((t) => t.isActive && t.classId === classId && t.id !== teacherId)
       .map((t) => `${t.firstName} ${t.lastName}`.trim() || t.username);
+
+  const selectedName = classes.find((c) => c.id === selected)?.name;
+  const currentName = classes.find((c) => c.id === currentClassId)?.name;
+  const sharedWith = selected ? teachersOf(selected) : [];
+
+  const confirmMessage = selected ? (
+    <>
+      {teacherName} will see {selectedName}&apos;s students when entering results and weekly reports
+      {currentName ? `, and will no longer manage ${currentName}` : ""}.
+      {sharedWith.length > 0 && (
+        <span className="block mt-2 text-clay">
+          {selectedName} is also taught by {sharedWith.join(", ")}. They&apos;ll keep it too.
+        </span>
+      )}
+    </>
+  ) : (
+    `${teacherName} will no longer be a class teacher${currentName ? ` of ${currentName}` : ""}.`
+  );
 
   const handleSave = async () => {
     try {
@@ -69,6 +89,20 @@ const AssignClassModal: React.FC<AssignClassModalProps> = ({ teacherId, teacherN
     );
   };
 
+  if (confirming) {
+    return (
+      <AdminConfirm
+        isOpen
+        onClose={() => setConfirming(false)}
+        onConfirm={handleSave}
+        isPending={assignClass.isPending}
+        title={selected ? `Make ${teacherName} class teacher of ${selectedName}?` : `Remove ${teacherName} from ${currentName}?`}
+        confirmText={selected ? "Yes, assign class" : "Yes, remove class"}
+        message={confirmMessage}
+      />
+    );
+  }
+
   return (
     <AdminModal
       isOpen
@@ -81,7 +115,7 @@ const AssignClassModal: React.FC<AssignClassModalProps> = ({ teacherId, teacherN
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            onClick={() => setConfirming(true)}
             disabled={selected === currentClassId || assignClass.isPending}
             className={primaryButton}
           >
