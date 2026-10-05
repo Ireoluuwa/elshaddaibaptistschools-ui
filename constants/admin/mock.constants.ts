@@ -83,3 +83,55 @@ export const mockTeachers: AdminTeacher[] = [
   { id: "tch-6", username: "mr.ogun", firstName: "Dayo", lastName: "Ogunleye", isActive: true },
   { id: "tch-7", username: "mrs.nwosu", firstName: "Uche", lastName: "Nwosu", isActive: false },
 ];
+
+// ── Term results (per student) ──────────────────────────────────────────────
+
+const juniorSubjects = [
+  "English Language", "Mathematics", "Basic Science", "Basic Technology",
+  "Social Studies", "Civic Education", "Christian Religious Studies",
+  "Computer Studies", "Agricultural Science", "Home Economics", "Yoruba", "French",
+];
+
+const seniorSubjects: Record<string, string[]> = {
+  Science: ["English Language", "Mathematics", "Physics", "Chemistry", "Biology", "Further Mathematics", "Civic Education", "Computer Studies", "Agricultural Science"],
+  Art: ["English Language", "Mathematics", "Literature in English", "Government", "History", "Christian Religious Studies", "Civic Education", "Yoruba", "Economics"],
+  Commercial: ["English Language", "Mathematics", "Economics", "Commerce", "Financial Accounting", "Office Practice", "Civic Education", "Computer Studies", "Marketing"],
+};
+
+const teacherRemarkFor = (avg: number) =>
+  avg >= 70
+    ? "An outstanding student. Hardworking and well behaved."
+    : avg >= 55
+      ? "A good student who participates well in class."
+      : avg >= 40
+        ? "Can do better with more attention to studies."
+        : "Needs to be more serious and attentive in class.";
+
+export interface MockTermResult {
+  scores: { subjectName: string; test1: number; test2: number; exam: number }[];
+  daysAttended: number;
+  totalDays: number;
+  teacherRemark: string;
+}
+
+// Deterministic scores spread around the student's average. null = no result entered.
+export const mockTermResult = (student: AdminStudent): MockTermResult | null => {
+  const avg = student.annualAverage;
+  if (avg === null) return null;
+  const seed = Number(student.id.replace(/\D/g, "")) || 0;
+  const subjects = student.department ? seniorSubjects[student.department] : juniorSubjects;
+
+  const scores = subjects.map((subjectName, i) => {
+    const total = Math.min(98, Math.max(15, Math.round(avg + ((seed * 13 + i * 29) % 25) - 12)));
+    const test1 = Math.min(20, Math.round(total * 0.2));
+    const test2 = Math.min(20, Math.max(0, Math.round(total * 0.2) + ((seed + i) % 3) - 1));
+    return { subjectName, test1, test2, exam: Math.min(60, total - test1 - test2) };
+  });
+
+  return {
+    scores,
+    daysAttended: 55 + (seed % 11),
+    totalDays: 65,
+    teacherRemark: teacherRemarkFor(avg),
+  };
+};

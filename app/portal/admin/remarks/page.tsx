@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { ChevronRight } from "lucide-react";
 import PageHeader from "@/components/admin/shared/PageHeader";
 import ClassNav from "@/components/admin/shared/ClassNav";
-import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
+import RemarkReviewModal, { overallOf } from "@/components/admin/remarks/RemarkReviewModal";
+import { panelClass } from "@/components/admin/shared/AdminModal";
 import {
   mockSessions,
   mockStudents,
+  mockTermResult,
   promotionClasses,
-  remarkBands,
 } from "@/constants/admin/mock.constants";
 import { toast } from "@/store/toast.store";
 
@@ -19,66 +21,54 @@ const terms = mockSessions.flatMap((s) =>
 const defaultTermId =
   mockSessions.find((s) => s.isCurrent)?.terms.at(-1)?.id ?? terms[0]?.id;
 
-const suggestRemark = (score: number) =>
-  remarkBands.find((b) => score >= b.min)?.remark ?? "";
-
-// Keyed by term + student so switching terms keeps each term's remarks separate.
+// Keyed by term + student so each term keeps its own remarks.
 const keyOf = (termId: string, studentId: string) => `${termId}:${studentId}`;
 
-const studentsIn = (className: string) =>
-  mockStudents.filter((s) => s.className === className && s.status === "active");
+// Only students with a result entered can be given a remark.
+const reviewableIn = (className: string) =>
+  mockStudents
+    .filter((s) => s.className === className && s.status === "active")
+    .map((s) => ({ student: s, result: mockTermResult(s) }));
+
+const rowGrid =
+  "grid grid-cols-[minmax(0,1fr)_auto_16px] md:grid-cols-[220px_80px_minmax(0,1fr)_16px] items-center gap-x-4 gap-y-1";
 
 export default function RemarksPage() {
   const [termId, setTermId] = useState(defaultTermId);
   const [selectedClass, setSelectedClass] = useState(promotionClasses[0]);
   const [remarks, setRemarks] = useState<Record<string, string>>({});
-  const [saved, setSaved] = useState<Record<string, string>>({});
+  const [openId, setOpenId] = useState<string | null>(null);
 
-  const students = useMemo(() => studentsIn(selectedClass), [selectedClass]);
+  const termLabel = terms.find((t) => t.id === termId)?.label ?? "";
+  const rows = useMemo(() => reviewableIn(selectedClass), [selectedClass]);
+  const withResults = rows.filter((r) => r.result);
 
   const remarkFor = (id: string) => remarks[keyOf(termId, id)] ?? "";
-  const setRemark = (id: string, value: string) =>
-    setRemarks((r) => ({ ...r, [keyOf(termId, id)]: value }));
+  const doneCount = (className: string) =>
+    reviewableIn(className).filter((r) => r.result && remarks[keyOf(termId, r.student.id)]).length;
 
-  const savedCount = (className: string) =>
-    studentsIn(className).filter((s) => saved[keyOf(termId, s.id)]?.trim()).length;
+  const openIndex = withResults.findIndex((r) => r.student.id === openId);
+  const open = openIndex >= 0 ? withResults[openIndex] : null;
 
-  const unsaved = students.some(
-    (s) => (remarks[keyOf(termId, s.id)] ?? "") !== (saved[keyOf(termId, s.id)] ?? ""),
-  );
-  const filled = students.filter((s) => remarkFor(s.id).trim()).length;
-
-  const fillEmpty = () => {
-    setRemarks((r) => {
-      const next = { ...r };
-      students.forEach((s) => {
-        const k = keyOf(termId, s.id);
-        if (!next[k]?.trim() && s.annualAverage !== null) {
-          next[k] = suggestRemark(s.annualAverage);
-        }
-      });
-      return next;
-    });
+  const handleSave = (remark: string, goNext: boolean) => {
+    if (!open) return;
+    // TODO: PATCH /admin/results/:resultId { vpRemark }
+    setRemarks((r) => ({ ...r, [keyOf(termId, open.student.id)]: remark.trim() }));
+    if (goNext && openIndex < withResults.length - 1) {
+      setOpenId(withResults[openIndex + 1].student.id);
+    } else {
+      setOpenId(null);
+      toast.success("Remark saved", `${open.student.firstName} ${open.student.lastName}`);
+    }
   };
 
-  const handleSave = () => {
-    // TODO: PATCH /admin/results/remarks { termId, remarks: [{ studentId, vpRemark }] }
-    setSaved((s) => {
-      const next = { ...s };
-      students.forEach((st) => {
-        const k = keyOf(termId, st.id);
-        next[k] = remarks[k] ?? "";
-      });
-      return next;
-    });
-    toast.success("Remarks saved", `${selectedClass}: ${filled} of ${students.length} students.`);
-  };
+  const done = doneCount(selectedClass);
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="V.P's Remarks"
-        description="The remark printed on each student's report sheet."
+        description="Review each student's result and write the remark printed on their report sheet."
         action={
           <select
             value={termId}
@@ -100,13 +90,13 @@ export default function RemarksPage() {
           selected={selectedClass}
           onSelect={setSelectedClass}
           items={promotionClasses.map((c) => {
-            const total = studentsIn(c).length;
-            const done = savedCount(c);
+            const reviewable = reviewableIn(c).filter((r) => r.result).length;
+            const count = doneCount(c);
             return {
               key: c,
               label: c,
-              detail: `${done} of ${total} remarked`,
-              done: total > 0 && done === total,
+              detail: `${count} of ${reviewable} remarked`,
+              done: reviewable > 0 && count === reviewable,
             };
           })}
         />
@@ -116,81 +106,97 @@ export default function RemarksPage() {
             <div>
               <h2 className="text-xl font-bold text-ink">{selectedClass}</h2>
               <p className="text-sm text-muted mt-0.5">
-                {filled} of {students.length} students have a remark
+                {done} of {withResults.length} students remarked
               </p>
             </div>
-            <button
-              onClick={fillEmpty}
-              className="h-9 px-3 text-sm font-medium text-brand hover:bg-tint rounded-lg transition-colors"
-            >
-              Fill blanks from scores
-            </button>
+            {withResults.length > done && (
+              <button
+                onClick={() => {
+                  const next = withResults.find((r) => !remarkFor(r.student.id));
+                  if (next) setOpenId(next.student.id);
+                }}
+                className="h-9 px-3 text-sm font-semibold text-white bg-brand hover:bg-brand-dark rounded-lg transition-colors"
+              >
+                {done === 0 ? "Start reviewing" : "Continue reviewing"}
+              </button>
+            )}
           </header>
 
-          {/* Shared suggestions for every remark input */}
-          <datalist id="vp-remark-options">
-            {remarkBands.map((b) => (
-              <option key={b.remark} value={b.remark} />
-            ))}
-          </datalist>
-
-          {students.length === 0 ? (
+          {rows.length === 0 ? (
             <p className="px-5 py-12 text-center text-sm text-muted">
               No active students in {selectedClass}.
             </p>
           ) : (
             <>
-              <div className="hidden md:grid grid-cols-[220px_70px_minmax(0,1fr)] gap-4 px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted">
+              <div className={`${rowGrid} hidden md:grid px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted`}>
                 <span>Student</span>
-                <span>Score</span>
-                <span>Remark</span>
+                <span>Overall</span>
+                <span>V.P&apos;s remark</span>
+                <span />
               </div>
               <ul className="divide-y divide-line">
-                {students.map((s) => {
-                  const score = s.annualAverage;
+                {rows.map(({ student: s, result }) => {
+                  const overall = result ? overallOf(result) : null;
+                  const remark = remarkFor(s.id);
                   return (
-                    <li
-                      key={s.id}
-                      className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[220px_70px_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-5 py-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-ink truncate">
-                          {s.lastName} {s.firstName}
-                        </p>
-                        <p className="text-xs text-muted tabular-nums">{s.username}</p>
-                      </div>
-                      <span
-                        className={`text-sm font-semibold tabular-nums text-right md:text-left ${
-                          score === null ? "text-muted font-normal" : score < 40 ? "text-clay" : "text-ink"
-                        }`}
+                    <li key={s.id}>
+                      <button
+                        onClick={() => setOpenId(s.id)}
+                        disabled={!result}
+                        className={`${rowGrid} w-full px-5 py-3 text-left hover:bg-canvas transition-colors group disabled:hover:bg-transparent disabled:cursor-default`}
                       >
-                        {score === null ? "—" : score.toFixed(1)}
-                      </span>
-                      <input
-                        list="vp-remark-options"
-                        value={remarkFor(s.id)}
-                        onChange={(e) => setRemark(s.id, e.target.value)}
-                        disabled={score === null}
-                        aria-label={`Remark for ${s.firstName} ${s.lastName}`}
-                        placeholder={score === null ? "No result yet" : "Type or pick a remark"}
-                        className="col-span-2 md:col-span-1 w-full h-9 px-3 rounded-lg border border-line focus:border-brand focus:ring-2 focus:ring-brand/15 outline-none text-sm text-ink bg-white placeholder:text-muted/60 disabled:bg-canvas disabled:cursor-not-allowed"
-                      />
+                        <span className="min-w-0">
+                          <span className="block text-sm font-medium text-ink truncate">
+                            {s.lastName} {s.firstName}
+                          </span>
+                          <span className="block text-xs text-muted tabular-nums">{s.username}</span>
+                        </span>
+                        <span
+                          className={`text-sm font-semibold tabular-nums text-right md:text-left ${
+                            overall === null ? "text-muted font-normal" : overall < 40 ? "text-clay" : "text-ink"
+                          }`}
+                        >
+                          {overall === null ? "—" : `${overall.toFixed(1)}%`}
+                        </span>
+                        <span className="col-span-3 md:col-span-1 row-start-2 md:row-start-auto text-sm truncate">
+                          {!result ? (
+                            <span className="text-muted">No result entered yet</span>
+                          ) : remark ? (
+                            <span className="text-ink">{remark}</span>
+                          ) : (
+                            <span className="text-clay">No remark yet</span>
+                          )}
+                        </span>
+                        <ChevronRight
+                          size={16}
+                          className={`row-start-1 col-start-3 md:col-start-auto md:row-start-auto ${
+                            result ? "text-muted/40 group-hover:text-brand" : "invisible"
+                          } transition-colors`}
+                        />
+                      </button>
                     </li>
                   );
                 })}
               </ul>
-              <footer className="sticky bottom-0 flex items-center justify-between gap-4 px-5 py-4 border-t border-line bg-white">
-                <span className="text-sm text-muted">
-                  {unsaved ? "Unsaved changes" : "All changes saved"}
-                </span>
-                <button onClick={handleSave} disabled={!unsaved} className={primaryButton}>
-                  Save {selectedClass}
-                </button>
-              </footer>
             </>
           )}
         </section>
       </div>
+
+      {open && open.result && (
+        <RemarkReviewModal
+          key={open.student.id}
+          student={open.student}
+          result={open.result}
+          termLabel={termLabel}
+          initialRemark={remarkFor(open.student.id)}
+          position={openIndex + 1}
+          total={withResults.length}
+          onClose={() => setOpenId(null)}
+          onPrev={openIndex > 0 ? () => setOpenId(withResults[openIndex - 1].student.id) : undefined}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

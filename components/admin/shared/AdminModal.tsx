@@ -10,6 +10,7 @@ interface AdminModalProps {
   description?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  wide?: boolean;
 }
 
 const AdminModal: React.FC<AdminModalProps> = ({
@@ -19,13 +20,14 @@ const AdminModal: React.FC<AdminModalProps> = ({
   description,
   children,
   footer,
+  wide,
 }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4">
       <div className="absolute inset-0 bg-ink/40" onClick={onClose} />
-      <div className="relative w-full sm:max-w-lg max-h-[90dvh] flex flex-col bg-white rounded-t-xl sm:rounded-xl shadow-xl">
+      <div className={`relative w-full ${wide ? "sm:max-w-3xl" : "sm:max-w-lg"} max-h-[92dvh] flex flex-col bg-white rounded-t-xl sm:rounded-xl shadow-xl`}>
         <div className="flex items-start justify-between gap-4 px-6 pt-5 pb-4 border-b border-line">
           <div>
             <h3 className="text-base font-semibold text-ink">{title}</h3>
