@@ -58,3 +58,18 @@ export interface AdminTeacher {
 }
 
 export type PromotionDecision = "promote" | "repeat" | "graduate" | "withdraw";
+
+export type BursarStatus = "invited" | "active" | "disabled";
+
+export interface AdminBursar {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phoneNumber?: string;
+  status: BursarStatus;
+  // ISO date; undefined until they first sign in.
+  lastSignIn?: string;
+  invitedAt: string;
+}

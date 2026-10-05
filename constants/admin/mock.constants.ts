@@ -1,6 +1,7 @@
 // TEMPORARY: placeholder data for the admin UI until the admin endpoints exist.
 // Replace each export with a React Query hook (see api-consumption.md).
 import type {
+  AdminBursar,
   AdminSession,
   AdminStudent,
   AdminTeacher,
@@ -135,3 +136,8 @@ export const mockTermResult = (student: AdminStudent): MockTermResult | null => 
     teacherRemark: teacherRemarkFor(avg),
   };
 };
+
+export const mockBursars: AdminBursar[] = [
+  { id: "bur-1", username: "bursar.adebayo", firstName: "Kemi", lastName: "Adebayo", email: "kemi.adebayo@esbs.ng", phoneNumber: "0803 123 4567", status: "active", lastSignIn: "2026-10-03", invitedAt: "2025-09-01" },
+  { id: "bur-2", username: "bursar.okon", firstName: "Emmanuel", lastName: "Okon", phoneNumber: "0812 987 6543", status: "invited", invitedAt: "2026-09-28" },
+];
