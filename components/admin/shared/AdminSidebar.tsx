@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Menu, X, LogOut } from "lucide-react";
 
 import SidebarItem from "@/components/teacher/shared/sidebar/SidebarItem";
-import { adminSidebarLinks } from "@/constants/admin/sidebar.constants";
+import SidebarGroupItem from "./SidebarGroupItem";
+import { adminSidebarLinks, isSidebarGroup } from "@/constants/admin/sidebar.constants";
 import { bursarSidebarLinks } from "@/constants/bursar/sidebar.constants";
 import { useLogout, useProfileQuery } from "@/hooks/auth.hooks";
 
@@ -84,15 +85,25 @@ const AdminSidebar = ({ portal = "admin" }: { portal?: keyof typeof portals }) =
       <div className="mx-5 h-px bg-white/10 mb-4 shrink-0" />
 
       <nav className="flex-1 flex flex-col gap-1 px-3 overflow-y-auto scrollbar-hide py-2">
-        {links.map((link) => (
-          <SidebarItem
-            key={link.href}
-            {...link}
-            active={isActive(link.href)}
-            collapsed={collapsed}
-            onClick={() => setMobileOpen(false)}
-          />
-        ))}
+        {links.map((entry) =>
+          isSidebarGroup(entry) ? (
+            <SidebarGroupItem
+              key={entry.name}
+              group={entry}
+              isActive={isActive}
+              collapsed={collapsed}
+              onNavigate={() => setMobileOpen(false)}
+            />
+          ) : (
+            <SidebarItem
+              key={entry.href}
+              {...entry}
+              active={isActive(entry.href)}
+              collapsed={collapsed}
+              onClick={() => setMobileOpen(false)}
+            />
+          ),
+        )}
       </nav>
 
       {/* Profile */}
