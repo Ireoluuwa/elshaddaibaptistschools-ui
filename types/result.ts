@@ -31,6 +31,8 @@ export interface TerminalResult {
   vpRemark?: string;
   // Set by the bursar. Students with outstanding > 0 can't view this result.
   fees?: ReportFees;
+  // 3rd Term only, once the admin has decided.
+  promotion?: { outcome: "promoted" | "repeated" | "graduated"; nextClass: string | null } | null;
   status: 'DRAFT' | 'PUBLISHED';
   term?: {
     id: string;

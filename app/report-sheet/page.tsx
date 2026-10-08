@@ -163,6 +163,16 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
   const yearName = result.term?.academicYear?.name ?? "";
   const daysAbsent = result.totalDays - result.daysAttended;
   const reportDetails = result.term?.reportDetails;
+  const promotion = result.promotion;
+  const promotionLabel = !promotion
+    ? null
+    : promotion.outcome === "promoted"
+      ? promotion.nextClass
+        ? `PROMOTED TO ${promotion.nextClass}`
+        : "PROMOTED"
+      : promotion.outcome === "repeated"
+        ? "TO REPEAT"
+        : "GRADUATED";
 
   return (
     <div className="min-h-screen bg-gray-100 py-4 sm:py-8 px-3 sm:px-4 font-sans text-black print:bg-white print:py-0 print:px-0">
@@ -365,8 +375,13 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
             <span>Overall Score: {overallScore}%</span>
           </div>
 
-          <div className="text-center italic text-gray-400 text-sm">
-            {result.teacherRemark || ""}
+          <div className="text-center text-sm">
+            <span className="italic text-gray-400">{result.teacherRemark || ""}</span>
+            {promotionLabel && (
+              <span className="ml-3 text-base font-extrabold not-italic tracking-wide whitespace-nowrap">
+                ({promotionLabel})
+              </span>
+            )}
           </div>
 
           {/* V.P's remark, date & signature */}

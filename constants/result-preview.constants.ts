@@ -27,6 +27,7 @@ export const previewResult: StudentResultData = {
       "Feranmi is a diligent and well-behaved student. Keep up the good work.",
     vpRemark: "A good result. Keep it up.",
     fees: { outstanding: 0, nextTermTuition: 125000, ict: 12000 },
+    promotion: { outcome: "promoted", nextClass: "JSS3" },
     term: {
       id: "preview",
       name: "3rd Term",
