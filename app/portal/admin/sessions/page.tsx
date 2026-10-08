@@ -9,6 +9,7 @@ import TermFormModal, {
   TermFormValues,
 } from "@/components/admin/sessions/TermFormModal";
 import ReportDetailsModal from "@/components/admin/sessions/ReportDetailsModal";
+import ReleaseResultsModal from "@/components/admin/sessions/ReleaseResultsModal";
 import { panelClass, primaryButton } from "@/components/admin/shared/AdminModal";
 import {
   useActivateTerm,
@@ -16,6 +17,7 @@ import {
   useCloseTerm,
   useCreateSession,
   useSessions,
+  useSetResultsReleased,
 } from "@/hooks/sessions.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
@@ -31,7 +33,7 @@ const formatDate = (d: string) =>
   new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 const termGrid =
-  "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_110px] items-center gap-x-4 gap-y-1";
+  "grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)_110px] items-center gap-x-4 gap-y-1";
 
 // "2025/2026" -> "2026/2027"
 const nextSessionName = (name?: string) => {
@@ -42,7 +44,7 @@ const nextSessionName = (name?: string) => {
 const nextTermName = (session: Session) =>
   TERM_NAMES.find((n) => !session.terms.some((t) => t.name === n)) ?? "1st Term";
 
-type PendingAction = { kind: "activate" | "close"; session: Session; term: Term };
+type PendingAction = { kind: "activate" | "close" | "hide"; session: Session; term: Term };
 
 export default function SessionsPage() {
   const { data: sessions = [], isLoading, isError, refetch } = useSessions();
@@ -50,10 +52,19 @@ export default function SessionsPage() {
   const addTerm = useAddTerm();
   const activateTerm = useActivateTerm();
   const closeTerm = useCloseTerm();
+  const setReleased = useSetResultsReleased();
 
   const [formFor, setFormFor] = useState<Session | "new" | null>(null);
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [detailsFor, setDetailsFor] = useState<{ session: Session; term: Term } | null>(null);
+  const [releaseFor, setReleaseFor] = useState<{ session: Session; term: Term } | null>(null);
+  // Closing a term whose results are still hidden offers to release them in the same step.
+  const [alsoRelease, setAlsoRelease] = useState(true);
+
+  const askToClose = (session: Session, term: Term) => {
+    setAlsoRelease(true);
+    setPending({ kind: "close", session, term });
+  };
 
   const handleCreate = async (values: TermFormValues) => {
     const term = {
@@ -79,10 +90,20 @@ export default function SessionsPage() {
   const handleConfirm = async () => {
     if (!pending) return;
     const { kind, session, term } = pending;
+    const label = `${session.name} • ${term.name}`;
     try {
-      if (kind === "activate") await activateTerm.mutateAsync(term.id);
-      else await closeTerm.mutateAsync(term.id);
-      toast.success(kind === "activate" ? "Term activated" : "Term closed", `${session.name} • ${term.name}`);
+      if (kind === "activate") {
+        await activateTerm.mutateAsync(term.id);
+        toast.success("Term activated", label);
+      } else if (kind === "hide") {
+        await setReleased.mutateAsync({ termId: term.id, released: false });
+        toast.info("Results hidden from students", label);
+      } else {
+        await closeTerm.mutateAsync(term.id);
+        const release = alsoRelease && !term.resultsReleasedAt;
+        if (release) await setReleased.mutateAsync({ termId: term.id, released: true });
+        toast.success(release ? "Term closed and results released" : "Term closed", label);
+      }
       setPending(null);
     } catch (err) {
       toast.error("Couldn't update term", apiErrorMessage(err));
@@ -93,7 +114,7 @@ export default function SessionsPage() {
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Sessions & Terms"
-        description="Open a new session, choose the active term, and add the signature and dates printed on report sheets."
+        description="Open a new session, choose the active term, release results to students, and add the signature and dates printed on report sheets."
         action={
           <button onClick={() => setFormFor("new")} className={`${primaryButton} self-start`}>
             <Plus size={16} /> New session
@@ -147,6 +168,7 @@ export default function SessionsPage() {
           <div className={`${termGrid} hidden sm:grid px-5 py-2 bg-canvas border-b border-line text-xs font-medium text-muted`}>
             <span>Term</span>
             <span>Status</span>
+            <span>Results</span>
             <span>Report sheet</span>
             <span />
           </div>
@@ -166,6 +188,29 @@ export default function SessionsPage() {
                 </div>
 
                 <div className="row-start-3 sm:row-start-auto">
+                  {term.resultsReleasedAt ? (
+                    <p className="text-sm text-ink">
+                      Released{" "}
+                      <button
+                        onClick={() => setPending({ kind: "hide", session, term })}
+                        className="ml-1 text-xs font-medium text-muted hover:text-danger underline-offset-2 hover:underline"
+                      >
+                        Hide
+                      </button>
+                    </p>
+                  ) : term.status === "upcoming" ? (
+                    <p className="text-sm text-muted">Not started</p>
+                  ) : (
+                    <button
+                      onClick={() => setReleaseFor({ session, term })}
+                      className="text-sm font-medium text-clay text-left underline-offset-2 hover:underline"
+                    >
+                      Not released · Release
+                    </button>
+                  )}
+                </div>
+
+                <div className="row-start-4 sm:row-start-auto">
                   <button
                     onClick={() => setDetailsFor({ session, term })}
                     className={`text-sm text-left underline-offset-2 hover:underline ${
@@ -180,10 +225,10 @@ export default function SessionsPage() {
                   </button>
                 </div>
 
-                <div className="row-span-3 sm:row-span-1 col-start-2 sm:col-start-auto row-start-1 sm:row-start-auto justify-self-end">
+                <div className="row-span-4 sm:row-span-1 col-start-2 sm:col-start-auto row-start-1 sm:row-start-auto justify-self-end">
                   {term.status === "active" ? (
                     <button
-                      onClick={() => setPending({ kind: "close", session, term })}
+                      onClick={() => askToClose(session, term)}
                       className="h-8 px-3 text-sm font-medium text-ink border border-line hover:border-ink/30 rounded-lg transition-colors"
                     >
                       Close term
@@ -212,6 +257,15 @@ export default function SessionsPage() {
         />
       )}
 
+      {releaseFor && (
+        <ReleaseResultsModal
+          key={releaseFor.term.id}
+          sessionName={releaseFor.session.name}
+          term={releaseFor.term}
+          onClose={() => setReleaseFor(null)}
+        />
+      )}
+
       {formFor && (
         <TermFormModal
           isOpen
@@ -228,14 +282,48 @@ export default function SessionsPage() {
         isOpen={!!pending}
         onClose={() => setPending(null)}
         onConfirm={handleConfirm}
-        title={pending?.kind === "close" ? "Close this term?" : "Make this the active term?"}
-        message={
+        title={
           pending?.kind === "close"
-            ? `${pending.session.name} ${pending.term.name} will be locked. Nobody, including admins, can change its results, weekly reports, V.P's remarks or report details until you reopen it.`
-            : `${pending?.session.name} ${pending?.term.name} will become the active term. Any other active term will be closed.`
+            ? "Close this term?"
+            : pending?.kind === "hide"
+              ? "Hide results from students?"
+              : "Make this the active term?"
         }
-        confirmText={pending?.kind === "close" ? "Close term" : "Make active"}
-        isPending={activateTerm.isPending || closeTerm.isPending}
+        message={
+          pending?.kind === "close" ? (
+            <>
+              <p>
+                {pending.session.name} {pending.term.name} will be locked. Nobody, including admins, can change its
+                results, weekly reports, V.P&apos;s remarks or report details until you reopen it.
+              </p>
+              {!pending.term.resultsReleasedAt && (
+                <label className="mt-4 flex items-start gap-2.5 p-3 rounded-lg bg-canvas text-ink cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={alsoRelease}
+                    onChange={(e) => setAlsoRelease(e.target.checked)}
+                    className="mt-0.5 accent-brand"
+                  />
+                  <span>
+                    <span className="font-medium">Also release results to students</span>
+                    <span className="block text-xs text-muted mt-0.5">
+                      Untick to keep them hidden. You can release them later from this page.
+                    </span>
+                  </span>
+                </label>
+              )}
+            </>
+          ) : pending?.kind === "hide" ? (
+            `Students won't see ${pending.session.name} ${pending.term.name} results until you release them again. Nothing is deleted.`
+          ) : (
+            `${pending?.session.name} ${pending?.term.name} will become the active term. Any other active term will be closed.`
+          )
+        }
+        confirmText={
+          pending?.kind === "close" ? "Close term" : pending?.kind === "hide" ? "Hide results" : "Make active"
+        }
+        danger={pending?.kind === "hide"}
+        isPending={activateTerm.isPending || closeTerm.isPending || setReleased.isPending}
       />
     </div>
   );

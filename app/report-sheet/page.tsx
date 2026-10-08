@@ -8,6 +8,7 @@ import { useMyResult, useStudentResult } from "@/hooks/result.hooks";
 import { gradeMap } from "@/constants/teacher/results.constants";
 import { previewOwingResult, previewResult } from "@/constants/result-preview.constants";
 import ResultOnHold from "@/components/student/results/ResultOnHold";
+import ResultNotReleased from "@/components/student/results/ResultNotReleased";
 import { downloadElementAsPdf } from "@/lib/pdf";
 import FitToWidth from "@/components/shared/FitToWidth";
 import { toast } from "@/store/toast.store";
@@ -105,17 +106,24 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
     );
   }
 
-  // Owing fees: the server withholds the result and sends only the amount owed.
-  const feesHold = data && "feesHold" in data ? data.feesHold : null;
-  if (!isTeacherView && feesHold) {
-    const myData = data as { periods?: { name: string; terms: { id: string; name: string }[] }[]; selectedTermId?: string | null };
-    const session = myData.periods?.find((p) => p.terms.some((t) => t.id === myData.selectedTermId));
-    const term = session?.terms.find((t) => t.id === myData.selectedTermId);
+  // The server withholds the result until it's released, and while fees are owed.
+  const myData = !isTeacherView && data && "periods" in data ? data : null;
+  const selectedSession = myData?.periods.find((p) => p.terms.some((t) => t.id === myData.selectedTermId));
+  const termLabel = [
+    selectedSession?.terms.find((t) => t.id === myData?.selectedTermId)?.name,
+    selectedSession?.name,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  if (myData?.notReleased) {
+    return <ResultNotReleased termLabel={termLabel} backHref={backHref} />;
+  }
+  if (myData?.feesHold) {
     return (
       <ResultOnHold
-        outstanding={feesHold.outstanding}
-        termLabel={[term?.name, session?.name].filter(Boolean).join(", ")}
-        studentName={data?.student?.name}
+        outstanding={myData.feesHold.outstanding}
+        termLabel={termLabel}
+        studentName={myData.student?.name}
         backHref={backHref}
       />
     );
