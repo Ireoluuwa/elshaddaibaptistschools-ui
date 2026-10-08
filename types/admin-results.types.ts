@@ -13,6 +13,7 @@ export interface ClassProgress {
   students: number;
   entered: number;
   published: number;
+  vpRemarks: number;
 }
 
 export interface StudentTermResult {
