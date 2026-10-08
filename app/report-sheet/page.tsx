@@ -302,9 +302,16 @@ export default function ReportSheetPage({ searchParams }: ReportSheetPageProps) 
 
             {/* Term Summary */}
             <div className="flex justify-between px-4 py-2 font-bold text-xs border-t border-black bg-gray-50/50">
-              <span>1st Term: —</span>
-              <span>2nd Term: —</span>
-              <span>3rd Term: —</span>
+              {(result.termScores ?? []).map(({ term, score }) => {
+                const [, num, suffix, rest] = term.match(/^(\d+)(\D+?)(\s.*)$/) ?? [, term, "", ""];
+                return (
+                  <span key={term}>
+                    {num}
+                    <sup>{suffix}</sup>
+                    {rest}: {score === null ? "—" : `${score}%`}
+                  </span>
+                );
+              })}
             </div>
           </div>
 

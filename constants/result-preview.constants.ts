@@ -28,6 +28,11 @@ export const previewResult: StudentResultData = {
     vpRemark: "A good result. Keep it up.",
     fees: { outstanding: 0, nextTermTuition: 125000, ict: 12000 },
     promotion: { outcome: "promoted", nextClass: "JSS3" },
+    termScores: [
+      { term: "1st Term", score: 69.6 },
+      { term: "2nd Term", score: 75.7 },
+      { term: "3rd Term", score: 72.5 },
+    ],
     term: {
       id: "preview",
       name: "3rd Term",
