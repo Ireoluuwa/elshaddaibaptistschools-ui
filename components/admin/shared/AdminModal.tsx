@@ -60,13 +60,13 @@ export const inputClass =
 export const labelClass = "block text-sm font-medium text-ink mb-1.5";
 
 export const primaryButton =
-  "h-10 px-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-brand hover:bg-brand-dark rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none";
+  "h-10 px-4 inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap text-sm font-semibold text-white bg-brand hover:bg-brand-dark rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none";
 
 export const secondaryButton =
-  "h-10 px-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-ink bg-white border border-line hover:border-ink/30 rounded-lg transition-colors";
+  "h-10 px-4 inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap text-sm font-semibold text-ink bg-white border border-line hover:border-ink/30 rounded-lg transition-colors";
 
 export const dangerButton =
-  "h-10 px-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-danger hover:bg-danger/90 rounded-lg transition-colors";
+  "h-10 px-4 inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap text-sm font-semibold text-white bg-danger hover:bg-danger/90 rounded-lg transition-colors";
 
 // Plain white surface used for every panel in the admin portal.
 export const panelClass = "bg-white rounded-xl border border-line";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, FileCheck2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -27,23 +27,25 @@ const ResultCheckerModal: React.FC<ResultCheckerModalProps> = ({
   isLoadingPeriods,
 }) => {
   const router = useRouter();
-  const [selectedTermId, setSelectedTermId] = useState("");
-
-  // Default to active term once data arrives
-  useEffect(() => {
-    if (activeTermId && !selectedTermId) {
-      setSelectedTermId(activeTermId);
-    }
-  }, [activeTermId]);
+  // Empty means "not chosen yet": fall back to the session and term that are current.
+  const [sessionId, setSessionId] = useState("");
+  const [termId, setTermId] = useState("");
 
   if (!isOpen) return null;
 
-  const allTerms = periods.flatMap((year) =>
-    year.terms.map((term) => ({
-      termId: term.id,
-      label: `${year.name} — ${term.name}`,
-    }))
-  );
+  const session =
+    periods.find((p) => p.id === sessionId) ??
+    periods.find((p) => p.terms.some((t) => t.id === activeTermId)) ??
+    periods[0];
+  const terms = session?.terms ?? [];
+  const selectedTermId =
+    terms.find((t) => t.id === termId)?.id ??
+    terms.find((t) => t.id === activeTermId)?.id ??
+    terms[terms.length - 1]?.id ??
+    "";
+
+  const selectClass =
+    "w-full h-11 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-colors cursor-pointer text-gray-700 font-medium shadow-sm hover:border-gray-300 disabled:opacity-60 disabled:cursor-not-allowed";
 
   return (
     <AnimatePresence>
@@ -81,21 +83,52 @@ const ResultCheckerModal: React.FC<ResultCheckerModalProps> = ({
           {/* Form */}
           <div className="p-6 flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-bold text-gray-700">Select Term</label>
+              <label htmlFor="result-session" className="text-sm font-bold text-gray-700">
+                Session
+              </label>
               <select
-                value={selectedTermId}
-                onChange={(e) => setSelectedTermId(e.target.value)}
-                disabled={isLoadingPeriods}
-                className="w-full h-11 px-3 rounded-lg border border-gray-200 bg-white text-sm outline-none focus:border-[#006442] transition-colors cursor-pointer text-gray-700 font-medium shadow-sm hover:border-gray-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                id="result-session"
+                value={session?.id ?? ""}
+                onChange={(e) => {
+                  setSessionId(e.target.value);
+                  setTermId("");
+                }}
+                disabled={isLoadingPeriods || periods.length === 0}
+                className={selectClass}
               >
                 {isLoadingPeriods ? (
-                  <option value="">Loading periods...</option>
-                ) : allTerms.length === 0 ? (
-                  <option value="">No terms available</option>
+                  <option value="">Loading sessions...</option>
+                ) : periods.length === 0 ? (
+                  <option value="">No sessions available</option>
                 ) : (
-                  allTerms.map((t) => (
-                    <option key={t.termId} value={t.termId}>
-                      {t.label}
+                  periods.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="result-term" className="text-sm font-bold text-gray-700">
+                Term
+              </label>
+              <select
+                id="result-term"
+                value={selectedTermId}
+                onChange={(e) => setTermId(e.target.value)}
+                disabled={isLoadingPeriods || terms.length === 0}
+                className={selectClass}
+              >
+                {isLoadingPeriods ? (
+                  <option value="">Loading terms...</option>
+                ) : terms.length === 0 ? (
+                  <option value="">No terms in this session</option>
+                ) : (
+                  terms.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
                     </option>
                   ))
                 )}
