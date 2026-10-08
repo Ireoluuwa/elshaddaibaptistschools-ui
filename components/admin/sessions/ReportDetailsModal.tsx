@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { ImageUp, Loader2, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import AdminModal, {
   inputClass,
   labelClass,
@@ -10,7 +11,6 @@ import AdminModal, {
 } from "@/components/admin/shared/AdminModal";
 import { useUpdateReportDetails } from "@/hooks/sessions.hooks";
 import { useStaffProfile } from "@/hooks/profile.hooks";
-import { storageService } from "@/services/storage.service";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
 import type { Term } from "@/types/session.types";
@@ -27,8 +27,6 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   onClose,
 }) => {
   const saved = term.reportDetails;
-  const [signatureUrl, setSignatureUrl] = useState(saved?.signatureUrl ?? "");
-  const [signatureFile, setSignatureFile] = useState<File | null>(null);
   const [signedDate, setSignedDate] = useState(
     saved?.signedDate ?? term.endDate,
   );
@@ -38,43 +36,19 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   const [resumptionDate, setResumptionDate] = useState(
     saved?.resumptionDate ?? "",
   );
-  const [isUploading, setIsUploading] = useState(false);
   const { mutateAsync: saveDetails, isPending } = useUpdateReportDetails();
-  const { data: myProfile } = useStaffProfile();
+  // Report sheets always print the signature saved in the admin's Profile.
+  const { data: myProfile, isLoading: profileLoading } = useStaffProfile();
+  const signature = myProfile?.signatureUrl ?? null;
 
-  // Preview a newly picked file locally; it's only uploaded on save.
-  const previewUrl = useMemo(
-    () => (signatureFile ? URL.createObjectURL(signatureFile) : null),
-    [signatureFile],
-  );
-  useEffect(
-    () => () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    },
-    [previewUrl],
-  );
-
-  const shownSignature = previewUrl ?? signatureUrl;
-  const busy = isUploading || isPending;
   const locked = term.status === "closed";
-  const canSave = !!shownSignature && !!signedDate && !busy;
-
-  const removeSignature = () => {
-    setSignatureFile(null);
-    setSignatureUrl("");
-  };
+  const canSave = !!signedDate && !isPending;
 
   const handleSave = async () => {
     try {
-      let url = signatureUrl;
-      if (signatureFile) {
-        setIsUploading(true);
-        url = await storageService.uploadSignature(signatureFile, term.id);
-      }
       await saveDetails({
         termId: term.id,
         payload: {
-          signatureUrl: url || null,
           signedDate: signedDate || null,
           vacationDate: vacationDate || null,
           resumptionDate: resumptionDate || null,
@@ -87,15 +61,13 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
       onClose();
     } catch (err) {
       toast.error("Couldn't save details", apiErrorMessage(err));
-    } finally {
-      setIsUploading(false);
     }
   };
 
   return (
     <AdminModal
       isOpen
-      onClose={busy ? () => {} : onClose}
+      onClose={isPending ? () => {} : onClose}
       title="Report sheet details"
       description={`${sessionName} • ${term.name}. Printed on every student's report sheet.`}
       footer={
@@ -107,7 +79,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
           <>
             <button
               onClick={onClose}
-              disabled={busy}
+              disabled={isPending}
               className={secondaryButton}
             >
               Cancel
@@ -117,12 +89,8 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               disabled={!canSave}
               className={primaryButton}
             >
-              {busy && <Loader2 size={16} className="animate-spin" />}
-              {isUploading
-                ? "Uploading…"
-                : isPending
-                  ? "Saving…"
-                  : "Save details"}
+              {isPending && <Loader2 size={16} className="animate-spin" />}
+              {isPending ? "Saving…" : "Save details"}
             </button>
           </>
         )
@@ -136,57 +104,29 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
         )}
         <div>
           <span className={labelClass}>Signature</span>
-          {shownSignature ? (
+          {profileLoading ? (
+            <div className="h-20 rounded-lg bg-canvas animate-pulse" />
+          ) : signature ? (
             <div className="flex items-center gap-3 p-3 rounded-lg border border-line">
-              {/* eslint-disable-next-line @next/next/no-img-element -- local preview or storage URL */}
-              <img
-                src={shownSignature}
-                alt="Signature"
-                className="h-14 max-w-[200px] object-contain"
-              />
-              {!locked && (
-                <button
-                  onClick={removeSignature}
-                  disabled={busy}
-                  className="ml-auto p-2 rounded-lg text-muted hover:text-danger transition-colors"
-                  title="Remove signature"
-                >
-                  <Trash2 size={16} />
-                </button>
-              )}
+              {/* eslint-disable-next-line @next/next/no-img-element -- storage URL */}
+              <img src={signature} alt="Signature" className="h-14 max-w-[200px] object-contain" />
+              <Link
+                href="/portal/admin/profile"
+                className="ml-auto text-sm font-medium text-brand hover:underline underline-offset-2"
+              >
+                Change in Profile
+              </Link>
             </div>
-          ) : locked ? (
-            <p className="text-sm text-muted">No signature added.</p>
           ) : (
-            <div className="flex flex-col gap-2">
-              {myProfile?.signatureUrl && (
-                <button
-                  type="button"
-                  onClick={() => setSignatureUrl(myProfile.signatureUrl ?? "")}
-                  className="h-10 px-3 inline-flex items-center justify-center gap-2 text-sm font-semibold text-brand border border-brand/40 hover:bg-tint rounded-lg transition-colors"
-                >
-                  Use my saved signature
-                </button>
-              )}
-              <label className="flex flex-col items-center gap-1.5 p-5 rounded-lg border border-dashed border-muted/40 hover:border-brand hover:bg-tint cursor-pointer text-center transition-colors">
-                <ImageUp size={20} className="text-brand" />
-                <span className="text-sm font-medium text-ink">
-                  Upload signature
-                </span>
-                <span className="text-xs text-muted">
-                  PNG with a transparent background works best
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) =>
-                    setSignatureFile(e.target.files?.[0] ?? null)
-                  }
-                />
-              </label>
-            </div>
+            <p className="text-sm text-ink px-3 py-2.5 rounded-lg bg-clay-soft border-l-4 border-clay">
+              No signature yet. Report sheets will be unsigned until you{" "}
+              <Link href="/portal/admin/profile" className="font-semibold text-brand hover:underline">
+                add one in your Profile
+              </Link>
+              .
+            </p>
           )}
+          <p className="text-xs text-muted mt-1.5">The signature in your Profile is used on every report sheet.</p>
         </div>
 
         <div>

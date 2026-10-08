@@ -114,7 +114,7 @@ export default function SessionsPage() {
     <div className="max-w-5xl mx-auto flex flex-col gap-6">
       <PageHeader
         title="Sessions & Terms"
-        description="Open a new session, choose the active term, release results to students, and add the signature and dates printed on report sheets."
+        description="Open a new session, choose the active term, release results to students, and add the dates printed on report sheets."
         action={
           <button onClick={() => setFormFor("new")} className={`${primaryButton} self-start`}>
             <Plus size={16} /> New session
@@ -218,7 +218,7 @@ export default function SessionsPage() {
                     }`}
                   >
                     {!term.reportDetails
-                      ? "Add signature & dates"
+                      ? "Add dates"
                       : term.reportDetails.signedDate
                         ? `Signed ${formatDate(term.reportDetails.signedDate)}`
                         : "Details added"}

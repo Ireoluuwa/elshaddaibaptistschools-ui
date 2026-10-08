@@ -5,6 +5,7 @@ import { Check, Loader2, TriangleAlert } from "lucide-react";
 import AdminModal, { primaryButton, secondaryButton } from "@/components/admin/shared/AdminModal";
 import { useResultsOverview } from "@/hooks/admin-results.hooks";
 import { useSetResultsReleased } from "@/hooks/sessions.hooks";
+import { useStaffProfile } from "@/hooks/profile.hooks";
 import { apiErrorMessage } from "@/lib/api-error";
 import { toast } from "@/store/toast.store";
 import type { Term } from "@/types/session.types";
@@ -36,6 +37,7 @@ function CheckRow({ ok, label, detail }: { ok: boolean; label: string; detail?: 
 export default function ReleaseResultsModal({ sessionName, term, onClose }: ReleaseResultsModalProps) {
   const { data: classes = [], isLoading } = useResultsOverview(term.id);
   const release = useSetResultsReleased();
+  const { data: myProfile } = useStaffProfile();
 
   const students = classes.reduce((n, c) => n + c.students, 0);
   const published = classes.reduce((n, c) => n + c.published, 0);
@@ -43,7 +45,7 @@ export default function ReleaseResultsModal({ sessionName, term, onClose }: Rele
   const behind = classes.filter((c) => c.published < c.students).map((c) => `${c.className} ${c.published}/${c.students}`);
   const details = term.reportDetails;
   const detailsMissing = [
-    !details?.signatureUrl && "signature",
+    !myProfile?.signatureUrl && "signature (add it in your Profile)",
     !details?.vacationDate && "vacation date",
     !details?.resumptionDate && "resumption date",
   ].filter(Boolean);
