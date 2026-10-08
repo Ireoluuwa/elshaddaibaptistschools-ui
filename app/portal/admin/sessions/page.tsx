@@ -41,6 +41,14 @@ const nextSessionName = (name?: string) => {
   return start ? `${start + 1}/${start + 2}` : "";
 };
 
+// Start date of the term after this one, across sessions (3rd Term → next 1st Term).
+const nextTermStart = (sessions: Session[], term: Term) =>
+  sessions
+    .flatMap((s) => s.terms)
+    .map((t) => t.startDate)
+    .filter((d) => d > term.startDate)
+    .sort()[0];
+
 const nextTermName = (session: Session) =>
   TERM_NAMES.find((n) => !session.terms.some((t) => t.name === n)) ?? "1st Term";
 
@@ -253,6 +261,7 @@ export default function SessionsPage() {
           key={detailsFor.term.id}
           sessionName={detailsFor.session.name}
           term={detailsFor.term}
+          nextTermStart={nextTermStart(sessions, detailsFor.term)}
           onClose={() => setDetailsFor(null)}
         />
       )}

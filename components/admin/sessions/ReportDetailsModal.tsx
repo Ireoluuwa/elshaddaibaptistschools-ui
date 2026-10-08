@@ -18,12 +18,15 @@ import type { Term } from "@/types/session.types";
 interface ReportDetailsModalProps {
   sessionName: string;
   term: Term;
+  // Start of the following term, if it's been created; suggested as the resumption date.
+  nextTermStart?: string;
   onClose: () => void;
 }
 
 const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
   sessionName,
   term,
+  nextTermStart,
   onClose,
 }) => {
   const saved = term.reportDetails;
@@ -34,7 +37,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
     saved?.vacationDate ?? term.endDate,
   );
   const [resumptionDate, setResumptionDate] = useState(
-    saved?.resumptionDate ?? "",
+    saved?.resumptionDate ?? nextTermStart ?? "",
   );
   const { mutateAsync: saveDetails, isPending } = useUpdateReportDetails();
   // Report sheets always print the signature saved in the admin's Profile.
@@ -169,6 +172,13 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({
               disabled={locked}
               className={`${inputClass} disabled:bg-canvas disabled:text-muted`}
             />
+            {!saved?.resumptionDate && (
+              <p className="text-xs text-muted mt-1.5">
+                {nextTermStart
+                  ? "Filled in from the next term's start date."
+                  : "Left blank, sheets use the next term's start date once it's created."}
+              </p>
+            )}
           </div>
         </div>
       </div>
