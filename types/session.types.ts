@@ -17,6 +17,8 @@ export interface Term {
   startDate: string;
   endDate: string;
   status: TermStatus;
+  // Students see this term's results only once it's set.
+  resultsReleasedAt: string | null;
   reportDetails: TermReportDetails | null;
 }
 

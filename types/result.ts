@@ -91,6 +91,8 @@ export interface MyResultData {
   result: TerminalResult | null;
   // Set when the student owes fees for the term; the result is withheld.
   feesHold?: { outstanding: number } | null;
+  // The admin hasn't released this term's results yet.
+  notReleased?: boolean;
 }
 
 export interface SubjectOption {

@@ -64,6 +64,15 @@ export const useCloseTerm = () => {
   });
 };
 
+export const useSetResultsReleased = () => {
+  const invalidate = useInvalidateSessions();
+  return useMutation({
+    mutationFn: ({ termId, released }: { termId: string; released: boolean }) =>
+      sessionsService.setResultsReleased(termId, released),
+    onSuccess: invalidate,
+  });
+};
+
 export const useUpdateReportDetails = () => {
   const invalidate = useInvalidateSessions();
   return useMutation({

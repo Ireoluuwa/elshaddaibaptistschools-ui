@@ -34,6 +34,12 @@ export const sessionsService = {
     return data.data;
   },
 
+  setResultsReleased: async (termId: string, released: boolean): Promise<Term> => {
+    const action = released ? 'release-results' : 'hide-results';
+    const { data } = await api.post<ApiResponse<Term>>(`/academics/terms/${termId}/${action}`);
+    return data.data;
+  },
+
   updateReportDetails: async (termId: string, payload: UpdateReportDetailsPayload): Promise<Term> => {
     const { data } = await api.patch<ApiResponse<Term>>(`/academics/terms/${termId}/report-details`, payload);
     return data.data;
