@@ -31,7 +31,7 @@ export const previewResult: StudentResultData = {
     termScores: [
       { term: "1st Term", score: 69.6 },
       { term: "2nd Term", score: 75.7 },
-      { term: "3rd Term", score: 72.5 },
+      { term: "3rd Term", score: 72.3 },
     ],
     term: {
       id: "preview",
